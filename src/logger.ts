@@ -53,7 +53,7 @@
     256 colors background
     \x1b[48;5;<BG COLOR>m
 */
-export const RESET = '\x1b[0m';
+export const RESET = '\x1b[40;0m';
 export const BRIGHT = '\x1b[1m';
 export const DIM = '\x1b[2m';
 export const UNDERLINE = '\x1b[4m';
@@ -86,7 +86,11 @@ export const er = '\x1b[38;5;9m';                   // Error
 export const rs = '\x1b[40;0m';                     // Reset colors to default foreground and background
 export const rk = '\x1b[K';                         // Erase from cursor
 
-// homebridge-mqtt-accessories and matterbridge-mqtt-accessories
+/*
+Used for:
+homebridge-mqtt-accessories
+matterbridge-mqtt-accessories
+*/
 export const dn = '\x1b[38;5;33m';                  // Display name device
 export const gn = '\x1b[38;5;35m';                  // Display name group
 export const idn = '\x1b[48;5;21m\x1b[38;5;255m';   // Inverted display name device

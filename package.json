@@ -37,6 +37,10 @@
       "**/__tests__/**/*.+(ts|tsx)",
       "**/?(*.)+(spec|test).+(ts|tsx)"
     ],
+    "testPathIgnorePatterns": [
+      "<rootDir>/node_modules/",
+      "<rootDir>/dist/"
+    ],
     "moduleFileExtensions": ["ts", "tsx", "js", "jsx", "json", "node"]
   },
   "keywords": [
