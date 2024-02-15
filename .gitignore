@@ -1,0 +1,11 @@
+# Dependencies
+node_modules/
+
+# Compiled output
+dist/
+
+# VSC
+.vscode
+
+# Jest output
+node_storage/
