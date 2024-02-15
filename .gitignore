@@ -6,6 +6,3 @@ dist/
 
 # VSC
 .vscode
-
-# Jest output
-node_storage/

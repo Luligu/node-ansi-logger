@@ -1,7 +1,7 @@
 /**
  * This file contains the class CustomLogger.
  *
- * @file customLogger.ts
+ * @file logger.ts
  * @author Luca Liguori
  * @date 2023-06-01
  * @version 1.8.8
