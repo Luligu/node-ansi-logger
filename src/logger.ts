@@ -10,6 +10,9 @@
  *
  */
 
+// Re-export everything from stringify.ts
+export * from './stringify.js';
+
 /*
     \x1b[0m - Reset (clear color)
     \x1b[1m - Bold
@@ -134,7 +137,7 @@ export const enum TimestampFormat {
   CUSTOM,
 }
 
-export class CustomLogger {
+export class CLogger {
   private logName: string;
   private logTimestampFormat: TimestampFormat;
   private logCustomTimestampFormat: string;
@@ -295,3 +298,4 @@ export class CustomLogger {
     }
   }
 }
+
