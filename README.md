@@ -25,7 +25,7 @@ npm install node-color-logger
 
 # Usage
 
-## Initializing NodeStorageManager:
+## Initializing CLogger:
 
 Create an instance of CLogger.
 
