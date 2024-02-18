@@ -34,7 +34,8 @@ import { CLogger } from 'node-color-logger';
 ```
 
 ```
-const log = new CLogger();
+const log = new CLogger(hbLog: Logger | undefined, logName = 'NodeColorLogger', logDebug = true, logWithColors = true,
+    logTimestampFormat = TimestampFormat.LOCAL_DATE_TIME, logCustomTimestampFormat = 'yyyy-MM-dd HH:mm:ss');
 ```
 
 ## Using the logger:
