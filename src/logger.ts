@@ -137,6 +137,15 @@ export const enum TimestampFormat {
   CUSTOM,
 }
 
+export interface CLoggerParams {
+  hbLog?: Logger;
+  logName?: string;
+  logDebug?: boolean;
+  logWithColors?: boolean;
+  logTimestampFormat?: TimestampFormat;
+  logCustomTimestampFormat?: string;
+}
+
 export class CLogger {
   private logName: string;
   private logTimestampFormat: TimestampFormat;
@@ -145,24 +154,40 @@ export class CLogger {
   private logStartTime: number;
   private logWithColors: boolean;
   private logDebug: boolean;
+  private params: CLoggerParams;
 
-  constructor(hbLog: Logger | undefined, logName = 'NodeColorLogger', logDebug = true, logWithColors = true,
-    logTimestampFormat = TimestampFormat.LOCAL_DATE_TIME, logCustomTimestampFormat = 'yyyy-MM-dd HH:mm:ss') {
-    this.hbLog = hbLog;
-    this.logName = logName;
+  constructor(optionalParams: CLoggerParams,
+    /*hbLog: Logger | undefined, logName = 'NodeColorLogger', logDebug = true, logWithColors = true,
+    logTimestampFormat = TimestampFormat.LOCAL_DATE_TIME, logCustomTimestampFormat = 'yyyy-MM-dd HH:mm:ss'*/) {
+
+    this.params = Object.assign({
+      hbLog: undefined,
+      logName: 'NodeColorLogger',
+      logDebug: true,
+      logWithColors: true,
+      logTimestampFormat: TimestampFormat.LOCAL_DATE_TIME,
+      logCustomTimestampFormat: 'yyyy-MM-dd HH:mm:ss',
+    }, optionalParams);
+
+    this.hbLog = this.params.hbLog;
+    this.logName = this.params.logName!;
+    this.logDebug = this.params.logDebug!;
+    this.logWithColors = this.params.logWithColors!;
+    this.logTimestampFormat = this.params.logTimestampFormat!;
+    this.logCustomTimestampFormat = this.params.logCustomTimestampFormat!;
     this.logStartTime = 0;
-    this.logTimestampFormat = logTimestampFormat;
-    this.logCustomTimestampFormat = logCustomTimestampFormat;
-    this.logWithColors = logWithColors;
-    this.logDebug = logDebug;
+  }
+
+  public setLogName(name: string): void {
+    this.logName = name;
   }
 
   public setLogDebug(logDebug: boolean): void {
     this.logDebug = logDebug;
   }
 
-  public setLogName(name: string): void {
-    this.logName = name;
+  public setlogWithColors(logWithColors: boolean): void {
+    this.logWithColors = logWithColors;
   }
 
   public setLogTimestampFormat(format: TimestampFormat): void {

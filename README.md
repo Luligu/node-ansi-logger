@@ -6,18 +6,20 @@ CLogger is a lightweight, customizable color logger for Node.js.
 
 - Simple and intuitive API for data logging.
 - Customizable colors and apperance.
-- Includes also a color customizable stringify funtions.
+- It is also possible to pass a top level logger (like Homebridge or Matter logger) and CLogger will use it 
+instead of console.log()
+- Includes also a fully customizable stringify funtions with colors.
 
 ## Getting Started
 
 ### Prerequisites
 
 - Node.js installed on your machine.
-- Basic knowledge of TypeScript and Node.js.
+- node-color-logger has no dependencies
 
 ### Installation
 
-To get started with NodeStorage in your package
+To get started with CLogger in your package
 
 ```bash
 npm install node-color-logger
@@ -30,7 +32,7 @@ npm install node-color-logger
 Create an instance of CLogger.
 
 ```
-import { CLogger } from 'node-color-logger';
+import { CLogger, LogLevel } from 'node-color-logger';
 ```
 
 ```
@@ -38,13 +40,31 @@ const log = new CLogger(hbLog: Logger | undefined, logName = 'NodeColorLogger', 
     logTimestampFormat = TimestampFormat.LOCAL_DATE_TIME, logCustomTimestampFormat = 'yyyy-MM-dd HH:mm:ss');
 ```
 
+To import the stringify functions
+```
+import { stringify, payloadStringify, colorStringify, mqttStringify, debugStringify } from 'node-color-logger';
+```
+
 ## Using the logger:
 
 ```
-log.debug('Debug message...', ..., ..., ...);
-log.info('Info message...', ..., ..., ...);
-log.warn('Warning message', ..., ..., ...);
-log.error('Error message', ..., ..., ...);
+log.debug('Debug message...', ...parameters: any[]);
+log.info('Info message...', ...parameters: any[]);
+log.warn('Warning message', ...parameters: any[]);
+log.error('Error message', ...parameters: any[]);
+log(level: LogLevel, message: string, ...parameters: any[])
+```
+
+## Using the logger internal timer:
+```
+log.startTimer(message)
+log.stopTimer(message)
+```
+
+## Using the stringify function:
+```
+stringify({...})
+colorStringify({...})
 ```
 
 # Screenshot
