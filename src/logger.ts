@@ -56,6 +56,8 @@ export * from './stringify.js';
     256 colors background
     \x1b[48;5;<BG COLOR>m
 */
+
+// ANSI color codes and styles are defined here for use in the logger
 export const RESET = '\x1b[40;0m';
 export const BRIGHT = '\x1b[1m';
 export const DIM = '\x1b[2m';
@@ -81,32 +83,29 @@ export const LIGHT_GREY = '\x1b[37m';
 export const GREY = '\x1b[90m';
 export const WHITE = '\x1b[97m';
 
+// ANSI color codes short form to use in the logger
 export const db = '\x1b[38;5;247m';                 // Debug
 export const nf = '\x1b[38;5;255m';                 // Info
 export const wr = '\x1b[38;5;220m';                 // Warn
 export const er = '\x1b[38;5;9m';                   // Error
-
 export const rs = '\x1b[40;0m';                     // Reset colors to default foreground and background
 export const rk = '\x1b[K';                         // Erase from cursor
 
-/*
-Used for:
-homebridge-mqtt-accessories
-matterbridge-mqtt-accessories
-*/
+// Used internally for: homebridge-mqtt-accessories and matterbridge-mqtt-accessories
 export const dn = '\x1b[38;5;33m';                  // Display name device
 export const gn = '\x1b[38;5;35m';                  // Display name group
 export const idn = '\x1b[48;5;21m\x1b[38;5;255m';   // Inverted display name device
 export const ign = '\x1b[48;5;22m\x1b[38;5;255m';   // Inverted display name group
-
 export const zb = '\x1b[38;5;207m';                 // Zigbee
-
 export const hk = '\x1b[38;5;79m';                  // Homekit
-
 export const pl = '\x1b[32m';                       // payload
 export const id = '\x1b[37;44m';                    // id or ieee_address or UUID
 export const or = '\x1b[38;5;208m';                 // history
 
+
+/**
+ * LogLevel enumeration to specify the logging level.
+ */
 export const enum LogLevel {
   INFO = 'info',
   WARN = 'warn',
@@ -114,6 +113,9 @@ export const enum LogLevel {
   DEBUG = 'debug'
 }
 
+/**
+ * Logger interface for custom loggers that can be passed to AnsiLogger for output instead of console output.
+ */
 export interface Logger {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   debug: (...data: any[]) => void;
@@ -127,6 +129,9 @@ export interface Logger {
   log: (level: LogLevel, message: string, ...parameters: any[]) => void;
 }
 
+/**
+ * TimestampFormat enumeration to specify the format of timestamps in log messages.
+ */
 export const enum TimestampFormat {
   ISO,
   LOCAL_DATE,
@@ -137,7 +142,10 @@ export const enum TimestampFormat {
   CUSTOM,
 }
 
-export interface CLoggerParams {
+/**
+ * Parameters for configuring an AnsiLogger instance.
+ */
+export interface AnsiLoggerParams {
   hbLog?: Logger;
   logName?: string;
   logDebug?: boolean;
@@ -146,7 +154,11 @@ export interface CLoggerParams {
   logCustomTimestampFormat?: string;
 }
 
-export class CLogger {
+/**
+ * AnsiLogger provides a customizable logging utility with ANSI color support.
+ * It allows for various configurations such as enabling debug logs, customizing log name, and more.
+ */
+export class AnsiLogger {
   private logName: string;
   private logTimestampFormat: TimestampFormat;
   private logCustomTimestampFormat: string;
@@ -154,15 +166,17 @@ export class CLogger {
   private logStartTime: number;
   private logWithColors: boolean;
   private logDebug: boolean;
-  private params: CLoggerParams;
+  private params: AnsiLoggerParams;
 
-  constructor(optionalParams: CLoggerParams,
-    /*hbLog: Logger | undefined, logName = 'NodeColorLogger', logDebug = true, logWithColors = true,
-    logTimestampFormat = TimestampFormat.LOCAL_DATE_TIME, logCustomTimestampFormat = 'yyyy-MM-dd HH:mm:ss'*/) {
+  /**
+   * Constructs a new AnsiLogger instance with optional configuration parameters.
+   * @param {AnsiLoggerParams} optionalParams - Configuration options for the logger.
+   */
+  constructor(optionalParams: AnsiLoggerParams) {
 
     this.params = Object.assign({
       hbLog: undefined,
-      logName: 'NodeColorLogger',
+      logName: 'NodeAnsiLogger',
       logDebug: true,
       logWithColors: true,
       logTimestampFormat: TimestampFormat.LOCAL_DATE_TIME,
@@ -178,37 +192,86 @@ export class CLogger {
     this.logStartTime = 0;
   }
 
+  /**
+   * Sets the name of the logger.
+   * @param {string} name - The new name for the logger.
+   */
   public setLogName(name: string): void {
     this.logName = name;
   }
 
+  /**
+   * Enables or disables debug logging.
+   * @param {boolean} logDebug - Flag to enable or disable debug logging.
+   */
   public setLogDebug(logDebug: boolean): void {
     this.logDebug = logDebug;
   }
 
+  /**
+   * Enables or disables logging with ANSI colors.
+   * @param {boolean} logWithColors - Flag to enable or disable ANSI color logging.
+   */
   public setlogWithColors(logWithColors: boolean): void {
     this.logWithColors = logWithColors;
   }
 
+  /**
+   * Sets the timestamp format for log messages.
+   * @param {TimestampFormat} format - The timestamp format to use.
+   */
   public setLogTimestampFormat(format: TimestampFormat): void {
     this.logTimestampFormat = format;
   }
 
+  /**
+   * Sets a custom timestamp format for log messages.
+   * @param {string} format - The custom timestamp format string.
+   */
   public setLogCustomTimestampFormat(format: string): void {
     this.logCustomTimestampFormat = format;
   }
 
+  /**
+   * Starts a timer with an optional message.
+   * @param {string} message - The message to log when starting the timer.
+   */
   public startTimer(message: string): void {
     this.logStartTime = Date.now();
     this.info(`Timer started ${message}`);
   }
 
+  /**
+   * Stops the timer started by startTimer and logs the elapsed time.
+   * @param {string} message - The message to log along with the elapsed time.
+   */
   public stopTimer(message: string): void {
     if (this.logStartTime !== 0) {
       const timePassed = Date.now() - this.logStartTime;
       this.info(`Timer stoppped at ${timePassed} ms ${message}`);
     }
     this.logStartTime = 0;
+  }
+
+  // This function formats a date object into a custom string format.
+  // For simplicity, it only handles years, months, days, hours, minutes, and seconds
+  // with this format 'yyyy-MM-dd HH:mm:ss'
+  private formatCustomTimestamp(date: Date, formatString: string): string {
+    const year = date.getFullYear();
+    const month = date.getMonth() + 1; // getMonth() returns 0-11
+    const day = date.getDate();
+    const hours = date.getHours();
+    const minutes = date.getMinutes();
+    const seconds = date.getSeconds();
+
+    // Replace format tokens with actual values. Add more as needed.
+    return formatString
+      .replace('yyyy', year.toString())
+      .replace('MM', month.toString().padStart(2, '0'))
+      .replace('dd', day.toString().padStart(2, '0'))
+      .replace('HH', hours.toString().padStart(2, '0'))
+      .replace('mm', minutes.toString().padStart(2, '0'))
+      .replace('ss', seconds.toString().padStart(2, '0'));
   }
 
   private getTimestamp(): string {
@@ -236,14 +299,22 @@ export class CLogger {
           timestamp = `${new Date().getHours().toString().padStart(2, '0')}:${new Date().getMinutes().toString().padStart(2, '0')}:${new Date().getSeconds().toString().padStart(2, '0')}.${new Date().getMilliseconds().toString().padStart(3, '0')}`;
           break;
         case TimestampFormat.CUSTOM:
-          // timestamp = format(new Date(), 'yyyy-MM-dd HH:mm:ss'); //TODO
-          timestamp = new Date().toLocaleString();
+          timestamp = this.formatCustomTimestamp(new Date(), this.logCustomTimestampFormat);
           break;
       }
       return timestamp;
     }
   }
 
+  /**
+   * Logs a message with a specific level (e.g., info, warn, error, debug) and additional parameters.
+   * This method formats the log message with ANSI colors based on the log level and other logger settings.
+   * It supports dynamic parameters for more detailed and formatted logging.
+   *
+   * @param {LogLevel} level - The severity level of the log message.
+   * @param {string} message - The primary log message to be displayed.
+   * @param {...any[]} parameters - Additional parameters to be logged. Supports any number of parameters.
+   */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   public log(level: LogLevel, message: string, ...parameters: any[]): void {
     const ts = '\x1b[38;5;249m';                 // TimeStamp  White medium
@@ -301,21 +372,45 @@ export class CLogger {
     }
   }
 
+  /**
+   * Logs an informational message. This is a convenience method that delegates to the `log` method with the `LogLevel.INFO` level.
+   *
+   * @param {string} message - The informational message to log.
+   * @param {...any[]} parameters - Additional parameters to be included in the log message. Supports any number of parameters.
+   */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   public info(message: string, ...parameters: any[]): void {
     this.log(LogLevel.INFO, message, ...parameters);
   }
 
+  /**
+   * Logs a warning message. This is a convenience method that delegates to the `log` method with the `LogLevel.WARN` level.
+   *
+   * @param {string} message - The warning message to log.
+   * @param {...any[]} parameters - Additional parameters to be included in the log message. Supports any number of parameters.
+   */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   public warn(message: string, ...parameters: any[]): void {
     this.log(LogLevel.WARN, message, ...parameters);
   }
 
+  /**
+   * Logs an error message. This is a convenience method that delegates to the `log` method with the `LogLevel.ERROR` level.
+   *
+   * @param {string} message - The error message to log.
+   * @param {...any[]} parameters - Additional parameters to be included in the log message. Supports any number of parameters.
+   */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   public error(message: string, ...parameters: any[]): void {
     this.log(LogLevel.ERROR, message, ...parameters);
   }
 
+  /**
+   * Logs a debug message if debug logging is enabled. This is a convenience method that delegates to the `log` method with the `LogLevel.DEBUG` level.
+   *
+   * @param {string} message - The debug message to log.
+   * @param {...any[]} parameters - Additional parameters to be included in the log message. Supports any number of parameters.
+   */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   public debug(message: string, ...parameters: any[]): void {
     if (this.logDebug) {
