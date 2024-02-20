@@ -10,53 +10,6 @@
  *
  */
 
-// Re-export everything from stringify.ts
-export * from './stringify.js';
-
-/*
-    \x1b[0m - Reset (clear color)
-    \x1b[1m - Bold
-    \x1b[3m - Italic
-    \x1b[4m - Underline
-    \x1b[K  - Erase the line from cursor
-
-    \x1b[30m - Black
-    \x1b[31m - Red
-    \x1b[32m - Green
-    \x1b[33m - Yellow
-    \x1b[34m - Blue
-    \x1b[35m - Magenta
-    \x1b[36m - Cyan
-    \x1b[37m - White
-
-    \x1b[90-97m - Bright
-
-    \x1b[40m - Black background
-    \x1b[41m - Red background
-    \x1b[42m - Green background
-    \x1b[43m - Yellow background
-    \x1b[44m - Blue background
-    \x1b[45m - Magenta background
-    \x1b[46m - Cyan background
-    \x1b[47m - White background
-
-    \x1b[100-107m - Bright background
-
-    \x1b[38;2;255;105;50m // Orange
-
-    RGB foreground
-    \x1b[38;2;<R>;<G>;<B>m
-
-    RGB background
-    \x1b[48;2;<R>;<G>;<B>m
-
-    256 colors foreground
-    \x1b[38;5;<FG COLOR>m
-
-    256 colors background
-    \x1b[48;5;<BG COLOR>m
-*/
-
 // ANSI color codes and styles are defined here for use in the logger
 export const RESET = '\x1b[40;0m';
 export const BRIGHT = '\x1b[1m';
@@ -418,4 +371,48 @@ export class AnsiLogger {
     }
   }
 }
+
+/*
+    \x1b[0m - Reset (clear color)
+    \x1b[1m - Bold
+    \x1b[3m - Italic
+    \x1b[4m - Underline
+    \x1b[K  - Erase the line from cursor
+
+    \x1b[30m - Black
+    \x1b[31m - Red
+    \x1b[32m - Green
+    \x1b[33m - Yellow
+    \x1b[34m - Blue
+    \x1b[35m - Magenta
+    \x1b[36m - Cyan
+    \x1b[37m - White
+
+    \x1b[90-97m - Bright
+
+    \x1b[40m - Black background
+    \x1b[41m - Red background
+    \x1b[42m - Green background
+    \x1b[43m - Yellow background
+    \x1b[44m - Blue background
+    \x1b[45m - Magenta background
+    \x1b[46m - Cyan background
+    \x1b[47m - White background
+
+    \x1b[100-107m - Bright background
+
+    \x1b[38;2;255;105;50m // Orange
+
+    RGB foreground
+    \x1b[38;2;<R>;<G>;<B>m
+
+    RGB background
+    \x1b[48;2;<R>;<G>;<B>m
+
+    256 colors foreground
+    \x1b[38;5;<FG COLOR>m
+
+    256 colors background
+    \x1b[48;5;<BG COLOR>m
+*/
 

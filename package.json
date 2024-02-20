@@ -12,8 +12,8 @@
     "url": "https://github.com/Luligu/node-ansi-logger/issues"
   },
   "type": "module",
-  "main": "dist/logger.js",
-  "types": "dist/logger.d.js",
+  "main": "dist/index.js",
+  "types": "dist/index.d.js",
   "scripts": {
     "build": "tsc",
     "watch": "tsc --watch",
@@ -28,29 +28,6 @@
     "prepublishOnly": "npm run lint && npm run cleanBuild",
     "checkDependencies": "npx npm-check-updates",
     "updateDependencies": "npx npm-check-updates -u"
-  },
-  "jest": {
-    "preset": "ts-jest",
-    "testEnvironment": "node",
-    "roots": [
-      "<rootDir>/src"
-    ],
-    "testMatch": [
-      "**/__tests__/**/*.+(ts|tsx)",
-      "**/?(*.)+(spec|test).+(ts|tsx)"
-    ],
-    "testPathIgnorePatterns": [
-      "<rootDir>/node_modules/",
-      "<rootDir>/dist/"
-    ],
-    "moduleFileExtensions": [
-      "ts",
-      "tsx",
-      "js",
-      "jsx",
-      "json",
-      "node"
-    ]
   },
   "keywords": [
     "node-ansi-logger",

@@ -14,5 +14,13 @@
     "resolveJsonModule": true,
     "strict": true,
     "noImplicitAny": true
-  }
+  },
+  "include": [
+    "src/"
+  ],
+  "exclude": [
+    "**/*.test.ts",
+    "**/*.spec.ts",
+    "**/__test__/*"
+  ]
 }
