@@ -6,3 +6,6 @@ dist/
 
 # VSC
 .vscode
+
+# Output of 'npm pack'
+*.tgz
