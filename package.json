@@ -1,15 +1,15 @@
 {
-  "name": "node-color-logger",
+  "name": "node-ansi-logger",
   "version": "1.8.8",
   "description": "Simple node colorfull logger",
   "author": "https://github.com/Luligu",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Luligu/node-color-logger"
+    "url": "https://github.com/Luligu/node-ansi-logger"
   },
   "bugs": {
-    "url": "https://github.com/Luligu/node-color-logger/issues"
+    "url": "https://github.com/Luligu/node-ansi-logger/issues"
   },
   "type": "module",
   "main": "dist/logger.js",
