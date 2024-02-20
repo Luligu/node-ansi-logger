@@ -1,8 +1,25 @@
+// tsconfig.eslint.json
 {
-  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "module": "nodenext",
+    "target": "esnext",
+    "moduleResolution": "nodenext",
+    "outDir": "./dist",
+    "rootDir": "./src", 
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "strict": true,
+    "noImplicitAny": true
+  },
   "include": [
     "src/**/*",
     "__test__/**/*.ts",
     "jest.config.mjs",
-  ]
+  ],
+  "exclude": []
 }

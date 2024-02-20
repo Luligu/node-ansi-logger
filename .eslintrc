@@ -1,3 +1,4 @@
+// .eslintrc
 {
     "parser": "@typescript-eslint/parser",
     "extends": [
