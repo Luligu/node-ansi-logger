@@ -74,7 +74,7 @@ colorStringify({...})
 
 # Screenshot
 
-![Example Image](Screenshot.png)
+![Example Image](https://github.com/Luligu/node-ansi-logger/blob/main/Screenshot.png)
 
 # Contributing
 
