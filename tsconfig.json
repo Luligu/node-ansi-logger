@@ -22,6 +22,6 @@
   "exclude": [
     "**/*.test.ts",
     "**/*.spec.ts",
-    "**/__test__/*"
+    "**/__tests__/*"
   ]
 }
