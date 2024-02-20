@@ -44,7 +44,8 @@
     "moduleFileExtensions": ["ts", "tsx", "js", "jsx", "json", "node"]
   },
   "keywords": [
-    "node-color-logger",
+    "node-ansi-logger",
+    "ansi escape",
     "color",
     "logger"
   ],
