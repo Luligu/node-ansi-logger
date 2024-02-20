@@ -27,7 +27,7 @@ npm install node-ansi-logger
 
 # Usage
 
-## Initializing CLogger:
+## Initializing AnsiLogger:
 
 Create an instance of AnsiLogger.
 
@@ -36,7 +36,7 @@ import { AnsiLogger, AnsiLoggerParams, LogLevel } from 'node-ansi-logger';
 ```
 
 ```
-const log = new AnsiLogger({logName = '<your name>'}); // Eventually other params in AnsiLoggerParams
+const log = new AnsiLogger({logName: '<your name>'}); // Eventually other params in AnsiLoggerParams
 ```
 
 To import the stringify functions
@@ -47,17 +47,23 @@ import { stringify, payloadStringify, colorStringify, mqttStringify, debugString
 ## Using the logger:
 
 ```
-log.debug('Debug message...', ...parameters: any[]);
-log.info('Info message...', ...parameters: any[]);
-log.warn('Warning message', ...parameters: any[]);
-log.error('Error message', ...parameters: any[]);
-log(level: LogLevel, message: string, ...parameters: any[])
+log.debug('Debug message...', ...parameters);
+log.info('Info message...', ...parameters);
+log.warn('Warning message', ...parameters);
+log.error('Error message', ...parameters);
+log(LogLevel.WARN, 'Warning message', ...parameters)
+```
+
+## Using the logger with colors inside the message:
+
+```
+log.debug(`Debug message ${YELLOW}with yellow part${db}`, ...);
 ```
 
 ## Using the logger internal timer:
 ```
-log.startTimer(message)
-log.stopTimer(message)
+log.startTimer('Time sensitive code started')
+log.stopTimer('Time sensitive code finished')
 ```
 
 ## Using the stringify function:
