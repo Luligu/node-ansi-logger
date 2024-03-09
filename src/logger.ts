@@ -14,6 +14,7 @@
 export const RESET = '\x1b[40;0m';
 export const BRIGHT = '\x1b[1m';
 export const DIM = '\x1b[2m';
+export const NORMAL = '\x1b[22m';
 export const UNDERLINE = '\x1b[4m';
 export const UNDERLINEOFF = '\x1b[24m';
 export const BLINK = '\x1b[5m';
