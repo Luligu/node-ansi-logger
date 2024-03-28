@@ -9,3 +9,6 @@ dist/
 
 # Output of 'npm pack'
 *.tgz
+
+# Npm install
+package-lock.json
