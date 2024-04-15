@@ -123,7 +123,7 @@ export class AnsiLogger {
   private logWithColors: boolean;
   private logDebug: boolean;
   private params: AnsiLoggerParams;
-  private callback: LoggerCallback | undefined;
+  private static callback: LoggerCallback | undefined;
 
   /**
    * Constructs a new AnsiLogger instance with optional configuration parameters.
@@ -215,7 +215,7 @@ export class AnsiLogger {
    * @param {LoggerCallback} callback - The callback function that takes three parameters: type, subtype, and message.
    */
   public setCallback(callback: LoggerCallback): void{
-    this.callback = callback;
+    AnsiLogger.callback = callback;
   }
 
   // This function formats a date object into a custom string format.
@@ -290,8 +290,8 @@ export class AnsiLogger {
     const s3ln = '\x1b[38;5;0;48;5;220m';        // Highlight  LogName Black on Yellow
     const s4ln = '\x1b[38;5;0;48;5;9m';          // Highlight  LogName Black on Red
 
-    if (this.callback !== undefined) {
-      this.callback(level, this.logName, message);
+    if (AnsiLogger.callback !== undefined) {
+      AnsiLogger.callback(level, this.logName, message);
     }
 
     if (this.hbLog !== undefined) {
