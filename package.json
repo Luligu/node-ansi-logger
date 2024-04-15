@@ -1,6 +1,6 @@
 {
   "name": "node-ansi-logger",
-  "version": "1.9.3",
+  "version": "1.9.4",
   "description": "Enhanced Color-Coded Logging for Node.js in type script",
   "author": "https://github.com/Luligu",
   "license": "MIT",
@@ -45,12 +45,12 @@
   ],
   "devDependencies": {
     "@types/jest": "^29.5.12",
-    "@types/node": "^20.11.30",
-    "@typescript-eslint/eslint-plugin": "^7.4.0",
-    "@typescript-eslint/parser": "^7.4.0",
+    "@types/node": "^20.12.7",
+    "@typescript-eslint/eslint-plugin": "^7.7.0",
+    "@typescript-eslint/parser": "^7.7.0",
     "eslint": "^8.57.0",
     "jest": "^29.7.0",
     "ts-jest": "^29.1.2",
-    "typescript": "^5.4.3"
+    "typescript": "^5.4.5"
   }
 }

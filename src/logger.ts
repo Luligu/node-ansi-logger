@@ -108,6 +108,8 @@ export interface AnsiLoggerParams {
   logCustomTimestampFormat?: string;
 }
 
+export type LoggerCallback = (type: string, subtype: string, message: string) => void;
+
 /**
  * AnsiLogger provides a customizable logging utility with ANSI color support.
  * It allows for various configurations such as enabling debug logs, customizing log name, and more.
@@ -121,6 +123,7 @@ export class AnsiLogger {
   private logWithColors: boolean;
   private logDebug: boolean;
   private params: AnsiLoggerParams;
+  private callback: LoggerCallback | undefined;
 
   /**
    * Constructs a new AnsiLogger instance with optional configuration parameters.
@@ -207,6 +210,14 @@ export class AnsiLogger {
     this.logStartTime = 0;
   }
 
+  /**
+   * Sets the callback function to be used by the logger.
+   * @param {LoggerCallback} callback - The callback function that takes three parameters: type, subtype, and message.
+   */
+  public setCallback(callback: LoggerCallback): void{
+    this.callback = callback;
+  }
+
   // This function formats a date object into a custom string format.
   // For simplicity, it only handles years, months, days, hours, minutes, and seconds
   // with this format 'yyyy-MM-dd HH:mm:ss'
@@ -278,6 +289,10 @@ export class AnsiLogger {
     const s2ln = '\x1b[38;5;0;48;5;255m';        // Highlight  LogName Black on White
     const s3ln = '\x1b[38;5;0;48;5;220m';        // Highlight  LogName Black on Yellow
     const s4ln = '\x1b[38;5;0;48;5;9m';          // Highlight  LogName Black on Red
+
+    if (this.callback !== undefined) {
+      this.callback(level, this.logName, message);
+    }
 
     if (this.hbLog !== undefined) {
       this.hbLog[level](message, ...parameters);
