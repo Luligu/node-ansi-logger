@@ -1,6 +1,6 @@
 {
   "name": "node-ansi-logger",
-  "version": "1.9.4",
+  "version": "1.9.5",
   "description": "Enhanced Color-Coded Logging for Node.js in type script",
   "author": "https://github.com/Luligu",
   "license": "MIT",

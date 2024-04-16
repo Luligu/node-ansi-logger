@@ -1,7 +1,7 @@
 // logger.test.ts
 /* eslint-disable no-console */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { AnsiLogger, LogLevel } from '../src/logger';
+import { AnsiLogger, LogLevel } from './logger';
 
 // Mocking console.log to test logging output
 const originalConsoleLog = console.log;

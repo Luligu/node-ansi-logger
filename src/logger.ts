@@ -108,7 +108,10 @@ export interface AnsiLoggerParams {
   logCustomTimestampFormat?: string;
 }
 
-export type LoggerCallback = (type: string, subtype: string, message: string) => void;
+export type AnsiLoggerCallback = (type: string, subtype: string, message: string) => void;
+
+// Initialize the global variable
+globalThis.__AnsiLoggerCallback__ = undefined;
 
 /**
  * AnsiLogger provides a customizable logging utility with ANSI color support.
@@ -123,7 +126,7 @@ export class AnsiLogger {
   private logWithColors: boolean;
   private logDebug: boolean;
   private params: AnsiLoggerParams;
-  private static callback: LoggerCallback | undefined;
+  private callback: AnsiLoggerCallback | undefined = undefined;
 
   /**
    * Constructs a new AnsiLogger instance with optional configuration parameters.
@@ -212,15 +215,45 @@ export class AnsiLogger {
 
   /**
    * Sets the callback function to be used by the logger.
-   * @param {LoggerCallback} callback - The callback function that takes three parameters: type, subtype, and message.
+   * @param {AnsiLoggerCallback} callback - The callback function that takes three parameters: type, subtype, and message, or undefined if no callback is set.
    */
-  public setCallback(callback: LoggerCallback): void{
-    AnsiLogger.callback = callback;
+  public setCallback(callback: AnsiLoggerCallback | undefined): void{
+    this.callback = callback;
   }
 
-  // This function formats a date object into a custom string format.
-  // For simplicity, it only handles years, months, days, hours, minutes, and seconds
-  // with this format 'yyyy-MM-dd HH:mm:ss'
+  /**
+   * Gets the callback function currently used by the logger.
+   * @returns {AnsiLoggerCallback | undefined} The callback function that takes three parameters: type, subtype, and message, or undefined if no callback is set.
+   */
+  public getCallback(): AnsiLoggerCallback | undefined {
+    return this.callback;
+  }
+
+  /**
+   * Sets the global callback function to be used by the logger.
+   * @param {AnsiLoggerCallback} callback - The callback function that takes three parameters: type, subtype, and message, or undefined if no callback is set.
+   */
+  public setGlobalCallback(callback: AnsiLoggerCallback | undefined): void{
+    // AnsiLogger.callback = callback;
+    __AnsiLoggerCallback__ = callback;
+  }
+
+  /**
+   * Gets the global callback function currently used by the logger.
+   * @returns {AnsiLoggerCallback | undefined} The callback function that takes three parameters: type, subtype, and message, or undefined if no callback is set.
+   */
+  public getGlobalCallback(): AnsiLoggerCallback | undefined {
+    return __AnsiLoggerCallback__;
+  }
+
+  /**
+   * Formats a Date object into a custom string format.
+   * @param {Date} date - The Date object to format.
+   * @param {string} formatString - The string format to use.
+   * @returns {string} The formatted date.
+   * It only handles years, months, days, hours, minutes, and seconds
+   * with this format 'yyyy-MM-dd HH:mm:ss'
+   */
   private formatCustomTimestamp(date: Date, formatString: string): string {
     const year = date.getFullYear();
     const month = date.getMonth() + 1; // getMonth() returns 0-11
@@ -290,8 +323,21 @@ export class AnsiLogger {
     const s3ln = '\x1b[38;5;0;48;5;220m';        // Highlight  LogName Black on Yellow
     const s4ln = '\x1b[38;5;0;48;5;9m';          // Highlight  LogName Black on Red
 
-    if (AnsiLogger.callback !== undefined) {
-      AnsiLogger.callback(level, this.logName, message);
+    try {
+      if (this.callback !== undefined) {
+      // Convert parameters to string and append to message
+        const parametersString = parameters.length > 0 ? ' ' + parameters.join(' ') : '';
+        message += parametersString;
+        this.callback(level, this.logName, message);
+      } else if (__AnsiLoggerCallback__ !== undefined) {
+      // Convert parameters to string and append to message
+        const parametersString = parameters.length > 0 ? ' ' + parameters.join(' ') : '';
+        message += parametersString;
+        __AnsiLoggerCallback__(this.logName, level, message);
+      }
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.error('Error executing callback:', error);
     }
 
     if (this.hbLog !== undefined) {
