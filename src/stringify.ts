@@ -32,6 +32,8 @@ export function debugStringify(payload: object): string {
 
 export function stringify(payload: object, enableColors = false, colorPayload = 255, colorKey = 255, colorString = 35, colorNumber = 220,
   colorBoolean = 159, colorUndefined = 1, keyQuote = '', stringQuote = '\''): string {
+  if (payload === null) return 'null';
+  if (payload === undefined) return 'undefined';
   const clr = (color: number) => {
     return enableColors ? `\x1b[38;5;${color}m` : '';
   };

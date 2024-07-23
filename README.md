@@ -55,8 +55,10 @@ import { stringify, payloadStringify, colorStringify, mqttStringify, debugString
 ```
 log.debug('Debug message...', ...parameters);
 log.info('Info message...', ...parameters);
+log.notice('Notice message...', ...parameters);
 log.warn('Warning message', ...parameters);
 log.error('Error message', ...parameters);
+log.fatal('Fatal message', ...parameters);
 log(LogLevel.WARN, 'Warning message', ...parameters)
 ```
 

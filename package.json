@@ -1,6 +1,6 @@
 {
   "name": "node-ansi-logger",
-  "version": "1.9.5",
+  "version": "2.0.0",
   "description": "Enhanced Color-Coded Logging for Node.js in type script",
   "author": "https://github.com/Luligu",
   "license": "MIT",
@@ -18,7 +18,7 @@
   },
   "type": "module",
   "main": "dist/index.js",
-  "types": "dist/index.d.js",
+  "types": "dist/index.d.ts",
   "engines": {
     "node": ">=18.0.0"
   },
@@ -27,7 +27,8 @@
     "watch": "tsc --watch",
     "test": "jest",
     "test:verbose": "jest --verbose",
-    "test:watch": "jest --watch",
+    "test:coverage": "jest --verbose --coverage",
+    "test:watch": "jest  --verbose --watch",
     "lint": "eslint src/**.ts",
     "lint:fix": "eslint src/**.ts --fix",
     "clean": "rimraf tsconfig.tsbuildinfo ./dist",

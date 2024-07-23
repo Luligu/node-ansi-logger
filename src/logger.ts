@@ -40,8 +40,10 @@ export const WHITE = '\x1b[97m';
 // ANSI color codes short form to use in the logger
 export const db = '\x1b[38;5;247m';                 // Debug
 export const nf = '\x1b[38;5;255m';                 // Info
+export const nt = '\x1b[32m';                       // Notice
 export const wr = '\x1b[38;5;220m';                 // Warn
 export const er = '\x1b[38;5;9m';                   // Error
+export const ft = '\x1b[1m\x1b[38;5;9m';            // Fatal
 export const rs = '\x1b[40;0m';                     // Reset colors to default foreground and background
 export const rk = '\x1b[K';                         // Erase from cursor
 
@@ -61,10 +63,13 @@ export const or = '\x1b[38;5;208m';                 // history
  * LogLevel enumeration to specify the logging level.
  */
 export const enum LogLevel {
+  NONE = '',
+  DEBUG = 'debug',
   INFO = 'info',
+  NOTICE = 'notice',
   WARN = 'warn',
   ERROR = 'error',
-  DEBUG = 'debug'
+  FATAL = 'fatal',
 }
 
 /**
@@ -76,9 +81,13 @@ export interface Logger {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   info: (...data: any[]) => void;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  notice: (...data: any[]) => void;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   warn: (...data: any[]) => void;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   error: (...data: any[]) => void;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  fatal: (...data: any[]) => void;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   log: (level: LogLevel, message: string, ...parameters: any[]) => void;
 }
@@ -103,6 +112,7 @@ export interface AnsiLoggerParams {
   hbLog?: Logger;
   logName?: string;
   logDebug?: boolean;
+  logLevel?: LogLevel;
   logWithColors?: boolean;
   logTimestampFormat?: TimestampFormat;
   logCustomTimestampFormat?: string;
@@ -125,6 +135,7 @@ export class AnsiLogger {
   private logStartTime: number;
   private logWithColors: boolean;
   private logDebug: boolean;
+  private _logLevel: LogLevel;
   private params: AnsiLoggerParams;
   private callback: AnsiLoggerCallback | undefined = undefined;
 
@@ -138,6 +149,7 @@ export class AnsiLogger {
       hbLog: undefined,
       logName: 'NodeAnsiLogger',
       logDebug: true,
+      logLevel: 'debug',
       logWithColors: true,
       logTimestampFormat: TimestampFormat.LOCAL_DATE_TIME,
       logCustomTimestampFormat: 'yyyy-MM-dd HH:mm:ss',
@@ -146,10 +158,12 @@ export class AnsiLogger {
     this.hbLog = this.params.hbLog;
     this.logName = this.params.logName!;
     this.logDebug = this.params.logDebug!;
+    this._logLevel = this.params.logLevel!;
     this.logWithColors = this.params.logWithColors!;
     this.logTimestampFormat = this.params.logTimestampFormat!;
     this.logCustomTimestampFormat = this.params.logCustomTimestampFormat!;
     this.logStartTime = 0;
+    this.setLogDebug(this.logDebug);
   }
 
   /**
@@ -163,10 +177,48 @@ export class AnsiLogger {
   /**
    * Enables or disables debug logging.
    * @param {boolean} logDebug - Flag to enable or disable debug logging.
+   * @deprecated Use setLogLevel method instead.
    */
   public setLogDebug(logDebug: boolean): void {
     this.logDebug = logDebug;
+    if (logDebug)
+      this._logLevel = LogLevel.DEBUG;
+    else
+      this._logLevel = LogLevel.INFO;
   }
+
+  /**
+   * Gets the log level of the logger.
+   * @returns {LogLevel} The log level.
+   */
+  get logLevel(): LogLevel {
+    return this._logLevel;
+  }
+
+  /**
+   * Sets the log level for the logger.
+   * @param {LogLevel} logLevel - The log level to set.
+   */
+  set logLevel(logLevel: LogLevel) {
+    if (logLevel === LogLevel.DEBUG)
+      this.logDebug = true;
+    else
+      this.logDebug = false;
+    this._logLevel = logLevel;
+  }
+
+  /**
+   * Sets the log level for the logger.
+   * @param {LogLevel} logLevel - The log level to set.
+   */
+  public setLogLevel(logLevel: LogLevel): void {
+    if (logLevel === LogLevel.DEBUG)
+      this.logDebug = true;
+    else
+      this.logDebug = false;
+    this._logLevel = logLevel;
+  }
+
 
   /**
    * Enables or disables logging with ANSI colors.
@@ -217,7 +269,7 @@ export class AnsiLogger {
    * Sets the callback function to be used by the logger.
    * @param {AnsiLoggerCallback} callback - The callback function that takes three parameters: type, subtype, and message, or undefined if no callback is set.
    */
-  public setCallback(callback: AnsiLoggerCallback | undefined): void{
+  public setCallback(callback: AnsiLoggerCallback | undefined): void {
     this.callback = callback;
   }
 
@@ -233,8 +285,7 @@ export class AnsiLogger {
    * Sets the global callback function to be used by the logger.
    * @param {AnsiLoggerCallback} callback - The callback function that takes three parameters: type, subtype, and message, or undefined if no callback is set.
    */
-  public setGlobalCallback(callback: AnsiLoggerCallback | undefined): void{
-    // AnsiLogger.callback = callback;
+  public setGlobalCallback(callback: AnsiLoggerCallback | undefined): void {
     __AnsiLoggerCallback__ = callback;
   }
 
@@ -325,12 +376,12 @@ export class AnsiLogger {
 
     try {
       if (this.callback !== undefined) {
-      // Convert parameters to string and append to message
+        // Convert parameters to string and append to message
         const parametersString = parameters.length > 0 ? ' ' + parameters.join(' ') : '';
         message += parametersString;
         this.callback(level, this.logName, message);
       } else if (__AnsiLoggerCallback__ !== undefined) {
-      // Convert parameters to string and append to message
+        // Convert parameters to string and append to message
         const parametersString = parameters.length > 0 ? ' ' + parameters.join(' ') : '';
         message += parametersString;
         __AnsiLoggerCallback__(this.logName, level, message);
@@ -341,7 +392,9 @@ export class AnsiLogger {
     }
 
     if (this.hbLog !== undefined) {
-      this.hbLog[level](message, ...parameters);
+      if (level !== LogLevel.NONE) {
+        this.hbLog.log(level, message, ...parameters);
+      }
     } else {
       if (this.logWithColors) {
         let logNameColor = ln;
@@ -362,29 +415,94 @@ export class AnsiLogger {
         }
         switch (level) {
           case LogLevel.DEBUG:
-            if (this.logDebug) {
+            if (this._logLevel === LogLevel.DEBUG) {
               // eslint-disable-next-line no-console
               console.log(`${rs}${ts}[${this.getTimestamp()}] ${logNameColor}[${this.logName}]${rs}${db}`, message, ...parameters, rs + rk);
             }
             break;
           case LogLevel.INFO:
-            // eslint-disable-next-line no-console
-            console.log(`${rs}${ts}[${this.getTimestamp()}] ${logNameColor}[${this.logName}]${rs}${nf}`, message, ...parameters, rs + rk);
+            if (this._logLevel === LogLevel.DEBUG || this._logLevel === LogLevel.INFO) {
+              // eslint-disable-next-line no-console
+              console.log(`${rs}${ts}[${this.getTimestamp()}] ${logNameColor}[${this.logName}]${rs}${nf}`, message, ...parameters, rs + rk);
+            }
             break;
+          case LogLevel.NOTICE:
+            if (this._logLevel === LogLevel.DEBUG || this._logLevel === LogLevel.INFO || this._logLevel === LogLevel.NOTICE) {
+              // eslint-disable-next-line no-console
+              console.log(`${rs}${ts}[${this.getTimestamp()}] ${logNameColor}[${this.logName}]${rs}${nt}`, message, ...parameters, rs + rk);
+            }
+            break
           case LogLevel.WARN:
-            // eslint-disable-next-line no-console
-            console.log(`${rs}${ts}[${this.getTimestamp()}] ${logNameColor}[${this.logName}]${rs}${wr}`, message, ...parameters, rs + rk);
+            if (this._logLevel === LogLevel.DEBUG || this._logLevel === LogLevel.INFO || this._logLevel === LogLevel.NOTICE || this._logLevel === LogLevel.WARN) {
+              // eslint-disable-next-line no-console
+              console.log(`${rs}${ts}[${this.getTimestamp()}] ${logNameColor}[${this.logName}]${rs}${wr}`, message, ...parameters, rs + rk);
+            }
             break;
           case LogLevel.ERROR:
-            // eslint-disable-next-line no-console
-            console.log(`${rs}${ts}[${this.getTimestamp()}] ${logNameColor}[${this.logName}]${rs}${er}`, message, ...parameters, rs + rk);
+            if (this._logLevel === LogLevel.DEBUG || this._logLevel === LogLevel.INFO || this._logLevel === LogLevel.NOTICE || this._logLevel === LogLevel.WARN || this._logLevel === LogLevel.ERROR) {
+              // eslint-disable-next-line no-console
+              console.log(`${rs}${ts}[${this.getTimestamp()}] ${logNameColor}[${this.logName}]${rs}${er}`, message, ...parameters, rs + rk);
+            }
+            break;
+          case LogLevel.FATAL:
+            if (this._logLevel === LogLevel.DEBUG || this._logLevel === LogLevel.INFO || this._logLevel === LogLevel.NOTICE || this._logLevel === LogLevel.WARN || this._logLevel === LogLevel.ERROR || this._logLevel === LogLevel.FATAL) {
+              // eslint-disable-next-line no-console
+              console.log(`${rs}${ts}[${this.getTimestamp()}] ${logNameColor}[${this.logName}]${rs}${ft}`, message, ...parameters, rs + rk);
+            }
             break;
         }
       } else {
-        // eslint-disable-next-line no-console
-        console.log(`${rs}[${this.getTimestamp()}] [${this.logName}] [${level}] ${message}`, ...parameters);
+        switch (level) {
+          case LogLevel.DEBUG:
+            if (this._logLevel === LogLevel.DEBUG) {
+              // eslint-disable-next-line no-console
+              console.log(`${rs}[${this.getTimestamp()}] [${this.logName}] [${level}] ${message}`, ...parameters);
+            }
+            break;
+          case LogLevel.INFO:
+            if (this._logLevel === LogLevel.DEBUG || this._logLevel === LogLevel.INFO) {
+              // eslint-disable-next-line no-console
+              console.log(`${rs}[${this.getTimestamp()}] [${this.logName}] [${level}] ${message}`, ...parameters);
+            }
+            break;
+          case LogLevel.NOTICE:
+            if (this._logLevel === LogLevel.DEBUG || this._logLevel === LogLevel.INFO || this._logLevel === LogLevel.NOTICE) {
+              // eslint-disable-next-line no-console
+              console.log(`${rs}[${this.getTimestamp()}] [${this.logName}] [${level}] ${message}`, ...parameters);
+            }
+            break
+          case LogLevel.WARN:
+            if (this._logLevel === LogLevel.DEBUG || this._logLevel === LogLevel.INFO || this._logLevel === LogLevel.NOTICE || this._logLevel === LogLevel.WARN) {
+              // eslint-disable-next-line no-console
+              console.log(`${rs}[${this.getTimestamp()}] [${this.logName}] [${level}] ${message}`, ...parameters);
+            }
+            break;
+          case LogLevel.ERROR:
+            if (this._logLevel === LogLevel.DEBUG || this._logLevel === LogLevel.INFO || this._logLevel === LogLevel.NOTICE || this._logLevel === LogLevel.WARN || this._logLevel === LogLevel.ERROR) {
+              // eslint-disable-next-line no-console
+              console.log(`${rs}[${this.getTimestamp()}] [${this.logName}] [${level}] ${message}`, ...parameters);
+            }
+            break;
+          case LogLevel.FATAL:
+            if (this._logLevel === LogLevel.DEBUG || this._logLevel === LogLevel.INFO || this._logLevel === LogLevel.NOTICE || this._logLevel === LogLevel.WARN || this._logLevel === LogLevel.ERROR || this._logLevel === LogLevel.FATAL) {
+              // eslint-disable-next-line no-console
+              console.log(`${rs}[${this.getTimestamp()}] [${this.logName}] [${level}] ${message}`, ...parameters);
+            }
+            break;
+        }
       }
     }
+  }
+
+  /**
+   * Logs a debug message if debug logging is enabled. This is a convenience method that delegates to the `log` method with the `LogLevel.DEBUG` level.
+   *
+   * @param {string} message - The debug message to log.
+   * @param {...any[]} parameters - Additional parameters to be included in the log message. Supports any number of parameters.
+   */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  public debug(message: string, ...parameters: any[]): void {
+    this.log(LogLevel.DEBUG, message, ...parameters);
   }
 
   /**
@@ -396,6 +514,17 @@ export class AnsiLogger {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   public info(message: string, ...parameters: any[]): void {
     this.log(LogLevel.INFO, message, ...parameters);
+  }
+
+  /**
+   * Logs a notice message. This is a convenience method that delegates to the `log` method with the `LogLevel.NOTICE` level.
+   *
+   * @param {string} message - The informational message to log.
+   * @param {...any[]} parameters - Additional parameters to be included in the log message. Supports any number of parameters.
+   */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  public notice(message: string, ...parameters: any[]): void {
+    this.log(LogLevel.NOTICE, message, ...parameters);
   }
 
   /**
@@ -421,17 +550,16 @@ export class AnsiLogger {
   }
 
   /**
-   * Logs a debug message if debug logging is enabled. This is a convenience method that delegates to the `log` method with the `LogLevel.DEBUG` level.
+   * Logs an error message. This is a convenience method that delegates to the `log` method with the `LogLevel.FATAL` level.
    *
-   * @param {string} message - The debug message to log.
+   * @param {string} message - The error message to log.
    * @param {...any[]} parameters - Additional parameters to be included in the log message. Supports any number of parameters.
    */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  public debug(message: string, ...parameters: any[]): void {
-    if (this.logDebug) {
-      this.log(LogLevel.DEBUG, message, ...parameters);
-    }
+  public fatal(message: string, ...parameters: any[]): void {
+    this.log(LogLevel.FATAL, message, ...parameters);
   }
+
 }
 
 /*
