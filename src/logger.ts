@@ -122,6 +122,7 @@ export type AnsiLoggerCallback = (level: string, time: string, name: string, mes
 // Initialize the global variable
 if (typeof globalThis.__AnsiLoggerCallback__ === 'undefined') globalThis.__AnsiLoggerCallback__ = undefined;
 
+/*
 if (process.argv.includes('--testAnsiLoggerColors')) {
   for (let i = 0; i < 256; i++) {
     console.log(`\x1b[38;5;${i}mForeground color ${i.toString().padStart(3, ' ')} \x1b[1mbright\x1b[0m`);
@@ -133,6 +134,7 @@ if (process.argv.includes('--testAnsiLoggerColors')) {
   console.log(`${er}Error${rs}`);
   console.log(`${ft}Fatal${rs}`);
 }
+*/
 
 /**
  * AnsiLogger provides a customizable logging utility with ANSI color support.
