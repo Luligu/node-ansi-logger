@@ -85,4 +85,3 @@ describe('AnsiLogger', () => {
 
   // Add more tests here for other methods like startTimer, stopTimer, setLogName, etc.
 });
-

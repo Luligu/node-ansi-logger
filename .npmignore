@@ -9,10 +9,12 @@ src
 
 # eslint
 .eslintrc
+.eslintignore
 
 # typescript
 tsconfig.json
 tsconfig.eslint.json
+tsconfig.tsbuildinfo
 
 # vscode
 .vscode
@@ -139,8 +141,26 @@ web_modules/
 jest.config.mjs
 __test__
 
+# git
+.gitattributes
+
 # eslint
 .eslintrc
+.eslintrc.json
 .eslintignore
+eslint.config.js
 
-Screenshot.png
+# prettier
+.prettierignore
+.prettierrc.json
+prettier.config.js
+
+# jest
+jest.config.js
+
+# screenshot
+screenshot
+
+# other stuff
+TODO.md
+yellow-button.png

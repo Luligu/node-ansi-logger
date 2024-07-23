@@ -8,7 +8,7 @@
  *
  * All rights reserved.
  *
-*/
+ */
 
 export function payloadStringify(payload: object): string {
   return stringify(payload, false, 0, 0, 0, 0, 0, 0, '"', '"');
@@ -30,8 +30,18 @@ export function debugStringify(payload: object): string {
   return stringify(payload, true, 247, 247);
 }
 
-export function stringify(payload: object, enableColors = false, colorPayload = 255, colorKey = 255, colorString = 35, colorNumber = 220,
-  colorBoolean = 159, colorUndefined = 1, keyQuote = '', stringQuote = '\''): string {
+export function stringify(
+  payload: object,
+  enableColors = false,
+  colorPayload = 255,
+  colorKey = 255,
+  colorString = 35,
+  colorNumber = 220,
+  colorBoolean = 159,
+  colorUndefined = 1,
+  keyQuote = '',
+  stringQuote = "'",
+): string {
   if (payload === null) return 'null';
   if (payload === undefined) return 'undefined';
   const clr = (color: number) => {
@@ -48,7 +58,7 @@ export function stringify(payload: object, enableColors = false, colorPayload = 
     }
     let newValue = '';
     newValue = value;
-    //console.log(typeof newValue, key, value);
+    // console.log(typeof newValue, key, value);
     if (value === null) {
       newValue = `${clr(colorUndefined)}null${reset()}`;
     } else if (typeof newValue === 'string') {
@@ -76,6 +86,5 @@ export function stringify(payload: object, enableColors = false, colorPayload = 
       string += `${clr(colorKey)}${keyQuote}${key}${keyQuote}${reset()}: ${newValue}`;
     }
   });
-  return string += ` ${clr(colorPayload)}` + (isArray ? ']' : '}') + `${reset()}`;
+  return (string += ` ${clr(colorPayload)}` + (isArray ? ']' : '}') + `${reset()}`);
 }
-
