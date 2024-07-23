@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { stringify } from './stringify';
+import { colorStringify, debugStringify, historyStringify, mqttStringify, payloadStringify, stringify } from './stringify';
 
 describe('stringify', () => {
   test('converts an object to a string', () => {
@@ -12,6 +12,11 @@ describe('stringify', () => {
     const input = { number: 123, bool: true };
     const expectedOutput = '{ number: 123, bool: true }';
     expect(stringify(input)).toBe(expectedOutput);
+    expect(payloadStringify(input)).toBe('{ "number": 123, "bool": true }');
+    expect(colorStringify(input)).toBe(colorStringify(input));
+    expect(historyStringify(input)).toBe(historyStringify(input));
+    expect(mqttStringify(input)).toBe(mqttStringify(input));
+    expect(debugStringify(input)).toBe(debugStringify(input));
   });
 
   test('works with nested objects', () => {
@@ -42,6 +47,11 @@ describe('stringify', () => {
     const input = { nullValue: undefined };
     const expectedOutput = '{ nullValue: undefined }';
     expect(stringify(input)).toBe(expectedOutput);
+  });
+
+  test('throw with function keys or unknown types', () => {
+    const input = { myFunc: () => 'Hello, world!' };
+    expect(() => stringify(input)).toThrow('Stringify unknown type');
   });
 
   test('works with undefined object', () => {
