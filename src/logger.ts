@@ -1,13 +1,24 @@
 /**
- * This file contains the class CustomLogger.
+ * This file contains the AnsiLogger .
  *
  * @file logger.ts
  * @author Luca Liguori
  * @date 2023-06-01
- * @version 1.8.8
+ * @version 2.0.0
  *
- * All rights reserved.
+ * Copyright 2023, 2024, 2025 Luca Liguori.
  *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 // ANSI color codes and styles are defined here for use in the logger
@@ -240,6 +251,7 @@ export class AnsiLogger {
   /**
    * Sets the log level for the logger.
    * @param {LogLevel} logLevel - The log level to set.
+   * @deprecated Use logLevel getter and setter instead.
    */
   public setLogLevel(logLevel: LogLevel): void {
     if (logLevel === LogLevel.DEBUG) this.logDebug = true;
@@ -354,6 +366,21 @@ export class AnsiLogger {
       .replace('ss', seconds.toString().padStart(2, '0'));
   }
 
+  /**
+   * Returns the current timestamp as a string.
+   *
+   * @returns {string} The current timestamp.
+   */
+  public now(): string {
+    return this.getTimestamp();
+  }
+
+  /**
+   * Returns the timestamp based on the configured format.
+   * If the log start time is set, it returns the time passed since the start time.
+   * Otherwise, it returns the current timestamp based on the configured format.
+   * @returns {string} The timestamp string.
+   */
   private getTimestamp(): string {
     if (this.logStartTime !== 0) {
       const timePassed = Date.now() - this.logStartTime;
@@ -386,7 +413,7 @@ export class AnsiLogger {
   }
 
   /**
-   * Logs a message with a specific level (e.g., info, warn, error, debug) and additional parameters.
+   * Logs a message with a specific level (e.g. debug, info, notice, warn, error, fatal) and additional parameters.
    * This method formats the log message with ANSI colors based on the log level and other logger settings.
    * It supports dynamic parameters for more detailed and formatted logging.
    *
@@ -557,7 +584,7 @@ export class AnsiLogger {
   /**
    * Logs a debug message if debug logging is enabled. This is a convenience method that delegates to the `log` method with the `LogLevel.DEBUG` level.
    *
-   * @param {string} message - The debug message to log.
+   * @param {string} message - The message to log.
    * @param {...any[]} parameters - Additional parameters to be included in the log message. Supports any number of parameters.
    */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -568,7 +595,7 @@ export class AnsiLogger {
   /**
    * Logs an informational message. This is a convenience method that delegates to the `log` method with the `LogLevel.INFO` level.
    *
-   * @param {string} message - The informational message to log.
+   * @param {string} message - The message to log.
    * @param {...any[]} parameters - Additional parameters to be included in the log message. Supports any number of parameters.
    */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -579,7 +606,7 @@ export class AnsiLogger {
   /**
    * Logs a notice message. This is a convenience method that delegates to the `log` method with the `LogLevel.NOTICE` level.
    *
-   * @param {string} message - The informational message to log.
+   * @param {string} message - The message to log.
    * @param {...any[]} parameters - Additional parameters to be included in the log message. Supports any number of parameters.
    */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -590,7 +617,7 @@ export class AnsiLogger {
   /**
    * Logs a warning message. This is a convenience method that delegates to the `log` method with the `LogLevel.WARN` level.
    *
-   * @param {string} message - The warning message to log.
+   * @param {string} message - The message to log.
    * @param {...any[]} parameters - Additional parameters to be included in the log message. Supports any number of parameters.
    */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -601,7 +628,7 @@ export class AnsiLogger {
   /**
    * Logs an error message. This is a convenience method that delegates to the `log` method with the `LogLevel.ERROR` level.
    *
-   * @param {string} message - The error message to log.
+   * @param {string} message - The message to log.
    * @param {...any[]} parameters - Additional parameters to be included in the log message. Supports any number of parameters.
    */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -610,9 +637,9 @@ export class AnsiLogger {
   }
 
   /**
-   * Logs an error message. This is a convenience method that delegates to the `log` method with the `LogLevel.FATAL` level.
+   * Logs a fatal message. This is a convenience method that delegates to the `log` method with the `LogLevel.FATAL` level.
    *
-   * @param {string} message - The error message to log.
+   * @param {string} message - The message to log.
    * @param {...any[]} parameters - Additional parameters to be included in the log message. Supports any number of parameters.
    */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
