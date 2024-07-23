@@ -1,7 +1,7 @@
 // logger.test.ts
 /* eslint-disable no-console */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { AnsiLogger, AnsiLoggerCallback, db, er, ft, LogLevel, nf, nt, wr } from './logger';
+import { AnsiLogger, AnsiLoggerCallback, db, er, ft, LogLevel, nf, nt, TimestampFormat, wr } from './logger';
 import { jest } from '@jest/globals';
 
 // Mocking console.log to test logging output
@@ -37,7 +37,7 @@ describe('AnsiLogger', () => {
   });
 
   it('should log an info message', () => {
-    const logger = new AnsiLogger({ logName: 'TestLogger', logWithColors: false });
+    const logger = new AnsiLogger({ logName: 'TestLogger', logWithColors: false, logTimestampFormat: TimestampFormat.LOCAL_DATE });
     logger.info('Test info message');
     expect(consoleOutput[0][0]).toMatch(/TestLogger/);
     expect(consoleOutput[0][0]).toMatch(/\[info\]/);
@@ -45,7 +45,7 @@ describe('AnsiLogger', () => {
   });
 
   it('should log an notice message', () => {
-    const logger = new AnsiLogger({ logName: 'TestLogger', logWithColors: false });
+    const logger = new AnsiLogger({ logName: 'TestLogger', logWithColors: false, logTimestampFormat: TimestampFormat.LOCAL_TIME });
     logger.notice('Test notice message');
     expect(consoleOutput[0][0]).toMatch(/TestLogger/);
     expect(consoleOutput[0][0]).toMatch(/\[notice\]/);
@@ -53,7 +53,7 @@ describe('AnsiLogger', () => {
   });
 
   it('should log an warn message', () => {
-    const logger = new AnsiLogger({ logName: 'TestLogger', logWithColors: false });
+    const logger = new AnsiLogger({ logName: 'TestLogger', logWithColors: false, logTimestampFormat: TimestampFormat.LOCAL_DATE_TIME });
     logger.warn('Test warn message');
     expect(consoleOutput[0][0]).toMatch(/TestLogger/);
     expect(consoleOutput[0][0]).toMatch(/\[warn\]/);
@@ -61,7 +61,7 @@ describe('AnsiLogger', () => {
   });
 
   it('should log an error message', () => {
-    const logger = new AnsiLogger({ logName: 'TestLogger', logWithColors: false });
+    const logger = new AnsiLogger({ logName: 'TestLogger', logWithColors: false, logTimestampFormat: TimestampFormat.ISO });
     logger.error('Test error message');
     expect(consoleOutput[0][0]).toMatch(/TestLogger/);
     expect(consoleOutput[0][0]).toMatch(/\[error\]/);
@@ -69,7 +69,7 @@ describe('AnsiLogger', () => {
   });
 
   it('should log a fatal message', () => {
-    const logger = new AnsiLogger({ logName: 'TestLogger', logWithColors: false });
+    const logger = new AnsiLogger({ logName: 'TestLogger', logWithColors: false, logTimestampFormat: TimestampFormat.TIME_MILLIS });
     logger.fatal('Test fatal message');
     expect(consoleOutput[0][0]).toMatch(/TestLogger/);
     expect(consoleOutput[0][0]).toMatch(/\[fatal\]/);
@@ -77,17 +77,21 @@ describe('AnsiLogger', () => {
   });
 
   it('should respect log level settings', () => {
-    const logger = new AnsiLogger({ logName: 'TestLogger', logWithColors: false });
+    const logger = new AnsiLogger({ logName: 'TestLogger', logWithColors: false, logTimestampFormat: TimestampFormat.CUSTOM, logCustomTimestampFormat: 'yyyyMMddHHmmss' });
+    logger.setLogName('TestLoggerABC');
     logger.log(LogLevel.WARN, 'Test warn message');
-    expect(consoleOutput[0][0]).toMatch(/TestLogger/);
+    expect(consoleOutput[0][0]).toMatch(/TestLoggerABC/);
     expect(consoleOutput[0][0]).toMatch(/\[warn\]/);
     expect(consoleOutput[0][0]).toMatch(/Test warn message/);
   });
 
   it('should log a debug message with colors when debug is enabled', () => {
     const logger = new AnsiLogger({ logName: 'TestLogger', logDebug: true });
+    logger.logName = 'TestLoggerABC';
+    expect(logger.logName).toBe('TestLoggerABC');
+    logger.setLogName('TestLoggerABC');
     logger.debug('Test debug message');
-    expect(consoleOutput[0][0]).toMatch(/TestLogger/);
+    expect(consoleOutput[0][0]).toMatch(/TestLoggerABC/);
     expect((consoleOutput[0][0] as string).includes(db)).toBeTruthy();
     expect(consoleOutput[0][1]).toMatch(/Test debug message/);
   });
@@ -100,6 +104,9 @@ describe('AnsiLogger', () => {
 
   it('should log a debug message with colors when level is debug', () => {
     const logger = new AnsiLogger({ logName: 'TestLogger', logLevel: LogLevel.DEBUG });
+    logger.setlogWithColors(true);
+    logger.setLogCustomTimestampFormat('yyyyMMddHHmmss');
+    logger.setLogTimestampFormat(TimestampFormat.CUSTOM);
     logger.debug('Test debug message');
     expect(consoleOutput[0][0]).toMatch(/TestLogger/);
     expect((consoleOutput[0][0] as string).includes(db)).toBeTruthy();
@@ -178,6 +185,19 @@ describe('AnsiLogger', () => {
     expect(consoleOutput[0][0]).toMatch(/TestLogger/);
     expect((consoleOutput[0][0] as string).includes(ft)).toBeTruthy();
     expect(consoleOutput[0][1]).toMatch(/Test fatal message/);
+  });
+  it('should log timer with colors', () => {
+    const logger = new AnsiLogger({ logName: 'TestLogger', logLevel: LogLevel.DEBUG });
+    logger.fatal('Test fatal message');
+    expect(consoleOutput[0][0]).toMatch(/TestLogger/);
+    expect((consoleOutput[0][0] as string).includes(ft)).toBeTruthy();
+    expect(consoleOutput[0][1]).toMatch(/Test fatal message/);
+
+    expect((logger as any).logStartTime).toBe(0);
+    logger.startTimer('Test timer');
+    expect((logger as any).logStartTime).not.toBe(0);
+    logger.stopTimer('Test timer');
+    expect((logger as any).logStartTime).toBe(0);
   });
 });
 
