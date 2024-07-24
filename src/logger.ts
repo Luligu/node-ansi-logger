@@ -53,7 +53,7 @@ export const WHITE = '\x1b[97m';
 
 // ANSI color codes short form to use in the logger
 export const db = '\x1b[38;5;245m'; // Debug 247
-export const nf = '\x1b[38;5;250m'; // Info 255
+export const nf = '\x1b[38;5;252m'; // Info 255
 export const nt = '\x1b[38;5;2m'; // Notice
 export const wr = '\x1b[38;5;3m'; // Warn 220
 export const er = '\x1b[38;5;1m'; // Error
@@ -135,25 +135,6 @@ export type AnsiLoggerCallback = (level: string, time: string, name: string, mes
 
 // Initialize the global variable
 if (typeof globalThis.__AnsiLoggerCallback__ === 'undefined') globalThis.__AnsiLoggerCallback__ = undefined;
-
-if (process.argv.includes('--testAnsiLoggerColors')) {
-  for (let i = 0; i < 256; i++) {
-    console.log(`\x1b[38;5;${i}mForeground color ${i.toString().padStart(3, ' ')} \x1b[1mbright\x1b[0m`);
-  }
-  console.log(`${db}Debug message${rs}`);
-  console.log(`${nf}Info message${rs}`);
-  console.log(`${nt}Notice message${rs}`);
-  console.log(`${wr}Warn message${rs}`);
-  console.log(`${er}Error message${rs}`);
-  console.log(`${ft}Fatal message${rs}`);
-  console.log(`${nf}Stringify payload: ${payloadStringify({ number: 1234, string: 'Text', boolean: true, null: null, undefined: undefined })}${rs}`);
-  console.log(`${nf}Stringify color: ${colorStringify({ number: 1234, string: 'Text', boolean: true, null: null, undefined: undefined })}${rs}`);
-  console.log(`${nf}Stringify history: ${historyStringify({ number: 1234, string: 'Text', boolean: true, null: null, undefined: undefined })}${rs}`);
-  console.log(`${nf}Stringify mqtt: ${mqttStringify({ number: 1234, string: 'Text', boolean: true, null: null, undefined: undefined })}${rs}`);
-  console.log(
-    `${db}Stringify debug: ${debugStringify({ number: 1234, string: 'Text', boolean: true, null: null, undefined: undefined, object: { number: 1234, string: 'Text', boolean: true } })}${rs}`,
-  );
-}
 
 /**
  * AnsiLogger provides a customizable logging utility with ANSI color support.
@@ -417,7 +398,7 @@ export class AnsiLogger {
    */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   public log(level: LogLevel, message: string, ...parameters: any[]): void {
-    const ts = '\x1b[38;5;249m'; // TimeStamp  White medium
+    const ts = '\x1b[38;5;245m'; // TimeStamp  White medium
     const ln = '\x1b[38;5;31m'; // LogName    Cyan
 
     const s1ln = '\x1b[38;5;0;48;5;31m'; // Highlight  LogName Black on Cyan
@@ -627,6 +608,33 @@ export class AnsiLogger {
   public fatal(message: string, ...parameters: any[]): void {
     this.log(LogLevel.FATAL, message, ...parameters);
   }
+}
+
+if (process.argv.includes('--testAnsiLoggerColors')) {
+  for (let i = 0; i < 256; i++) {
+    console.log(`\x1b[38;5;${i}mForeground color ${i.toString().padStart(3, ' ')} \x1b[1mbright\x1b[0m`);
+  }
+  console.log(`${db}Debug message${rs}`);
+  console.log(`${nf}Info message${rs}`);
+  console.log(`${nt}Notice message${rs}`);
+  console.log(`${wr}Warn message${rs}`);
+  console.log(`${er}Error message${rs}`);
+  console.log(`${ft}Fatal message${rs}`);
+  console.log(`${nf}Stringify payload: ${payloadStringify({ number: 1234, string: 'Text', boolean: true, null: null, undefined: undefined })}${rs}`);
+  console.log(`${nf}Stringify color: ${colorStringify({ number: 1234, string: 'Text', boolean: true, null: null, undefined: undefined })}${rs}`);
+  console.log(`${nf}Stringify history: ${historyStringify({ number: 1234, string: 'Text', boolean: true, null: null, undefined: undefined })}${rs}`);
+  console.log(`${nf}Stringify mqtt: ${mqttStringify({ number: 1234, string: 'Text', boolean: true, null: null, undefined: undefined })}${rs}`);
+  console.log(
+    `${db}Stringify debug: ${debugStringify({ number: 1234, string: 'Text', boolean: true, null: null, undefined: undefined, object: { number: 1234, string: 'Text', boolean: true } })}${rs}`,
+  );
+
+  const logger = new AnsiLogger({ logName: 'TestLogger', logLevel: LogLevel.DEBUG, logWithColors: true, logTimestampFormat: TimestampFormat.TIME_MILLIS });
+  logger.debug('Debug message');
+  logger.info('Info message');
+  logger.notice('Notice message');
+  logger.warn('Warn message');
+  logger.error('Error message');
+  logger.fatal('Fatal message');
 }
 
 /*

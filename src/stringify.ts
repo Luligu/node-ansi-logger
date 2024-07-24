@@ -26,7 +26,7 @@ export function payloadStringify(payload: object): string {
 }
 
 export function colorStringify(payload: object): string {
-  return stringify(payload, true, 69, 250, 2, 3, 6, 168);
+  return stringify(payload, true, 69, 252, 2, 3, 6, 168);
 }
 
 export function historyStringify(payload: object): string {
@@ -44,7 +44,7 @@ export function debugStringify(payload: object): string {
 export function stringify(
   payload: object,
   enableColors = false,
-  colorPayload = 250,
+  colorPayload = 252,
   colorKey = 250,
   colorString = 35,
   colorNumber = 220,
