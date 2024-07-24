@@ -76,6 +76,8 @@ export function stringify(
       newValue = `${clr(colorString)}${stringQuote}${newValue}${stringQuote}${reset()}`;
     } else if (typeof newValue === 'number') {
       newValue = `${clr(colorNumber)}${newValue}${reset()}`;
+    } else if (typeof newValue === 'bigint') {
+      newValue = `${clr(colorNumber)}${newValue}${reset()}`;
     } else if (typeof newValue === 'boolean') {
       newValue = `${clr(colorBoolean)}${newValue}${reset()}`;
     } else if (typeof newValue === 'undefined') {
@@ -86,8 +88,6 @@ export function stringify(
       } else {
         newValue = '{...}';
       }
-    } else if (typeof newValue === 'bigint') {
-      newValue = `${clr(colorNumber + 1)}${newValue}${reset()}`;
     } else {
       throw new Error('Stringify unknown type');
     }
