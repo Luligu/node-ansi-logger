@@ -121,7 +121,7 @@ export const enum TimestampFormat {
 export interface AnsiLoggerParams {
   hbLog?: Logger;
   logName?: string;
-  logDebug?: boolean;
+  logDebug?: boolean; // Deprecated
   logLevel?: LogLevel;
   logWithColors?: boolean;
   logTimestampFormat?: TimestampFormat;
@@ -152,46 +152,29 @@ if (process.argv.includes('--testAnsiLoggerColors')) {
  * It allows for various configurations such as enabling debug logs, customizing log name, and more.
  */
 export class AnsiLogger {
+  private _hbLog: Logger | undefined;
   private _logName: string;
-  private logTimestampFormat: TimestampFormat;
-  private logCustomTimestampFormat: string;
-  private hbLog: Logger | undefined;
-  private logStartTime: number;
-  private logWithColors: boolean;
-  private logDebug: boolean;
   private _logLevel: LogLevel;
-  private params: AnsiLoggerParams;
+  private _logWithColors: boolean;
+  private _logTimestampFormat: TimestampFormat;
+  private _logCustomTimestampFormat: string;
+
+  private logStartTime: number;
   private callback: AnsiLoggerCallback | undefined = undefined;
 
   /**
    * Constructs a new AnsiLogger instance with optional configuration parameters.
    * @param {AnsiLoggerParams} optionalParams - Configuration options for the logger.
    */
-  constructor(optionalParams: AnsiLoggerParams) {
-    this.params = Object.assign(
-      {
-        hbLog: undefined,
-        logName: 'NodeAnsiLogger',
-        logDebug: true,
-        logLevel: LogLevel.DEBUG,
-        logWithColors: true,
-        logTimestampFormat: TimestampFormat.LOCAL_DATE_TIME,
-        logCustomTimestampFormat: 'yyyy-MM-dd HH:mm:ss',
-      },
-      optionalParams,
-    );
+  constructor(params: AnsiLoggerParams) {
+    this._hbLog = params.hbLog;
+    this._logName = params.logName ?? 'NodeAnsiLogger';
+    this._logLevel = params.logLevel ?? (params.logDebug === true ? LogLevel.DEBUG : LogLevel.INFO);
+    this._logWithColors = params.logWithColors ?? true;
+    this._logTimestampFormat = params.logTimestampFormat ?? TimestampFormat.LOCAL_DATE_TIME;
+    this._logCustomTimestampFormat = params.logCustomTimestampFormat ?? 'yyyy-MM-dd HH:mm:ss';
 
-    this.hbLog = this.params.hbLog;
-    this._logName = this.params.logName ?? 'NodeAnsiLogger';
-    this.logDebug = this.params.logDebug ?? true;
-    this._logLevel = this.params.logLevel ?? LogLevel.DEBUG;
-    this.logWithColors = this.params.logWithColors ?? true;
-    this.logTimestampFormat = this.params.logTimestampFormat ?? TimestampFormat.LOCAL_DATE_TIME;
-    this.logCustomTimestampFormat = this.params.logCustomTimestampFormat ?? 'yyyy-MM-dd HH:mm:ss';
     this.logStartTime = 0;
-    // Set the log level with preference to the logDebug flag
-    if (optionalParams.logLevel !== undefined) this.setLogLevel(optionalParams.logLevel);
-    else this.setLogDebug(this.logDebug);
   }
 
   /**
@@ -204,10 +187,10 @@ export class AnsiLogger {
 
   /**
    * Sets the log name for the logger.
-   * @param {string} logName - The logger name to set.
+   * @param {string} name - The logger name to set.
    */
-  set logName(logName: string) {
-    this._logName = logName;
+  set logName(name: string) {
+    this._logName = name;
   }
 
   /**
@@ -216,18 +199,17 @@ export class AnsiLogger {
    * @deprecated Use logName getter and setter instead.
    */
   public setLogName(name: string): void {
-    this._logName = name;
+    this.logName = name;
   }
 
   /**
    * Enables or disables debug logging.
    * @param {boolean} logDebug - Flag to enable or disable debug logging.
-   * @deprecated Use setLogLevel method instead.
+   * @deprecated Use logLevel getter and setter instead.
    */
   public setLogDebug(logDebug: boolean): void {
-    this.logDebug = logDebug;
-    if (logDebug) this._logLevel = LogLevel.DEBUG;
-    else this._logLevel = LogLevel.INFO;
+    if (logDebug) this.logLevel = LogLevel.DEBUG;
+    else this.logLevel = LogLevel.INFO;
   }
 
   /**
@@ -243,28 +225,32 @@ export class AnsiLogger {
    * @param {LogLevel} logLevel - The log level to set.
    */
   set logLevel(logLevel: LogLevel) {
-    if (logLevel === LogLevel.DEBUG) this.logDebug = true;
-    else this.logDebug = false;
     this._logLevel = logLevel;
   }
 
   /**
-   * Sets the log level for the logger.
-   * @param {LogLevel} logLevel - The log level to set.
-   * @deprecated Use logLevel getter and setter instead.
+   * Gets the logWithColors flag of the logger.
+   * @returns {boolean} The logWithColors parameter.
    */
-  public setLogLevel(logLevel: LogLevel): void {
-    if (logLevel === LogLevel.DEBUG) this.logDebug = true;
-    else this.logDebug = false;
-    this._logLevel = logLevel;
+  get logWithColors(): boolean {
+    return this._logWithColors;
+  }
+
+  /**
+   * Sets the logWithColors flag of the logger.
+   * @param {boolean} logWithColors - The logWithColors parameter to set.
+   */
+  set logWithColors(logWithColors: boolean) {
+    this._logWithColors = logWithColors;
   }
 
   /**
    * Enables or disables logging with ANSI colors.
    * @param {boolean} logWithColors - Flag to enable or disable ANSI color logging.
+   * @deprecated Use logWithColors getter and setter instead.
    */
   public setlogWithColors(logWithColors: boolean): void {
-    this.logWithColors = logWithColors;
+    this._logWithColors = logWithColors;
   }
 
   /**
@@ -272,7 +258,7 @@ export class AnsiLogger {
    * @param {TimestampFormat} format - The timestamp format to use.
    */
   public setLogTimestampFormat(format: TimestampFormat): void {
-    this.logTimestampFormat = format;
+    this._logTimestampFormat = format;
   }
 
   /**
@@ -280,7 +266,7 @@ export class AnsiLogger {
    * @param {string} format - The custom timestamp format string.
    */
   public setLogCustomTimestampFormat(format: string): void {
-    this.logCustomTimestampFormat = format;
+    this._logCustomTimestampFormat = format;
   }
 
   /**
@@ -387,7 +373,7 @@ export class AnsiLogger {
       return `Timer:    ${timePassed.toString().padStart(7, ' ')} ms`;
     } else {
       let timestamp: string;
-      switch (this.logTimestampFormat) {
+      switch (this._logTimestampFormat) {
         case TimestampFormat.LOCAL_DATE:
           timestamp = new Date().toLocaleDateString();
           break;
@@ -405,7 +391,7 @@ export class AnsiLogger {
           timestamp = `${new Date().getHours().toString().padStart(2, '0')}:${new Date().getMinutes().toString().padStart(2, '0')}:${new Date().getSeconds().toString().padStart(2, '0')}.${new Date().getMilliseconds().toString().padStart(3, '0')}`;
           break;
         case TimestampFormat.CUSTOM:
-          timestamp = this.formatCustomTimestamp(new Date(), this.logCustomTimestampFormat);
+          timestamp = this.formatCustomTimestamp(new Date(), this._logCustomTimestampFormat);
           break;
       }
       return timestamp;
@@ -448,12 +434,12 @@ export class AnsiLogger {
       console.error('Error executing callback:', error);
     }
 
-    if (this.hbLog !== undefined) {
+    if (this._hbLog !== undefined) {
       if (level !== LogLevel.NONE) {
-        this.hbLog.log(level, message, ...parameters);
+        this._hbLog.log(level, message, ...parameters);
       }
     } else {
-      if (this.logWithColors) {
+      if (this._logWithColors) {
         let logNameColor = ln;
         if (typeof message !== 'string' || message.startsWith === undefined) {
           logNameColor = ln;

@@ -22,8 +22,26 @@ afterAll(() => {
 });
 
 describe('AnsiLogger', () => {
+  it('should name the logger', () => {
+    const logger = new AnsiLogger({ logName: 'TestLogger' });
+    expect(logger.logName).toBe('TestLogger');
+  });
+
+  it('should have the default name', () => {
+    const logger = new AnsiLogger({});
+    expect(logger.logName).toBe('NodeAnsiLogger');
+  });
+
+  it('should not log a debug message when debug is enabled and logLevel is higher', () => {
+    const logger = new AnsiLogger({ logDebug: true, logLevel: LogLevel.INFO });
+    expect(logger.logLevel).toBe(LogLevel.INFO);
+    expect(logger.logWithColors).toBe(true);
+  });
+
   it('should log a debug message when debug is enabled', () => {
     const logger = new AnsiLogger({ logName: 'TestLogger', logDebug: true, logWithColors: false });
+    expect(logger.logLevel).toBe(LogLevel.DEBUG);
+    expect(logger.logWithColors).toBe(false);
     logger.debug('Test debug message');
     expect(consoleOutput[0][0]).toMatch(/TestLogger/);
     expect(consoleOutput[0][0]).toMatch(/\[debug\]/);
@@ -32,6 +50,9 @@ describe('AnsiLogger', () => {
 
   it('should not log a debug message when debug is disabled', () => {
     const logger = new AnsiLogger({ logName: 'TestLogger', logDebug: false, logWithColors: false });
+    expect(logger.logLevel).toBe(LogLevel.INFO);
+    expect(logger.logName).toBe('TestLogger');
+    expect(logger.logWithColors).toBe(false);
     logger.debug('Test debug message');
     expect(consoleOutput.length).toBe(0);
   });
@@ -122,7 +143,6 @@ describe('AnsiLogger', () => {
   it('should not log a debug message with colors when level is none', () => {
     const logger = new AnsiLogger({ logName: 'TestLogger', logLevel: LogLevel.NONE });
     expect(logger.logLevel).toBe(LogLevel.NONE);
-    expect((logger as any).logDebug).toBe(false);
     logger.debug('Test debug message');
     expect(consoleOutput.length).toBe(0);
   });
@@ -130,7 +150,6 @@ describe('AnsiLogger', () => {
   it('should not log a messages with colors when level higher', () => {
     const logger = new AnsiLogger({ logName: 'TestLogger', logLevel: LogLevel.NONE });
     expect(logger.logLevel).toBe(LogLevel.NONE);
-    expect((logger as any).logDebug).toBe(false);
     logger.debug('Test debug message');
     expect(consoleOutput.length).toBe(0);
     consoleOutput = [];
@@ -218,25 +237,30 @@ describe('Logger callbacks', () => {
     logger.setCallback(mockCallback);
     expect(logger.getCallback()).toBe(mockCallback);
     const message = 'test message';
-    const level = LogLevel.INFO; // Assuming LogLevel is an enum or similar for log levels
+    const level = LogLevel.INFO;
     const parameters = ['param1', 'param2'];
-    logger.log(level, message, ...parameters); // Assuming the method to log is named 'log'
+    logger.log(level, message, ...parameters);
     expect(mockCallback).toHaveBeenCalledWith(level, expect.any(String), logger.logName, `${message} ${parameters.join(' ')}`);
     logger.setCallback(originalLocalCallback);
   });
 
   test('calls global callback with correct parameters when instance-specific callback is not set', () => {
     const mockCallback = jest.fn();
-    const logger = new AnsiLogger({ logName: 'TestLogger callback' });
+    const logger = new AnsiLogger({ logName: 'TestLogger1 callback' });
     originalGlobalCallback = logger.getGlobalCallback();
     expect(originalGlobalCallback).toBeUndefined();
     logger.setGlobalCallback(mockCallback);
     expect(logger.getGlobalCallback()).toBe(mockCallback);
     const message = 'test message';
-    const level = LogLevel.INFO; // Assuming LogLevel is an enum or similar for log levels
+    const level = LogLevel.INFO;
     const parameters = ['param1', 'param2'];
-    logger.log(level, message, ...parameters); // Assuming the method to log is named 'log'
+    logger.log(level, message, ...parameters);
     expect(mockCallback).toHaveBeenCalledWith(level, expect.any(String), logger.logName, `${message} ${parameters.join(' ')}`);
+
+    const logger2 = new AnsiLogger({ logName: 'TestLogger2 callback' });
+    logger2.log(LogLevel.NOTICE, 'Logger2 message');
+    expect(logger2.getGlobalCallback()).toBe(mockCallback);
+
     logger.setGlobalCallback(originalGlobalCallback);
   });
 
