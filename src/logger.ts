@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 /**
  * This file contains the AnsiLogger .
  *
@@ -20,6 +21,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+import { colorStringify, debugStringify, historyStringify, mqttStringify, payloadStringify } from './stringify.js';
 
 // ANSI color codes and styles are defined here for use in the logger
 export const RESET = '\x1b[40;0m';
@@ -49,7 +52,7 @@ export const GREY = '\x1b[90m';
 export const WHITE = '\x1b[97m';
 
 // ANSI color codes short form to use in the logger
-export const db = '\x1b[38;5;240m'; // Debug 247
+export const db = '\x1b[38;5;245m'; // Debug 247
 export const nf = '\x1b[38;5;250m'; // Info 255
 export const nt = '\x1b[38;5;2m'; // Notice
 export const wr = '\x1b[38;5;3m'; // Warn 220
@@ -58,7 +61,7 @@ export const ft = '\x1b[38;5;9m'; // Fatal
 export const rs = '\x1b[40;0m'; // Reset colors to default foreground and background
 export const rk = '\x1b[K'; // Erase from cursor
 
-// Used internally for: homebridge-mqtt-accessories and matterbridge-mqtt-accessories
+// Used internally by plugins
 export const dn = '\x1b[38;5;33m'; // Display name device
 export const gn = '\x1b[38;5;35m'; // Display name group
 export const idn = '\x1b[48;5;21m\x1b[38;5;255m'; // Inverted display name device
@@ -133,19 +136,24 @@ export type AnsiLoggerCallback = (level: string, time: string, name: string, mes
 // Initialize the global variable
 if (typeof globalThis.__AnsiLoggerCallback__ === 'undefined') globalThis.__AnsiLoggerCallback__ = undefined;
 
-/*
 if (process.argv.includes('--testAnsiLoggerColors')) {
   for (let i = 0; i < 256; i++) {
     console.log(`\x1b[38;5;${i}mForeground color ${i.toString().padStart(3, ' ')} \x1b[1mbright\x1b[0m`);
   }
-  console.log(`${db}Debug${rs}`);
-  console.log(`${nf}Info${rs}`);
-  console.log(`${nt}Notice${rs}`);
-  console.log(`${wr}Warn${rs}`);
-  console.log(`${er}Error${rs}`);
-  console.log(`${ft}Fatal${rs}`);
+  console.log(`${db}Debug message${rs}`);
+  console.log(`${nf}Info message${rs}`);
+  console.log(`${nt}Notice message${rs}`);
+  console.log(`${wr}Warn message${rs}`);
+  console.log(`${er}Error message${rs}`);
+  console.log(`${ft}Fatal message${rs}`);
+  console.log(`${nf}Stringify payload: ${payloadStringify({ number: 1234, string: 'Text', boolean: true, null: null, undefined: undefined })}${rs}`);
+  console.log(`${nf}Stringify color: ${colorStringify({ number: 1234, string: 'Text', boolean: true, null: null, undefined: undefined })}${rs}`);
+  console.log(`${nf}Stringify history: ${historyStringify({ number: 1234, string: 'Text', boolean: true, null: null, undefined: undefined })}${rs}`);
+  console.log(`${nf}Stringify mqtt: ${mqttStringify({ number: 1234, string: 'Text', boolean: true, null: null, undefined: undefined })}${rs}`);
+  console.log(
+    `${db}Stringify debug: ${debugStringify({ number: 1234, string: 'Text', boolean: true, null: null, undefined: undefined, object: { number: 1234, string: 'Text', boolean: true } })}${rs}`,
+  );
 }
-*/
 
 /**
  * AnsiLogger provides a customizable logging utility with ANSI color support.
@@ -430,7 +438,6 @@ export class AnsiLogger {
         __AnsiLoggerCallback__(level, this.getTimestamp(), this._logName, message);
       }
     } catch (error) {
-      // eslint-disable-next-line no-console
       console.error('Error executing callback:', error);
     }
 
@@ -459,25 +466,21 @@ export class AnsiLogger {
         switch (level) {
           case LogLevel.DEBUG:
             if (this._logLevel === LogLevel.DEBUG) {
-              // eslint-disable-next-line no-console
               console.log(`${rs}${ts}[${this.getTimestamp()}] ${logNameColor}[${this._logName}]${rs}${db}`, message, ...parameters, rs + rk);
             }
             break;
           case LogLevel.INFO:
             if (this._logLevel === LogLevel.DEBUG || this._logLevel === LogLevel.INFO) {
-              // eslint-disable-next-line no-console
               console.log(`${rs}${ts}[${this.getTimestamp()}] ${logNameColor}[${this._logName}]${rs}${nf}`, message, ...parameters, rs + rk);
             }
             break;
           case LogLevel.NOTICE:
             if (this._logLevel === LogLevel.DEBUG || this._logLevel === LogLevel.INFO || this._logLevel === LogLevel.NOTICE) {
-              // eslint-disable-next-line no-console
               console.log(`${rs}${ts}[${this.getTimestamp()}] ${logNameColor}[${this._logName}]${rs}${nt}`, message, ...parameters, rs + rk);
             }
             break;
           case LogLevel.WARN:
             if (this._logLevel === LogLevel.DEBUG || this._logLevel === LogLevel.INFO || this._logLevel === LogLevel.NOTICE || this._logLevel === LogLevel.WARN) {
-              // eslint-disable-next-line no-console
               console.log(`${rs}${ts}[${this.getTimestamp()}] ${logNameColor}[${this._logName}]${rs}${wr}`, message, ...parameters, rs + rk);
             }
             break;
@@ -489,7 +492,6 @@ export class AnsiLogger {
               this._logLevel === LogLevel.WARN ||
               this._logLevel === LogLevel.ERROR
             ) {
-              // eslint-disable-next-line no-console
               console.log(`${rs}${ts}[${this.getTimestamp()}] ${logNameColor}[${this._logName}]${rs}${er}`, message, ...parameters, rs + rk);
             }
             break;
@@ -502,7 +504,6 @@ export class AnsiLogger {
               this._logLevel === LogLevel.ERROR ||
               this._logLevel === LogLevel.FATAL
             ) {
-              // eslint-disable-next-line no-console
               console.log(`${rs}${ts}[${this.getTimestamp()}] ${logNameColor}[${this._logName}]${rs}${ft}`, message, ...parameters, rs + rk);
             }
             break;
@@ -513,25 +514,21 @@ export class AnsiLogger {
         switch (level) {
           case LogLevel.DEBUG:
             if (this._logLevel === LogLevel.DEBUG) {
-              // eslint-disable-next-line no-console
               console.log(`${rs}[${this.getTimestamp()}] [${this._logName}] [${level}] ${message}`, ...parameters);
             }
             break;
           case LogLevel.INFO:
             if (this._logLevel === LogLevel.DEBUG || this._logLevel === LogLevel.INFO) {
-              // eslint-disable-next-line no-console
               console.log(`${rs}[${this.getTimestamp()}] [${this._logName}] [${level}] ${message}`, ...parameters);
             }
             break;
           case LogLevel.NOTICE:
             if (this._logLevel === LogLevel.DEBUG || this._logLevel === LogLevel.INFO || this._logLevel === LogLevel.NOTICE) {
-              // eslint-disable-next-line no-console
               console.log(`${rs}[${this.getTimestamp()}] [${this._logName}] [${level}] ${message}`, ...parameters);
             }
             break;
           case LogLevel.WARN:
             if (this._logLevel === LogLevel.DEBUG || this._logLevel === LogLevel.INFO || this._logLevel === LogLevel.NOTICE || this._logLevel === LogLevel.WARN) {
-              // eslint-disable-next-line no-console
               console.log(`${rs}[${this.getTimestamp()}] [${this._logName}] [${level}] ${message}`, ...parameters);
             }
             break;
@@ -543,7 +540,6 @@ export class AnsiLogger {
               this._logLevel === LogLevel.WARN ||
               this._logLevel === LogLevel.ERROR
             ) {
-              // eslint-disable-next-line no-console
               console.log(`${rs}[${this.getTimestamp()}] [${this._logName}] [${level}] ${message}`, ...parameters);
             }
             break;
@@ -556,7 +552,6 @@ export class AnsiLogger {
               this._logLevel === LogLevel.ERROR ||
               this._logLevel === LogLevel.FATAL
             ) {
-              // eslint-disable-next-line no-console
               console.log(`${rs}[${this.getTimestamp()}] [${this._logName}] [${level}] ${message}`, ...parameters);
             }
             break;

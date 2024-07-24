@@ -26,7 +26,7 @@ export function payloadStringify(payload: object): string {
 }
 
 export function colorStringify(payload: object): string {
-  return stringify(payload, true, 255, 255, 35, 220, 159, 1);
+  return stringify(payload, true, 69, 250, 2, 3, 6, 168);
 }
 
 export function historyStringify(payload: object): string {
@@ -34,18 +34,18 @@ export function historyStringify(payload: object): string {
 }
 
 export function mqttStringify(payload: object): string {
-  return stringify(payload, true, 69, 247);
+  return stringify(payload, true, 69, 245);
 }
 
 export function debugStringify(payload: object): string {
-  return stringify(payload, true, 247, 247);
+  return stringify(payload, true, 69, 245, 2, 3, 6, 168);
 }
 
 export function stringify(
   payload: object,
   enableColors = false,
-  colorPayload = 255,
-  colorKey = 255,
+  colorPayload = 250,
+  colorKey = 250,
   colorString = 35,
   colorNumber = 220,
   colorBoolean = 159,
