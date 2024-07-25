@@ -1,6 +1,6 @@
 {
   "name": "node-ansi-logger",
-  "version": "2.0.4",
+  "version": "2.0.5",
   "description": "Enhanced Color-Coded Logging for Node.js in type script",
   "author": "https://github.com/Luligu",
   "license": "MIT",
@@ -47,7 +47,7 @@
     "version:minor": "npm version minor",
     "version:major": "npm version major",
     "install:dependencies": "npm install --save-dev rimraf",
-    "install:typescript": "npm install --save-dev @types/express @types/node @types/ws typescript && npm run build",
+    "install:typescript": "npm install --save-dev @types/node typescript && npm run build",
     "install:eslint": "npm install --save-dev @eslint/js @types/eslint__js typescript-eslint",
     "install:prettier": "npm install --save-dev prettier eslint-config-prettier eslint-plugin-prettier",
     "install:jest": "npm install --save-dev jest ts-jest @types/jest eslint-plugin-jest"
