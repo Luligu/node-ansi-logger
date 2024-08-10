@@ -410,13 +410,13 @@ export class AnsiLogger {
       if (this.callback !== undefined) {
         // Convert parameters to string and append to message
         const parametersString = parameters.length > 0 ? ' ' + parameters.join(' ') : '';
-        message += parametersString;
-        this.callback(level, this.getTimestamp(), this._logName, message);
+        const newMessage = message + parametersString;
+        this.callback(level, this.getTimestamp(), this._logName, newMessage);
       } else if (__AnsiLoggerCallback__ && __AnsiLoggerCallback__ !== undefined) {
         // Convert parameters to string and append to message
         const parametersString = parameters.length > 0 ? ' ' + parameters.join(' ') : '';
-        message += parametersString;
-        __AnsiLoggerCallback__(level, this.getTimestamp(), this._logName, message);
+        const newMessage = message + parametersString;
+        __AnsiLoggerCallback__(level, this.getTimestamp(), this._logName, newMessage);
       }
     } catch (error) {
       console.error('Error executing callback:', error);
@@ -447,22 +447,22 @@ export class AnsiLogger {
         switch (level) {
           case LogLevel.DEBUG:
             if (this._logLevel === LogLevel.DEBUG) {
-              console.log(`${rs}${ts}[${this.getTimestamp()}] ${logNameColor}[${this._logName}]${rs}${db}`, message, ...parameters, rs + rk);
+              console.log(`${rs}${ts}[${this.getTimestamp()}] ${logNameColor}[${this._logName}]${rs}${db}`, message + rs + rk, ...parameters);
             }
             break;
           case LogLevel.INFO:
             if (this._logLevel === LogLevel.DEBUG || this._logLevel === LogLevel.INFO) {
-              console.log(`${rs}${ts}[${this.getTimestamp()}] ${logNameColor}[${this._logName}]${rs}${nf}`, message, ...parameters, rs + rk);
+              console.log(`${rs}${ts}[${this.getTimestamp()}] ${logNameColor}[${this._logName}]${rs}${nf}`, message + rs + rk, ...parameters);
             }
             break;
           case LogLevel.NOTICE:
             if (this._logLevel === LogLevel.DEBUG || this._logLevel === LogLevel.INFO || this._logLevel === LogLevel.NOTICE) {
-              console.log(`${rs}${ts}[${this.getTimestamp()}] ${logNameColor}[${this._logName}]${rs}${nt}`, message, ...parameters, rs + rk);
+              console.log(`${rs}${ts}[${this.getTimestamp()}] ${logNameColor}[${this._logName}]${rs}${nt}`, message + rs + rk, ...parameters);
             }
             break;
           case LogLevel.WARN:
             if (this._logLevel === LogLevel.DEBUG || this._logLevel === LogLevel.INFO || this._logLevel === LogLevel.NOTICE || this._logLevel === LogLevel.WARN) {
-              console.log(`${rs}${ts}[${this.getTimestamp()}] ${logNameColor}[${this._logName}]${rs}${wr}`, message, ...parameters, rs + rk);
+              console.log(`${rs}${ts}[${this.getTimestamp()}] ${logNameColor}[${this._logName}]${rs}${wr}`, message + rs + rk, ...parameters);
             }
             break;
           case LogLevel.ERROR:
@@ -473,7 +473,7 @@ export class AnsiLogger {
               this._logLevel === LogLevel.WARN ||
               this._logLevel === LogLevel.ERROR
             ) {
-              console.log(`${rs}${ts}[${this.getTimestamp()}] ${logNameColor}[${this._logName}]${rs}${er}`, message, ...parameters, rs + rk);
+              console.log(`${rs}${ts}[${this.getTimestamp()}] ${logNameColor}[${this._logName}]${rs}${er}`, message + rs + rk, ...parameters);
             }
             break;
           case LogLevel.FATAL:
@@ -485,7 +485,7 @@ export class AnsiLogger {
               this._logLevel === LogLevel.ERROR ||
               this._logLevel === LogLevel.FATAL
             ) {
-              console.log(`${rs}${ts}[${this.getTimestamp()}] ${logNameColor}[${this._logName}]${rs}${ft}`, message, ...parameters, rs + rk);
+              console.log(`${rs}${ts}[${this.getTimestamp()}] ${logNameColor}[${this._logName}]${rs}${ft}`, message + rs + rk, ...parameters);
             }
             break;
           default:
@@ -610,6 +610,7 @@ export class AnsiLogger {
   }
 }
 
+// Use with node dist/logger.js --testAnsiLoggerColors to test ANSI colors
 if (process.argv.includes('--testAnsiLoggerColors')) {
   for (let i = 0; i < 256; i++) {
     console.log(`\x1b[38;5;${i}mForeground color ${i.toString().padStart(3, ' ')} \x1b[1mbright\x1b[0m`);
@@ -635,6 +636,12 @@ if (process.argv.includes('--testAnsiLoggerColors')) {
   logger.warn('Warn message');
   logger.error('Error message');
   logger.fatal('Fatal message');
+  logger.log(LogLevel.DEBUG, `Debug message with params${rs}\n`, {
+    logName: 'TestLogger',
+    logLevel: LogLevel.DEBUG,
+    logWithColors: true,
+    logTimestampFormat: TimestampFormat.TIME_MILLIS,
+  });
 }
 
 /*
