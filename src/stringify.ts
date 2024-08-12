@@ -52,15 +52,25 @@ export function stringify(
   colorUndefined = 1,
   keyQuote = '',
   stringQuote = "'",
+  seenObjects = new Set<object>(),
 ): string {
   if (payload === null) return 'null';
   if (payload === undefined) return 'undefined';
+
   const clr = (color: number) => {
     return enableColors ? `\x1b[38;5;${color}m` : '';
   };
   const reset = () => {
     return enableColors ? '\x1b[0m' : '';
   };
+
+  // Check if the object is already in the seenObjects set
+  if (seenObjects.has(payload)) {
+    return `${clr(colorUndefined)}[Circular]${reset()}`;
+  }
+  // Add the current object to the seenObjects set
+  seenObjects.add(payload);
+
   const isArray = Array.isArray(payload);
   let string = `${reset()}${clr(colorPayload)}` + (isArray ? '[ ' : '{ ');
   Object.entries(payload).forEach(([key, value], index) => {
@@ -82,9 +92,11 @@ export function stringify(
       newValue = `${clr(colorBoolean)}${newValue}${reset()}`;
     } else if (typeof newValue === 'undefined') {
       newValue = `${clr(colorUndefined)}undefined${reset()}`;
+    } else if (typeof newValue === 'function') {
+      newValue = `${clr(colorUndefined)}function${reset()}`;
     } else if (typeof newValue === 'object') {
       if (Object.keys(newValue).length < 100) {
-        newValue = stringify(newValue, enableColors, colorPayload, colorKey, colorString, colorNumber, colorBoolean, colorUndefined, keyQuote, stringQuote);
+        newValue = stringify(newValue, enableColors, colorPayload, colorKey, colorString, colorNumber, colorBoolean, colorUndefined, keyQuote, stringQuote, seenObjects);
       } else {
         newValue = '{...}';
       }
@@ -97,5 +109,9 @@ export function stringify(
       string += `${clr(colorKey)}${keyQuote}${key}${keyQuote}${reset()}: ${newValue}`;
     }
   });
+
+  // Remove the current object from the seenObjects set after processing
+  seenObjects.delete(payload);
+
   return (string += ` ${clr(colorPayload)}` + (isArray ? ']' : '}') + `${reset()}`);
 }

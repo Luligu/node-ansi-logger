@@ -22,7 +22,9 @@
  * limitations under the License.
  */
 
+import path from 'path';
 import { colorStringify, debugStringify, historyStringify, mqttStringify, payloadStringify } from './stringify.js';
+import * as fs from 'fs';
 
 // ANSI color codes and styles are defined here for use in the logger
 export const RESET = '\x1b[40;0m';
@@ -133,8 +135,12 @@ export interface AnsiLoggerParams {
 
 export type AnsiLoggerCallback = (level: string, time: string, name: string, message: string) => void;
 
-// Initialize the global variable
+// Initialize the global variables
 if (typeof globalThis.__AnsiLoggerCallback__ === 'undefined') globalThis.__AnsiLoggerCallback__ = undefined;
+if (typeof globalThis.__AnsiLoggerCallbackLoglevel__ === 'undefined') globalThis.__AnsiLoggerCallbackLoglevel__ = undefined;
+
+if (typeof globalThis.__AnsiLoggerFilePath__ === 'undefined') globalThis.__AnsiLoggerFilePath__ = undefined;
+if (typeof globalThis.__AnsiLoggerFileLoglevel__ === 'undefined') globalThis.__AnsiLoggerFileLoglevel__ = undefined;
 
 /**
  * AnsiLogger provides a customizable logging utility with ANSI color support.
@@ -143,6 +149,7 @@ if (typeof globalThis.__AnsiLoggerCallback__ === 'undefined') globalThis.__AnsiL
 export class AnsiLogger {
   private _hbLog: Logger | undefined;
   private _logName: string;
+  private _logFilePath: string | undefined;
   private _logLevel: LogLevel;
   private _logWithColors: boolean;
   private _logTimestampFormat: TimestampFormat;
@@ -234,6 +241,45 @@ export class AnsiLogger {
   }
 
   /**
+   * Gets the file path of the log.
+   *
+   * @returns {string | undefined} The file path of the log, or undefined if not set.
+   */
+  get logFilePath(): string | undefined {
+    return this._logFilePath;
+  }
+
+  /**
+   * Sets the file path for logging.
+   *
+   * @param {string | undefined} value - The file path to set for logging.
+   */
+  set logFilePath(value: string | undefined) {
+    if (value && typeof value === 'string' && value !== '') {
+      // Convert relative path to absolute path
+
+      try {
+        this._logFilePath = path.resolve(value);
+      } catch (error) {
+        console.error(`Error resolving log file path: ${error instanceof Error ? error.message : error}`);
+        this._logFilePath = undefined;
+        return;
+      }
+
+      if (this._logFilePath && fs.existsSync(this._logFilePath)) {
+        try {
+          fs.unlinkSync(this._logFilePath);
+        } catch (error) {
+          console.error(`${er}Error unlinking the log file ${CYAN}${this._logFilePath}${er}: ${error instanceof Error ? error.message : error}`);
+          this._logFilePath = undefined;
+        }
+      }
+    } else {
+      this._logFilePath = undefined;
+    }
+  }
+
+  /**
    * Enables or disables logging with ANSI colors.
    * @param {boolean} logWithColors - Flag to enable or disable ANSI color logging.
    * @deprecated Use logWithColors getter and setter instead.
@@ -281,7 +327,7 @@ export class AnsiLogger {
 
   /**
    * Sets the callback function to be used by the logger.
-   * @param {AnsiLoggerCallback} callback - The callback function that takes three parameters: type, subtype, and message, or undefined if no callback is set.
+   * @param {AnsiLoggerCallback} callback - The callback function.
    */
   public setCallback(callback: AnsiLoggerCallback | undefined): void {
     this.callback = callback;
@@ -289,7 +335,7 @@ export class AnsiLogger {
 
   /**
    * Gets the callback function currently used by the logger.
-   * @returns {AnsiLoggerCallback | undefined} The callback function that takes three parameters: type, subtype, and message, or undefined if no callback is set.
+   * @returns {AnsiLoggerCallback | undefined} The callback function.
    */
   public getCallback(): AnsiLoggerCallback | undefined {
     return this.callback;
@@ -297,22 +343,148 @@ export class AnsiLogger {
 
   /**
    * Sets the global callback function to be used by the logger.
-   * @param {AnsiLoggerCallback} callback - The callback function that takes three parameters: type, subtype, and message, or undefined if no callback is set.
+   * @param {AnsiLoggerCallback} callback - The callback function.
+   * @param {LogLevel} callbackLevel - The log level of the log file.
+   *
+   * @returns {AnsiLoggerCallback | undefined} The path name of the log file.
    */
-  public setGlobalCallback(callback: AnsiLoggerCallback | undefined): void {
+  static setGlobalCallback(callback: AnsiLoggerCallback | undefined, callbackLevel = LogLevel.DEBUG): AnsiLoggerCallback | undefined {
     __AnsiLoggerCallback__ = callback;
+    __AnsiLoggerCallbackLoglevel__ = callbackLevel;
+    return __AnsiLoggerCallback__;
   }
 
   /**
    * Gets the global callback function currently used by the logger.
-   * @returns {AnsiLoggerCallback | undefined} The callback function that takes three parameters: type, subtype, and message, or undefined if no callback is set.
+   * @returns {AnsiLoggerCallback | undefined} The callback function.
    */
-  public getGlobalCallback(): AnsiLoggerCallback | undefined {
+  static getGlobalCallback(): AnsiLoggerCallback | undefined {
     if (__AnsiLoggerCallback__) {
       return __AnsiLoggerCallback__;
     } else {
       return undefined;
     }
+  }
+  /**
+   * Gets the global callback log level used by the logger.
+   *
+   * @returns {LogLevel | undefined} The log level of the global callback.
+   */
+  static getGlobalCallbackLevel(): LogLevel | undefined {
+    if (__AnsiLoggerCallbackLoglevel__) {
+      return __AnsiLoggerCallbackLoglevel__;
+    } else {
+      return undefined;
+    }
+  }
+
+  /**
+   * Sets the global logfile to be used by the logger.
+   * @param {string} logfilePath - The path name of the log file.
+   * @param {LogLevel} logfileLevel - The log level of the log file.
+   * @param {boolean} unlink - Whether to unlink (delete) the log file if it exists Default false.
+   *
+   * @returns {string | undefined} The absolute path name of the log file.
+   */
+  static setGlobalLogfile(logfilePath: string | undefined, logfileLevel = LogLevel.DEBUG, unlink = false): string | undefined {
+    if (logfilePath) {
+      // Convert relative path to absolute path
+      logfilePath = path.resolve(logfilePath);
+
+      if (unlink && fs.existsSync(logfilePath)) {
+        try {
+          fs.unlinkSync(logfilePath);
+        } catch (error) {
+          console.error(`${er}Error unlinking the log file ${CYAN}${logfilePath}${er}: ${error instanceof Error ? error.message : error}`);
+        }
+      }
+    }
+    __AnsiLoggerFilePath__ = logfilePath;
+    __AnsiLoggerFileLoglevel__ = logfileLevel;
+    return __AnsiLoggerFilePath__;
+  }
+  /**
+   * Gets the global logfile currently used by the logger.
+   *
+   * @returns {string | undefined} The path name of the log file.
+   */
+  static getGlobalLogfile(): string | undefined {
+    if (__AnsiLoggerFilePath__) {
+      return __AnsiLoggerFilePath__;
+    } else {
+      return undefined;
+    }
+  }
+  /**
+   * Gets the global logfile log level used by the logger.
+   *
+   * @returns {LogLevel | undefined} The log level of the log file.
+   */
+  static getGlobalLogfileLevel(): LogLevel | undefined {
+    if (__AnsiLoggerFileLoglevel__) {
+      return __AnsiLoggerFileLoglevel__;
+    } else {
+      return undefined;
+    }
+  }
+
+  /**
+   * Determines whether a log message with the given level should be logged based on the configured log level.
+   *
+   * @param {LogLevel} level - The level of the log message.
+   * @param {LogLevel | undefined} configuredLevel - The configured log level.
+   *
+   * @returns {boolean} A boolean indicating whether the log message should be logged.
+   */
+  shouldLog(level: LogLevel, configuredLevel: LogLevel | undefined): boolean {
+    switch (level) {
+      case LogLevel.DEBUG:
+        if (configuredLevel === LogLevel.DEBUG) {
+          return true;
+        }
+        break;
+      case LogLevel.INFO:
+        if (configuredLevel === LogLevel.DEBUG || configuredLevel === LogLevel.INFO) {
+          return true;
+        }
+        break;
+      case LogLevel.NOTICE:
+        if (configuredLevel === LogLevel.DEBUG || configuredLevel === LogLevel.INFO || configuredLevel === LogLevel.NOTICE) {
+          return true;
+        }
+        break;
+      case LogLevel.WARN:
+        if (configuredLevel === LogLevel.DEBUG || configuredLevel === LogLevel.INFO || configuredLevel === LogLevel.NOTICE || configuredLevel === LogLevel.WARN) {
+          return true;
+        }
+        break;
+      case LogLevel.ERROR:
+        if (
+          configuredLevel === LogLevel.DEBUG ||
+          configuredLevel === LogLevel.INFO ||
+          configuredLevel === LogLevel.NOTICE ||
+          configuredLevel === LogLevel.WARN ||
+          configuredLevel === LogLevel.ERROR
+        ) {
+          return true;
+        }
+        break;
+      case LogLevel.FATAL:
+        if (
+          configuredLevel === LogLevel.DEBUG ||
+          configuredLevel === LogLevel.INFO ||
+          configuredLevel === LogLevel.NOTICE ||
+          configuredLevel === LogLevel.WARN ||
+          configuredLevel === LogLevel.ERROR ||
+          configuredLevel === LogLevel.FATAL
+        ) {
+          return true;
+        }
+        break;
+      default:
+        return false;
+    }
+    return false;
   }
 
   /**
@@ -387,6 +559,41 @@ export class AnsiLogger {
     }
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private logToFile(filePath: string, level: LogLevel, message: string, ...parameters: any[]): void {
+    const parametersString = parameters
+      .map((parameter) => {
+        if (parameter === null) return 'null';
+        if (parameter === undefined) return 'undefined';
+        if (Array.isArray(parameter)) {
+          return (
+            '[' +
+            parameter.map((item) => (item === null ? 'null' : item === undefined ? 'undefined' : typeof item === 'object' ? debugStringify(item) : item.toString())).join(', ') +
+            ']'
+          );
+        }
+        switch (typeof parameter) {
+          case 'object':
+            return debugStringify(parameter);
+          case 'string':
+            return parameter;
+          case 'undefined':
+            return 'undefined';
+          case 'function':
+            return 'function';
+          default:
+            return parameter.toString();
+        }
+      })
+      .join(' ');
+
+    let messageLog = `[${this.getTimestamp()}] [${this._logName}] [${level}] ` + message + parametersString;
+    // messageLog = messageLog.replace(/[\u001b\u009b][[()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-ORZcf-nqry=><]/g, '').replace(/[\t\n\r]/g, '');
+    // eslint-disable-next-line no-control-regex
+    messageLog = messageLog.replace(/[\u001b\u009b][[()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-ORZcf-nqry=><]/g, '');
+    fs.appendFileSync(filePath, messageLog + '\n');
+  }
+
   /**
    * Logs a message with a specific level (e.g. debug, info, notice, warn, error, fatal) and additional parameters.
    * This method formats the log message with ANSI colors based on the log level and other logger settings.
@@ -407,19 +614,41 @@ export class AnsiLogger {
     const s4ln = '\x1b[38;5;0;48;5;9m'; // Highlight  LogName Black on Red
 
     try {
-      if (this.callback !== undefined) {
+      if (this.callback !== undefined && this.shouldLog(level, this._logLevel)) {
         // Convert parameters to string and append to message
         const parametersString = parameters.length > 0 ? ' ' + parameters.join(' ') : '';
         const newMessage = message + parametersString;
         this.callback(level, this.getTimestamp(), this._logName, newMessage);
-      } else if (__AnsiLoggerCallback__ && __AnsiLoggerCallback__ !== undefined) {
+      }
+    } catch (error) {
+      console.error('Error executing local callback:', error);
+    }
+
+    try {
+      if (__AnsiLoggerCallback__ && __AnsiLoggerCallback__ !== undefined && this.shouldLog(level, __AnsiLoggerCallbackLoglevel__)) {
         // Convert parameters to string and append to message
         const parametersString = parameters.length > 0 ? ' ' + parameters.join(' ') : '';
         const newMessage = message + parametersString;
         __AnsiLoggerCallback__(level, this.getTimestamp(), this._logName, newMessage);
       }
     } catch (error) {
-      console.error('Error executing callback:', error);
+      console.error('Error executing global callback:', error);
+    }
+
+    try {
+      if (this.logFilePath && this.shouldLog(level, this._logLevel)) {
+        this.logToFile(this.logFilePath, level, message, ...parameters);
+      }
+    } catch (error) {
+      console.error(`Error writing to the local log file ${this.logFilePath}:`, error);
+    }
+
+    try {
+      if (__AnsiLoggerFilePath__ && __AnsiLoggerFilePath__ !== undefined && this.shouldLog(level, __AnsiLoggerFileLoglevel__)) {
+        this.logToFile(__AnsiLoggerFilePath__, level, message, ...parameters);
+      }
+    } catch (error) {
+      console.error(`Error writing to the global log file ${__AnsiLoggerFilePath__}:`, error);
     }
 
     if (this._hbLog !== undefined) {
@@ -446,45 +675,32 @@ export class AnsiLogger {
         }
         switch (level) {
           case LogLevel.DEBUG:
-            if (this._logLevel === LogLevel.DEBUG) {
+            if (this.shouldLog(level, this._logLevel)) {
               console.log(`${rs}${ts}[${this.getTimestamp()}] ${logNameColor}[${this._logName}]${rs}${db}`, message + rs + rk, ...parameters);
             }
             break;
           case LogLevel.INFO:
-            if (this._logLevel === LogLevel.DEBUG || this._logLevel === LogLevel.INFO) {
+            if (this.shouldLog(level, this._logLevel)) {
               console.log(`${rs}${ts}[${this.getTimestamp()}] ${logNameColor}[${this._logName}]${rs}${nf}`, message + rs + rk, ...parameters);
             }
             break;
           case LogLevel.NOTICE:
-            if (this._logLevel === LogLevel.DEBUG || this._logLevel === LogLevel.INFO || this._logLevel === LogLevel.NOTICE) {
+            if (this.shouldLog(level, this._logLevel)) {
               console.log(`${rs}${ts}[${this.getTimestamp()}] ${logNameColor}[${this._logName}]${rs}${nt}`, message + rs + rk, ...parameters);
             }
             break;
           case LogLevel.WARN:
-            if (this._logLevel === LogLevel.DEBUG || this._logLevel === LogLevel.INFO || this._logLevel === LogLevel.NOTICE || this._logLevel === LogLevel.WARN) {
+            if (this.shouldLog(level, this._logLevel)) {
               console.log(`${rs}${ts}[${this.getTimestamp()}] ${logNameColor}[${this._logName}]${rs}${wr}`, message + rs + rk, ...parameters);
             }
             break;
           case LogLevel.ERROR:
-            if (
-              this._logLevel === LogLevel.DEBUG ||
-              this._logLevel === LogLevel.INFO ||
-              this._logLevel === LogLevel.NOTICE ||
-              this._logLevel === LogLevel.WARN ||
-              this._logLevel === LogLevel.ERROR
-            ) {
+            if (this.shouldLog(level, this._logLevel)) {
               console.log(`${rs}${ts}[${this.getTimestamp()}] ${logNameColor}[${this._logName}]${rs}${er}`, message + rs + rk, ...parameters);
             }
             break;
           case LogLevel.FATAL:
-            if (
-              this._logLevel === LogLevel.DEBUG ||
-              this._logLevel === LogLevel.INFO ||
-              this._logLevel === LogLevel.NOTICE ||
-              this._logLevel === LogLevel.WARN ||
-              this._logLevel === LogLevel.ERROR ||
-              this._logLevel === LogLevel.FATAL
-            ) {
+            if (this.shouldLog(level, this._logLevel)) {
               console.log(`${rs}${ts}[${this.getTimestamp()}] ${logNameColor}[${this._logName}]${rs}${ft}`, message + rs + rk, ...parameters);
             }
             break;
@@ -495,22 +711,22 @@ export class AnsiLogger {
         switch (level) {
           case LogLevel.DEBUG:
             if (this._logLevel === LogLevel.DEBUG) {
-              console.log(`${rs}[${this.getTimestamp()}] [${this._logName}] [${level}] ${message}`, ...parameters);
+              console.log(`[${this.getTimestamp()}] [${this._logName}] [${level}] ${message}`, ...parameters);
             }
             break;
           case LogLevel.INFO:
             if (this._logLevel === LogLevel.DEBUG || this._logLevel === LogLevel.INFO) {
-              console.log(`${rs}[${this.getTimestamp()}] [${this._logName}] [${level}] ${message}`, ...parameters);
+              console.log(`[${this.getTimestamp()}] [${this._logName}] [${level}] ${message}`, ...parameters);
             }
             break;
           case LogLevel.NOTICE:
             if (this._logLevel === LogLevel.DEBUG || this._logLevel === LogLevel.INFO || this._logLevel === LogLevel.NOTICE) {
-              console.log(`${rs}[${this.getTimestamp()}] [${this._logName}] [${level}] ${message}`, ...parameters);
+              console.log(`[${this.getTimestamp()}] [${this._logName}] [${level}] ${message}`, ...parameters);
             }
             break;
           case LogLevel.WARN:
             if (this._logLevel === LogLevel.DEBUG || this._logLevel === LogLevel.INFO || this._logLevel === LogLevel.NOTICE || this._logLevel === LogLevel.WARN) {
-              console.log(`${rs}[${this.getTimestamp()}] [${this._logName}] [${level}] ${message}`, ...parameters);
+              console.log(`[${this.getTimestamp()}] [${this._logName}] [${level}] ${message}`, ...parameters);
             }
             break;
           case LogLevel.ERROR:
@@ -521,7 +737,7 @@ export class AnsiLogger {
               this._logLevel === LogLevel.WARN ||
               this._logLevel === LogLevel.ERROR
             ) {
-              console.log(`${rs}[${this.getTimestamp()}] [${this._logName}] [${level}] ${message}`, ...parameters);
+              console.log(`[${this.getTimestamp()}] [${this._logName}] [${level}] ${message}`, ...parameters);
             }
             break;
           case LogLevel.FATAL:
@@ -533,7 +749,7 @@ export class AnsiLogger {
               this._logLevel === LogLevel.ERROR ||
               this._logLevel === LogLevel.FATAL
             ) {
-              console.log(`${rs}[${this.getTimestamp()}] [${this._logName}] [${level}] ${message}`, ...parameters);
+              console.log(`[${this.getTimestamp()}] [${this._logName}] [${level}] ${message}`, ...parameters);
             }
             break;
           default:
@@ -624,24 +840,44 @@ if (process.argv.includes('--testAnsiLoggerColors')) {
   console.log(`${nf}Stringify payload: ${payloadStringify({ number: 1234, string: 'Text', boolean: true, null: null, undefined: undefined })}${rs}`);
   console.log(`${nf}Stringify color: ${colorStringify({ number: 1234, string: 'Text', boolean: true, null: null, undefined: undefined })}${rs}`);
   console.log(`${nf}Stringify history: ${historyStringify({ number: 1234, string: 'Text', boolean: true, null: null, undefined: undefined })}${rs}`);
-  console.log(`${nf}Stringify mqtt: ${mqttStringify({ number: 1234, string: 'Text', boolean: true, null: null, undefined: undefined })}${rs}`);
+  console.log(
+    `${nf}Stringify mqtt: ${mqttStringify({
+      number: 1234,
+      string: 'Text',
+      boolean: true,
+      null: null,
+      undefined: undefined,
+      function: () => {
+        //
+      },
+    })}${rs}`,
+  );
   console.log(
     `${db}Stringify debug: ${debugStringify({ number: 1234, string: 'Text', boolean: true, null: null, undefined: undefined, object: { number: 1234, string: 'Text', boolean: true } })}${rs}`,
   );
 
   const logger = new AnsiLogger({ logName: 'TestLogger', logLevel: LogLevel.DEBUG, logWithColors: true, logTimestampFormat: TimestampFormat.TIME_MILLIS });
+  AnsiLogger.setGlobalLogfile('test.log');
   logger.debug('Debug message');
   logger.info('Info message');
   logger.notice('Notice message');
   logger.warn('Warn message');
   logger.error('Error message');
   logger.fatal('Fatal message');
-  logger.log(LogLevel.DEBUG, `Debug message with params${rs}\n`, {
+  const obj: object = {
     logName: 'TestLogger',
     logLevel: LogLevel.DEBUG,
     logWithColors: true,
     logTimestampFormat: TimestampFormat.TIME_MILLIS,
+  };
+  logger.log(LogLevel.DEBUG, `Debug message with params: ${rs}\n`, obj);
+  logger.log(LogLevel.DEBUG, `Debug message with params: ${rs}\n`, obj, 123, 212121111111111122121n, 'Text', true, null, undefined, () => {
+    //
   });
+  logger.log(LogLevel.DEBUG, `Debug message with array params: ${rs}\n`, obj, [123, 'abc', { a: 1, b: 2 }], 123, 212121111111111122121n, 'Text', true, null, undefined, () => {
+    //
+  });
+  logger.log(LogLevel.DEBUG, `Debug message without params: ${debugStringify(obj)}`);
 }
 
 /*

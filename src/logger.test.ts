@@ -1,8 +1,12 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 // logger.test.ts
 /* eslint-disable no-console */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { AnsiLogger, AnsiLoggerCallback, db, er, ft, LogLevel, nf, nt, TimestampFormat, wr } from './logger';
+import { AnsiLogger, AnsiLoggerCallback, db, er, ft, LogLevel, nf, nt, rs, TimestampFormat, wr } from './logger';
+import * as fs from 'fs';
 import { jest } from '@jest/globals';
+import { debugStringify } from './stringify';
+import path from 'path';
 
 // Mocking console.log to test logging output
 const originalConsoleLog = console.log;
@@ -229,6 +233,19 @@ describe('Logger callbacks', () => {
     // global.__AnsiLoggerCallback__ = originalGlobalCallback;
   });
 
+  afterEach(() => {
+    // Clean up and restore any global changes
+    // global.__AnsiLoggerCallback__ = originalGlobalCallback;
+  });
+
+  test('should initialize without global callback', () => {
+    expect(AnsiLogger.getGlobalCallback()).toBeUndefined();
+  });
+
+  test('should initialize without global callback level', () => {
+    expect(AnsiLogger.getGlobalCallbackLevel()).toBe(undefined);
+  });
+
   test('calls instance-specific callback with correct parameters', () => {
     const mockCallback = jest.fn();
     const logger = new AnsiLogger({ logName: 'TestLogger callback' });
@@ -247,10 +264,10 @@ describe('Logger callbacks', () => {
   test('calls global callback with correct parameters when instance-specific callback is not set', () => {
     const mockCallback = jest.fn();
     const logger = new AnsiLogger({ logName: 'TestLogger1 callback' });
-    originalGlobalCallback = logger.getGlobalCallback();
+    originalGlobalCallback = AnsiLogger.getGlobalCallback();
     expect(originalGlobalCallback).toBeUndefined();
-    logger.setGlobalCallback(mockCallback);
-    expect(logger.getGlobalCallback()).toBe(mockCallback);
+    AnsiLogger.setGlobalCallback(mockCallback);
+    expect(AnsiLogger.getGlobalCallback()).toBe(mockCallback);
     const message = 'test message';
     const level = LogLevel.INFO;
     const parameters = ['param1', 'param2'];
@@ -259,13 +276,79 @@ describe('Logger callbacks', () => {
 
     const logger2 = new AnsiLogger({ logName: 'TestLogger2 callback' });
     logger2.log(LogLevel.NOTICE, 'Logger2 message');
-    expect(logger2.getGlobalCallback()).toBe(mockCallback);
+    expect(AnsiLogger.getGlobalCallback()).toBe(mockCallback);
 
-    logger.setGlobalCallback(originalGlobalCallback);
+    AnsiLogger.setGlobalCallback(originalGlobalCallback);
+  });
+});
+
+describe('File logger', () => {
+  let originalFilelog: string | undefined;
+  let appendFileSyncMock: jest.Mock;
+
+  beforeAll(() => {
+    originalFilelog = AnsiLogger.getGlobalLogfile();
+  });
+
+  beforeEach(() => {
+    //
   });
 
   afterEach(() => {
-    // Clean up and restore any global changes
-    // global.__AnsiLoggerCallback__ = originalGlobalCallback;
+    //
+  });
+
+  afterAll(() => {
+    AnsiLogger.setGlobalLogfile(originalFilelog);
+  });
+
+  test('should initialize without file logger', () => {
+    expect(AnsiLogger.getGlobalLogfile()).toBeUndefined();
+  });
+
+  test('should initialize without file logger level', () => {
+    expect(AnsiLogger.getGlobalLogfileLevel()).toBe(undefined);
+  });
+
+  test('should set the file logger', () => {
+    expect(AnsiLogger.setGlobalLogfile('test.log')).toBe(path.resolve('test.log'));
+  });
+
+  test('should set and unlink the file logger', () => {
+    expect(AnsiLogger.setGlobalLogfile('test.log', LogLevel.DEBUG, true)).toBe(path.resolve('test.log'));
+    expect(AnsiLogger.getGlobalLogfileLevel()).toBe(LogLevel.DEBUG);
+    expect(fs.existsSync('test.log')).toBe(false);
+  });
+
+  test('should get the file logger', () => {
+    expect(AnsiLogger.getGlobalLogfile()).toBe(path.resolve('test.log'));
+  });
+
+  test('should log to the file logger', () => {
+    expect(AnsiLogger.setGlobalLogfile('test.log')).toBe(path.resolve('test.log'));
+    expect(fs.existsSync('test.log')).toBe(false);
+    const logger = new AnsiLogger({ logName: 'Test global file logger' });
+    logger.debug('Test debug message');
+    logger.info('Test info message');
+    logger.notice('Test notice message');
+    logger.warn('Test warn message');
+    logger.error('Test error message');
+    logger.fatal('Test fatal message');
+    expect(fs.existsSync('test.log')).toBe(true);
+  });
+
+  test('should log to the file logger different types', () => {
+    const logger = new AnsiLogger({ logName: 'Test global file logger' });
+    const obj: object = {
+      logName: 'TestLogger',
+      logLevel: LogLevel.DEBUG,
+      logWithColors: true,
+      logTimestampFormat: TimestampFormat.TIME_MILLIS,
+    };
+    logger.log(LogLevel.DEBUG, `Debug message with params: ${rs}\n`, obj);
+    logger.log(LogLevel.DEBUG, `Debug message with params: ${rs}\n`, obj, 123, 212121111111111122121n, 'Text', true, null, undefined);
+    logger.log(LogLevel.DEBUG, `Debug message with array params: ${rs}\n`, obj, [123, 'abc', { a: 1, b: 2 }], 123, 212121111111111122121n, 'Text', true, null, undefined);
+    logger.log(LogLevel.DEBUG, `Debug message without params: ${debugStringify(obj)}`);
+    expect(fs.existsSync('test.log')).toBe(true);
   });
 });
