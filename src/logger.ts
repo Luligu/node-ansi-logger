@@ -23,7 +23,7 @@
  */
 
 import path from 'path';
-import { colorStringify, debugStringify, historyStringify, mqttStringify, payloadStringify } from './stringify.js';
+import { debugStringify } from './stringify.js';
 import * as fs from 'fs';
 
 // ANSI color codes and styles are defined here for use in the logger
@@ -141,6 +141,9 @@ if (typeof globalThis.__AnsiLoggerCallbackLoglevel__ === 'undefined') globalThis
 
 if (typeof globalThis.__AnsiLoggerFilePath__ === 'undefined') globalThis.__AnsiLoggerFilePath__ = undefined;
 if (typeof globalThis.__AnsiLoggerFileLoglevel__ === 'undefined') globalThis.__AnsiLoggerFileLoglevel__ = undefined;
+if (typeof globalThis.__AnsiLoggerFileLogSize__ === 'undefined') globalThis.__AnsiLoggerFileLogSize__ = undefined;
+
+const maxFileSize = 100000000; // 100MB
 
 /**
  * AnsiLogger provides a customizable logging utility with ANSI color support.
@@ -150,12 +153,14 @@ export class AnsiLogger {
   private _hbLog: Logger | undefined;
   private _logName: string;
   private _logFilePath: string | undefined;
+  private _logFileSize: number | undefined;
   private _logLevel: LogLevel;
   private _logWithColors: boolean;
   private _logTimestampFormat: TimestampFormat;
   private _logCustomTimestampFormat: string;
 
   private logStartTime: number;
+
   private callback: AnsiLoggerCallback | undefined = undefined;
 
   /**
@@ -257,7 +262,6 @@ export class AnsiLogger {
   set logFilePath(value: string | undefined) {
     if (value && typeof value === 'string' && value !== '') {
       // Convert relative path to absolute path
-
       try {
         this._logFilePath = path.resolve(value);
       } catch (error) {
@@ -265,7 +269,7 @@ export class AnsiLogger {
         this._logFilePath = undefined;
         return;
       }
-
+      // Check if the file exists and unlink
       if (this._logFilePath && fs.existsSync(this._logFilePath)) {
         try {
           fs.unlinkSync(this._logFilePath);
@@ -274,9 +278,20 @@ export class AnsiLogger {
           this._logFilePath = undefined;
         }
       }
+      this._logFileSize = 0;
     } else {
       this._logFilePath = undefined;
+      this._logFileSize = undefined;
     }
+  }
+
+  /**
+   * Gets the size of log file.
+   *
+   * @returns {number | undefined} The size of log file, or undefined if not set.
+   */
+  get logFileSize(): number | undefined {
+    return this._logFilePath && this._logFileSize ? this._logFileSize : undefined;
   }
 
   /**
@@ -343,8 +358,8 @@ export class AnsiLogger {
 
   /**
    * Sets the global callback function to be used by the logger.
-   * @param {AnsiLoggerCallback} callback - The callback function.
-   * @param {LogLevel} callbackLevel - The log level of the log file.
+   * @param {AnsiLoggerCallback | undefined} callback - The callback function.
+   * @param {LogLevel} [callbackLevel=LogLevel.DEBUG]  - The log level of the log file (default LogLevel.DEBUG).
    *
    * @returns {AnsiLoggerCallback | undefined} The path name of the log file.
    */
@@ -365,6 +380,28 @@ export class AnsiLogger {
       return undefined;
     }
   }
+
+  /**
+   * Sets the global callback function to be used by the logger.
+   * @param {AnsiLoggerCallback} callback - The callback function that takes three parameters: type, subtype, and message, or undefined if no callback is set.
+   */
+  public setGlobalCallback(callback: AnsiLoggerCallback | undefined): void {
+    __AnsiLoggerCallback__ = callback;
+    __AnsiLoggerCallbackLoglevel__ = LogLevel.DEBUG;
+  }
+
+  /**
+   * Gets the global callback function currently used by the logger.
+   * @returns {AnsiLoggerCallback | undefined} The callback function that takes three parameters: type, subtype, and message, or undefined if no callback is set.
+   */
+  public getGlobalCallback(): AnsiLoggerCallback | undefined {
+    if (__AnsiLoggerCallback__) {
+      return __AnsiLoggerCallback__;
+    } else {
+      return undefined;
+    }
+  }
+
   /**
    * Gets the global callback log level used by the logger.
    *
@@ -379,18 +416,30 @@ export class AnsiLogger {
   }
 
   /**
+   * Sets the global callback log level for the logger.
+   *
+   * @param {LogLevel} logLevel - The log level to set. Defaults to LogLevel.DEBUG.
+   *
+   * @returns {LogLevel | undefined} The log level that was set.
+   */
+  static setGlobalCallbackLevel(logLevel = LogLevel.DEBUG): LogLevel | undefined {
+    __AnsiLoggerCallbackLoglevel__ = logLevel;
+    return __AnsiLoggerCallbackLoglevel__;
+  }
+
+  /**
    * Sets the global logfile to be used by the logger.
    * @param {string} logfilePath - The path name of the log file.
-   * @param {LogLevel} logfileLevel - The log level of the log file.
-   * @param {boolean} unlink - Whether to unlink (delete) the log file if it exists Default false.
+   * @param {LogLevel} logfileLevel - Optional: the log level of the log file. Default LogLevel.DEBUG.
+   * @param {boolean} unlink - Optional: whether to unlink (delete) the log file if it exists. Default false.
    *
    * @returns {string | undefined} The absolute path name of the log file.
    */
   static setGlobalLogfile(logfilePath: string | undefined, logfileLevel = LogLevel.DEBUG, unlink = false): string | undefined {
-    if (logfilePath) {
+    if (logfilePath && typeof logfilePath === 'string' && logfilePath !== '') {
       // Convert relative path to absolute path
       logfilePath = path.resolve(logfilePath);
-
+      // Check if the file exists and unlink it if requested
       if (unlink && fs.existsSync(logfilePath)) {
         try {
           fs.unlinkSync(logfilePath);
@@ -398,11 +447,16 @@ export class AnsiLogger {
           console.error(`${er}Error unlinking the log file ${CYAN}${logfilePath}${er}: ${error instanceof Error ? error.message : error}`);
         }
       }
+      __AnsiLoggerFilePath__ = logfilePath;
+      __AnsiLoggerFileLoglevel__ = logfileLevel;
+      __AnsiLoggerFileLogSize__ = 0;
+      return __AnsiLoggerFilePath__;
     }
-    __AnsiLoggerFilePath__ = logfilePath;
-    __AnsiLoggerFileLoglevel__ = logfileLevel;
-    return __AnsiLoggerFilePath__;
+    __AnsiLoggerFilePath__ = undefined;
+    __AnsiLoggerFileLogSize__ = undefined;
+    return undefined;
   }
+
   /**
    * Gets the global logfile currently used by the logger.
    *
@@ -415,10 +469,11 @@ export class AnsiLogger {
       return undefined;
     }
   }
+
   /**
-   * Gets the global logfile log level used by the logger.
+   * Gets the global logfile log level used by the loggers.
    *
-   * @returns {LogLevel | undefined} The log level of the log file.
+   * @returns {LogLevel | undefined} The log level of the global logfile.
    */
   static getGlobalLogfileLevel(): LogLevel | undefined {
     if (__AnsiLoggerFileLoglevel__) {
@@ -429,6 +484,18 @@ export class AnsiLogger {
   }
 
   /**
+   * Sets the global logfile log level used by the loggers.
+   *
+   * @param {LogLevel} logfileLevel - Optional: the global logfile log level used by the loggers.
+   *
+   * @returns {LogLevel | undefined} The log level of the global logfile.
+   */
+  static setGlobalLogfileLevel(logfileLevel = LogLevel.DEBUG): LogLevel | undefined {
+    __AnsiLoggerFileLoglevel__ = logfileLevel;
+    return __AnsiLoggerFileLoglevel__;
+  }
+
+  /**
    * Determines whether a log message with the given level should be logged based on the configured log level.
    *
    * @param {LogLevel} level - The level of the log message.
@@ -436,7 +503,7 @@ export class AnsiLogger {
    *
    * @returns {boolean} A boolean indicating whether the log message should be logged.
    */
-  shouldLog(level: LogLevel, configuredLevel: LogLevel | undefined): boolean {
+  private shouldLog(level: LogLevel, configuredLevel: LogLevel | undefined): boolean {
     switch (level) {
       case LogLevel.DEBUG:
         if (configuredLevel === LogLevel.DEBUG) {
@@ -559,10 +626,21 @@ export class AnsiLogger {
     }
   }
 
+  /**
+   * Writes a log message to a file.
+   *
+   * @param {string} filePath - The path of the file to write the log message to.
+   * @param {LogLevel} level - The log level of the message.
+   * @param {string} message - The log message.
+   * @param {...any[]} parameters - Additional parameters to include in the log message.
+   * @returns {number} - The length of the log message including the appended newline character.
+   */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private logToFile(filePath: string, level: LogLevel, message: string, ...parameters: any[]): void {
+  private logToFile(filePath: string, level: LogLevel, message: string, ...parameters: any[]): number {
+    // console.error(`Message: ${message} parameter length: ${parameters.length}`);
     const parametersString = parameters
       .map((parameter) => {
+        // console.error('typeof parameter:', typeof parameter, 'isArray:', Array.isArray(parameter));
         if (parameter === null) return 'null';
         if (parameter === undefined) return 'undefined';
         if (Array.isArray(parameter)) {
@@ -587,11 +665,12 @@ export class AnsiLogger {
       })
       .join(' ');
 
-    let messageLog = `[${this.getTimestamp()}] [${this._logName}] [${level}] ` + message + parametersString;
+    let messageLog = `[${this.getTimestamp()}] [${this._logName}] [${level}] ` + message + ' ' + parametersString;
     // messageLog = messageLog.replace(/[\u001b\u009b][[()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-ORZcf-nqry=><]/g, '').replace(/[\t\n\r]/g, '');
     // eslint-disable-next-line no-control-regex
     messageLog = messageLog.replace(/[\u001b\u009b][[()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-ORZcf-nqry=><]/g, '');
     fs.appendFileSync(filePath, messageLog + '\n');
+    return messageLog.length + 1;
   }
 
   /**
@@ -613,6 +692,7 @@ export class AnsiLogger {
     const s3ln = '\x1b[38;5;0;48;5;220m'; // Highlight  LogName Black on Yellow
     const s4ln = '\x1b[38;5;0;48;5;9m'; // Highlight  LogName Black on Red
 
+    // Local callback
     try {
       if (this.callback !== undefined && this.shouldLog(level, this._logLevel)) {
         // Convert parameters to string and append to message
@@ -624,6 +704,7 @@ export class AnsiLogger {
       console.error('Error executing local callback:', error);
     }
 
+    // Global callback
     try {
       if (__AnsiLoggerCallback__ && __AnsiLoggerCallback__ !== undefined && this.shouldLog(level, __AnsiLoggerCallbackLoglevel__)) {
         // Convert parameters to string and append to message
@@ -635,17 +716,33 @@ export class AnsiLogger {
       console.error('Error executing global callback:', error);
     }
 
+    // Local file logger
     try {
-      if (this.logFilePath && this.shouldLog(level, this._logLevel)) {
-        this.logToFile(this.logFilePath, level, message, ...parameters);
+      if (this.logFilePath !== undefined && this._logFileSize !== undefined && this._logFileSize < maxFileSize && this.shouldLog(level, this._logLevel)) {
+        const size = this.logToFile(this.logFilePath, level, message, ...parameters);
+        this._logFileSize += size;
+        if (this._logFileSize >= maxFileSize) {
+          fs.appendFileSync(this.logFilePath, 'Logging on file has been stoppped because the file size is greater then 100MB.\n');
+        }
       }
     } catch (error) {
       console.error(`Error writing to the local log file ${this.logFilePath}:`, error);
     }
 
+    // Global file logger
     try {
-      if (__AnsiLoggerFilePath__ && __AnsiLoggerFilePath__ !== undefined && this.shouldLog(level, __AnsiLoggerFileLoglevel__)) {
-        this.logToFile(__AnsiLoggerFilePath__, level, message, ...parameters);
+      if (
+        __AnsiLoggerFilePath__ &&
+        __AnsiLoggerFilePath__ !== undefined &&
+        __AnsiLoggerFileLogSize__ !== undefined &&
+        __AnsiLoggerFileLogSize__ < maxFileSize &&
+        this.shouldLog(level, __AnsiLoggerFileLoglevel__)
+      ) {
+        const size = this.logToFile(__AnsiLoggerFilePath__, level, message, ...parameters);
+        __AnsiLoggerFileLogSize__ += size;
+        if (__AnsiLoggerFileLogSize__ >= maxFileSize) {
+          fs.appendFileSync(__AnsiLoggerFilePath__, 'Logging on file has been stoppped because the file size is greater then 100MB.\n');
+        }
       }
     } catch (error) {
       console.error(`Error writing to the global log file ${__AnsiLoggerFilePath__}:`, error);
@@ -827,6 +924,7 @@ export class AnsiLogger {
 }
 
 // Use with node dist/logger.js --testAnsiLoggerColors to test ANSI colors
+/*
 if (process.argv.includes('--testAnsiLoggerColors')) {
   for (let i = 0; i < 256; i++) {
     console.log(`\x1b[38;5;${i}mForeground color ${i.toString().padStart(3, ' ')} \x1b[1mbright\x1b[0m`);
@@ -857,7 +955,8 @@ if (process.argv.includes('--testAnsiLoggerColors')) {
   );
 
   const logger = new AnsiLogger({ logName: 'TestLogger', logLevel: LogLevel.DEBUG, logWithColors: true, logTimestampFormat: TimestampFormat.TIME_MILLIS });
-  AnsiLogger.setGlobalLogfile('test.log');
+  logger.logFilePath = 'test-local.log';
+  AnsiLogger.setGlobalLogfile('test-global.log', LogLevel.DEBUG, true);
   logger.debug('Debug message');
   logger.info('Info message');
   logger.notice('Notice message');
@@ -879,6 +978,7 @@ if (process.argv.includes('--testAnsiLoggerColors')) {
   });
   logger.log(LogLevel.DEBUG, `Debug message without params: ${debugStringify(obj)}`);
 }
+*/
 
 /*
     \x1b[0m - Reset (clear color)

@@ -6,6 +6,7 @@ declare global {
   var __AnsiLoggerCallbackLoglevel__: LogLevel | undefined;
   var __AnsiLoggerFilePath__: string | undefined;
   var __AnsiLoggerFileLoglevel__: LogLevel | undefined;
+  var __AnsiLoggerFileLogSize__: number | undefined;
 }
 
 export {};

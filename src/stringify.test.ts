@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { colorStringify, debugStringify, historyStringify, mqttStringify, payloadStringify, stringify } from './stringify';
 
-describe('stringify', () => {
+describe('Stringify functions', () => {
   test('converts an object to a string', () => {
     const input = { key: 'value' };
     const expectedOutput = "{ key: 'value' }";
@@ -49,9 +49,10 @@ describe('stringify', () => {
     expect(stringify(input)).toBe(expectedOutput);
   });
 
-  test('throw with function keys or unknown types', () => {
+  test('do not throw with function keys', () => {
     const input = { myFunc: () => 'Hello, world!' };
     expect(() => stringify(input)).not.toThrow();
+    expect(stringify(input)).toBe('{ myFunc: (function) }');
   });
 
   test('works with undefined object', () => {
@@ -66,9 +67,10 @@ describe('stringify', () => {
     expect(stringify(input as any)).toBe(expectedOutput);
   });
 
-  test('throws an error for circular references', () => {
+  test('do not throws an error for circular references', () => {
     const input = {};
     (input as any).self = input; // Creating a circular reference
+    expect(() => stringify(input)).not.toThrow();
     expect(() => stringify(input)).not.toThrow('Maximum call stack size exceeded');
   });
 });

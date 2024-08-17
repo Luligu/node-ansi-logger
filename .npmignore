@@ -164,4 +164,5 @@ screenshot
 # other stuff
 TODO.md
 yellow-button.png
-test.log
+test-local.log
+test-global.log

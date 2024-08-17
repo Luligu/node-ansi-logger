@@ -93,7 +93,7 @@ export function stringify(
     } else if (typeof newValue === 'undefined') {
       newValue = `${clr(colorUndefined)}undefined${reset()}`;
     } else if (typeof newValue === 'function') {
-      newValue = `${clr(colorUndefined)}function${reset()}`;
+      newValue = `${clr(colorUndefined)}(function)${reset()}`;
     } else if (typeof newValue === 'object') {
       if (Object.keys(newValue).length < 100) {
         newValue = stringify(newValue, enableColors, colorPayload, colorKey, colorString, colorNumber, colorBoolean, colorUndefined, keyQuote, stringQuote, seenObjects);
@@ -115,3 +115,37 @@ export function stringify(
 
   return (string += ` ${clr(colorPayload)}` + (isArray ? ']' : '}') + `${reset()}`);
 }
+
+// Use with node dist/stringify.js --testStringify to test stringify
+/*
+if (process.argv.includes('--testStringify')) {
+  const obj = {
+    number: 1234,
+    string: 'Text',
+    boolean: true,
+    null: null,
+    undefined: undefined,
+    bigint: 12321412241214141412412n,
+    array: [
+      1,
+      '2',
+      true,
+      null,
+      undefined,
+      12321412241214141412412n,
+      () => {
+        //
+      },
+    ],
+    function: () => {
+      //
+    },
+  };
+  // eslint-disable-next-line no-console
+  console.log(`Stringify payload: ${payloadStringify(obj)}`);
+  // eslint-disable-next-line no-console
+  console.log(`Stringify color: ${colorStringify(obj)}`);
+  // eslint-disable-next-line no-console
+  console.log(`Stringify history: ${historyStringify(obj)}`);
+}
+*/
