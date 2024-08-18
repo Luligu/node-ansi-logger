@@ -1,7 +1,34 @@
+/* eslint-disable no-console */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { colorStringify, debugStringify, historyStringify, mqttStringify, payloadStringify, stringify } from './stringify';
 
 describe('Stringify functions', () => {
+  const testObject = {
+    number: 123,
+    string: 'abc',
+    boolean: true,
+    bigint: 121211111111111211n,
+    object: { a: 1, b: 2 },
+    function: () => {
+      console.log('test');
+    },
+    nullKey: null,
+    undefinedKey: undefined,
+  };
+
+  const testArray = [
+    123,
+    'abc',
+    true,
+    121211111111111211n,
+    { a: 1, b: 2 },
+    () => {
+      console.log('test');
+    },
+    null,
+    undefined,
+  ];
+
   test('converts an object to a string', () => {
     const input = { key: 'value' };
     const expectedOutput = "{ key: 'value' }";
@@ -44,8 +71,8 @@ describe('Stringify functions', () => {
   });
 
   test('works with undefined keys', () => {
-    const input = { nullValue: undefined };
-    const expectedOutput = '{ nullValue: undefined }';
+    const input = { undefinedValue: undefined };
+    const expectedOutput = '{ undefinedValue: undefined }';
     expect(stringify(input)).toBe(expectedOutput);
   });
 
@@ -55,13 +82,13 @@ describe('Stringify functions', () => {
     expect(stringify(input)).toBe('{ myFunc: (function) }');
   });
 
-  test('works with undefined object', () => {
+  test('works with undefined payload', () => {
     const input = undefined;
     const expectedOutput = 'undefined';
     expect(stringify(input as any)).toBe(expectedOutput);
   });
 
-  test('works with null object', () => {
+  test('works with null payload', () => {
     const input = null;
     const expectedOutput = 'null';
     expect(stringify(input as any)).toBe(expectedOutput);
@@ -70,7 +97,20 @@ describe('Stringify functions', () => {
   test('do not throws an error for circular references', () => {
     const input = {};
     (input as any).self = input; // Creating a circular reference
+    const expectedOutput = '{ self: [Circular] }';
     expect(() => stringify(input)).not.toThrow();
     expect(() => stringify(input)).not.toThrow('Maximum call stack size exceeded');
+    expect(stringify(input)).toBe(expectedOutput);
+  });
+
+  test('works with array', () => {
+    const expectedOutput = "[ 123, 'abc', true, 121211111111111211, { a: 1, b: 2 }, (function), null, undefined ]";
+    expect(stringify(testArray)).toBe(expectedOutput);
+  });
+
+  test('works with object', () => {
+    const expectedOutput =
+      "{ number: 123, string: 'abc', boolean: true, bigint: 121211111111111211, object: { a: 1, b: 2 }, function: (function), nullKey: null, undefinedKey: undefined }";
+    expect(stringify(testObject)).toBe(expectedOutput);
   });
 });

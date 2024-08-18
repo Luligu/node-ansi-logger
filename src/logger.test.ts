@@ -1,7 +1,7 @@
 // logger.test.ts
 /* eslint-disable no-console */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { AnsiLogger, AnsiLoggerCallback, db, er, ft, LogLevel, nf, nt, rs, TimestampFormat, wr } from './logger';
+import { AnsiLogger, AnsiLoggerCallback, db, er, ft, Logger, LogLevel, nf, nt, rs, TimestampFormat, wr } from './logger';
 import * as fs from 'fs';
 import { jest } from '@jest/globals';
 import { debugStringify } from './stringify';
@@ -45,6 +45,10 @@ describe('AnsiLogger', () => {
     const logger = new AnsiLogger({ logDebug: true, logLevel: LogLevel.INFO });
     expect(logger.logLevel).toBe(LogLevel.INFO);
     expect(logger.logWithColors).toBe(true);
+    const color = logger.logNameColor;
+    expect(color).toBeDefined();
+    logger.logNameColor = 'color';
+    expect(logger.logNameColor).toBe('color');
   });
 
   it('should log a debug message when debug is enabled', () => {
@@ -108,7 +112,8 @@ describe('AnsiLogger', () => {
 
   it('should respect log level settings', () => {
     const logger = new AnsiLogger({ logName: 'TestLogger', logWithColors: false, logTimestampFormat: TimestampFormat.CUSTOM, logCustomTimestampFormat: 'yyyyMMddHHmmss' });
-    logger.setLogName('TestLoggerABC');
+    logger.logName = 'TestLoggerABC';
+    expect(logger.logName).toBe('TestLoggerABC');
     logger.log(LogLevel.WARN, 'Test warn message');
     expect(consoleOutput[0][0]).toMatch(/TestLoggerABC/);
     expect(consoleOutput[0][0]).toMatch(/\[warn\]/);
@@ -119,7 +124,6 @@ describe('AnsiLogger', () => {
     const logger = new AnsiLogger({ logName: 'TestLogger', logDebug: true });
     logger.logName = 'TestLoggerABC';
     expect(logger.logName).toBe('TestLoggerABC');
-    logger.setLogName('TestLoggerABC');
     logger.debug('Test debug message');
     expect(consoleOutput[0][0]).toMatch(/TestLoggerABC/);
     expect((consoleOutput[0][0] as string).includes(db)).toBeTruthy();
@@ -130,7 +134,6 @@ describe('AnsiLogger', () => {
     const logger = new AnsiLogger({ logName: 'TestLogger', logDebug: true });
     logger.logName = 'TestLoggerABC';
     expect(logger.logName).toBe('TestLoggerABC');
-    logger.setLogName('TestLoggerABC');
     logger.debug('Test debug message');
     expect(consoleOutput[0][0]).toMatch(/TestLoggerABC/);
     expect((consoleOutput[0][0] as string).includes(db)).toBeTruthy();
@@ -149,9 +152,12 @@ describe('AnsiLogger', () => {
 
   it('should log a debug message with colors when level is debug', () => {
     const logger = new AnsiLogger({ logName: 'TestLogger', logLevel: LogLevel.DEBUG });
-    logger.setlogWithColors(true);
-    logger.setLogCustomTimestampFormat('yyyyMMddHHmmss');
-    logger.setLogTimestampFormat(TimestampFormat.CUSTOM);
+    logger.logWithColors = true;
+    expect(logger.logWithColors).toBe(true);
+    logger.logCustomTimestampFormat = 'yyyyMMddHHmmss';
+    expect(logger.logCustomTimestampFormat).toBe('yyyyMMddHHmmss');
+    logger.logTimestampFormat = TimestampFormat.CUSTOM;
+    expect(logger.logTimestampFormat).toBe(TimestampFormat.CUSTOM);
     logger.debug('Test debug message');
     expect(consoleOutput[0][0]).toMatch(/TestLogger/);
     expect((consoleOutput[0][0] as string).includes(db)).toBeTruthy();
@@ -167,6 +173,8 @@ describe('AnsiLogger', () => {
   it('should not log a debug message with colors when level is none', () => {
     const logger = new AnsiLogger({ logName: 'TestLogger', logLevel: LogLevel.NONE });
     expect(logger.logLevel).toBe(LogLevel.NONE);
+    expect((logger as any).shouldLog(LogLevel.DEBUG)).toBe(false);
+    expect((logger as any).shouldLog('xyz' as LogLevel)).toBe(false);
     logger.debug('Test debug message');
     expect(consoleOutput.length).toBe(0);
   });
@@ -241,6 +249,19 @@ describe('AnsiLogger', () => {
     expect((logger as any).logStartTime).not.toBe(0);
     logger.stopTimer('Test timer');
     expect((logger as any).logStartTime).toBe(0);
+  });
+});
+
+describe('AnsiLogger external logger', () => {
+  it('should name the logger', () => {
+    const extLogger = {
+      log: (level: LogLevel, message: string, parameters: string) => {
+        console.log(`${level} ${message} ${parameters}`);
+      },
+    };
+    const logger = new AnsiLogger({ logName: 'TestLogger', extLog: extLogger as Logger });
+    logger.info('Test info message');
+    expect(logger.logName).toBe('TestLogger');
   });
 });
 
@@ -368,6 +389,23 @@ describe('Global file logger', () => {
     expect(fs.existsSync('test-global.log')).toBe(false);
   });
 
+  test('should log to the file logger with a max file size', () => {
+    expect(AnsiLogger.setGlobalLogfile('test-global.log')).toBe(path.resolve('test-global.log'));
+    expect(fs.existsSync('test-global.log')).toBe(false);
+    const logger = new AnsiLogger({ logName: 'Test global file logger' });
+    logger.maxFileSize = 100;
+    logger.debug('Test debug message');
+    logger.info('Test info message');
+    logger.notice('Test notice message');
+    logger.warn('Test warn message');
+    logger.error('Test error message');
+    logger.fatal('Test fatal message');
+    expect(fs.existsSync('test-global.log')).toBe(true);
+    expect(AnsiLogger.setGlobalLogfile('test-global.log', LogLevel.DEBUG, true)).toBe(path.resolve('test-global.log'));
+    expect(AnsiLogger.setGlobalLogfileLevel(LogLevel.DEBUG)).toBe(LogLevel.DEBUG);
+    expect(fs.existsSync('test-global.log')).toBe(false);
+  });
+
   test('should log to the file logger different types', () => {
     const logger = new AnsiLogger({ logName: 'Test global file logger' });
     const obj: object = {
@@ -410,6 +448,26 @@ describe('Local file logger', () => {
     //
   });
 
+  test('should set the max file size', () => {
+    const logger = new AnsiLogger({ logName: 'Test local file logger', logLevel: LogLevel.DEBUG });
+    logger.logFilePath = 'test-local.log';
+    expect(fs.existsSync('test-local.log')).toBe(false);
+    logger.maxFileSize = 1024 * 200 * 1000; // 200 MB
+    expect(logger.maxFileSize).toBe(100000000); // 100 MB
+    logger.maxFileSize = 1024 * 100 * 1000; // 100 MB
+    expect(logger.maxFileSize).toBe(100000000); // 100 MB
+    logger.maxFileSize = 1024 * 100; // 100 KB
+    expect(logger.maxFileSize).toBe(102400); // 100 KB
+    logger.maxFileSize = 100;
+    expect(logger.maxFileSize).toBe(100);
+    logger.debug('Test debug message');
+    logger.info('Test info message');
+    logger.notice('Test notice message');
+    logger.warn('Test warn message');
+    logger.error('Test error message');
+    logger.fatal('Test fatal message');
+  });
+
   test('should log to the local file logger', () => {
     const logger = new AnsiLogger({ logName: 'Test local file logger', logLevel: LogLevel.DEBUG });
     logger.logFilePath = 'test-local.log';
@@ -441,7 +499,14 @@ describe('Local file logger', () => {
       LogLevel.DEBUG,
       `Debug local message with more params and 1 array: ${rs}\n`,
       obj,
-      [123, 'abc', { a: 1, b: 2 }],
+      [
+        123,
+        'abc',
+        { a: 1, b: 2 },
+        () => {
+          console.log('test');
+        },
+      ],
       123,
       212121111111111122121n,
       'Text',
@@ -451,6 +516,21 @@ describe('Local file logger', () => {
     );
     logger.log(LogLevel.DEBUG, `Debug message without params: ${debugStringify(obj)}`);
     expect(fs.existsSync('test-local.log')).toBe(true);
+  });
+
+  test('logFilePath should fail', () => {
+    const logger = new AnsiLogger({ logName: 'Test local file logger', logLevel: LogLevel.DEBUG });
+    logger.logFilePath = 123 as unknown as string;
+    expect(logger.logFilePath).toBe(undefined);
+    expect(logger.logFileSize).toBe(undefined);
+    logger.logFilePath = undefined as unknown as string;
+    expect(logger.logFilePath).toBe(undefined);
+    expect(logger.logFileSize).toBe(undefined);
+    logger.logFilePath = '';
+    expect(logger.logFilePath).toBe(undefined);
+    expect(logger.logFileSize).toBe(undefined);
+    logger.fatal('Test fatal message');
+    expect(fs.existsSync('test-local.log')).toBe(false);
   });
 
   test('should get the file size', () => {
@@ -463,16 +543,42 @@ describe('Local file logger', () => {
     logger.warn('Test warn message');
     logger.error('Test error message');
     logger.fatal('Test fatal message');
-    // expect(logger.logFileSize).toBe(454); // 454 bytes but CR LF is 2 bytes in workflow
+    const obj: object = {
+      logName: 'TestLogger',
+      logLevel: LogLevel.DEBUG,
+      logWithColors: true,
+      logTimestampFormat: TimestampFormat.TIME_MILLIS,
+    };
+    logger.log(LogLevel.DEBUG, `Debug local message with 1 params object: ${rs}\n`, obj);
+    logger.log(LogLevel.DEBUG, `Debug local message with more params: ${rs}\n`, obj, 123, 212121111111111122121n, 'Text', true, null, undefined);
+    logger.log(
+      LogLevel.DEBUG,
+      `Debug local message with more params and array: ${rs}\n`,
+      {
+        logName: 'TestLogger',
+        logLevel: LogLevel.DEBUG,
+        logWithColors: true,
+        logTimestampFormat: TimestampFormat.TIME_MILLIS,
+      },
+      [
+        123,
+        'abc',
+        { a: 1, b: 2 },
+        () => {
+          console.log('test');
+        },
+      ],
+      () => {
+        console.log('test');
+      },
+      123,
+      212121111111111122121n,
+      'Text',
+      true,
+      null,
+      undefined,
+    );
+    expect(logger.logFileSize).toBe(1182);
     expect(fs.existsSync('test-local.log')).toBe(true);
-  });
-
-  test('logFilePath should fail', () => {
-    const logger = new AnsiLogger({ logName: 'Test local file logger', logLevel: LogLevel.DEBUG });
-    logger.logFilePath = 123 as unknown as string;
-    expect(logger.logFilePath).toBe(undefined);
-    expect(logger.logFileSize).toBe(undefined);
-    logger.fatal('Test fatal message');
-    expect(fs.existsSync('test-local.log')).toBe(false);
   });
 });
