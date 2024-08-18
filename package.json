@@ -25,7 +25,6 @@
   "scripts": {
     "build": "tsc",
     "watch": "tsc --watch",
-    "testColors": "node dist/index.js --testAnsiLoggerColors",
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
     "test:verbose": "node --experimental-vm-modules node_modules/jest/bin/jest.js --verbose",
     "test:coverage": "node --experimental-vm-modules node_modules/jest/bin/jest.js --verbose --coverage",
@@ -65,7 +64,7 @@
     "@eslint/js": "^9.9.0",
     "@types/eslint__js": "^8.42.3",
     "@types/jest": "^29.5.12",
-    "@types/node": "^22.2.0",
+    "@types/node": "^22.4.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-jest": "^28.8.0",
     "eslint-plugin-prettier": "^5.2.1",
@@ -74,6 +73,6 @@
     "rimraf": "^6.0.1",
     "ts-jest": "^29.2.4",
     "typescript": "^5.5.4",
-    "typescript-eslint": "^8.0.1"
+    "typescript-eslint": "^8.1.0"
   }
 }
