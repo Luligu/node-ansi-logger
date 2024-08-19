@@ -6,14 +6,14 @@
 
 ---
 
-AnsiLogger is a lightweight, customizable color logger for Node.js. 
+AnsiLogger is a lightweight, customizable color logger for Node.js.
 
 ## Features
 
 - Simple and intuitive API for data logging.
 - Customizable colors and apperance.
-- It is also possible to pass a top level logger (like Homebridge or Matter logger) and AnsiLogger will use it 
-for output instead of console.
+- It is also possible to pass a top level logger (like Homebridge or Matter logger) and AnsiLogger will use it
+  for output instead of console.
 - Includes also a fully customizable stringify funtions with colors.
 
 ## Getting Started
@@ -46,6 +46,7 @@ const log = new AnsiLogger({logName: '<your name>'}); // Eventually other params
 ```
 
 To import the stringify functions
+
 ```
 import { stringify, payloadStringify, colorStringify, mqttStringify, debugStringify } from 'node-ansi-logger';
 ```
@@ -69,12 +70,14 @@ log.debug(`Debug message ${YELLOW}with yellow part${db}`, ...);
 ```
 
 ## Using the logger internal timer:
+
 ```
 log.startTimer('Time sensitive code started')
 log.stopTimer('Time sensitive code finished')
 ```
 
 ## Using the stringify function:
+
 ```
 stringify({...})
 colorStringify({...})
