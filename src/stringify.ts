@@ -1,12 +1,12 @@
 /**
  * This file contains the stringify functions.
  *
- * @file logger.ts
+ * @file stringify.ts
  * @author Luca Liguori
  * @date 2023-07-23
  * @version 1.4.1
  *
- * Copyright 2023, 2024, 2025 Luca Liguori.
+ * Copyright 2023, 2024, 2025, 2026 Luca Liguori.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -100,6 +100,8 @@ export function stringify(
       } else {
         newValue = '{...}';
       }
+    } else if (typeof newValue === 'symbol') {
+      newValue = `${clr(colorString)}${String(newValue)}${reset()}`;
     } else {
       throw new Error('Stringify unknown type');
     }
@@ -115,37 +117,3 @@ export function stringify(
 
   return (string += ` ${clr(colorPayload)}` + (isArray ? ']' : '}') + `${reset()}`);
 }
-
-// Use with node dist/stringify.js --testStringify to test stringify
-/*
-if (process.argv.includes('--testStringify')) {
-  const obj = {
-    number: 1234,
-    string: 'Text',
-    boolean: true,
-    null: null,
-    undefined: undefined,
-    bigint: 12321412241214141412412n,
-    array: [
-      1,
-      '2',
-      true,
-      null,
-      undefined,
-      12321412241214141412412n,
-      () => {
-        //
-      },
-    ],
-    function: () => {
-      //
-    },
-  };
-  // eslint-disable-next-line no-console
-  console.log(`Stringify payload: ${payloadStringify(obj)}`);
-  // eslint-disable-next-line no-console
-  console.log(`Stringify color: ${colorStringify(obj)}`);
-  // eslint-disable-next-line no-console
-  console.log(`Stringify history: ${historyStringify(obj)}`);
-}
-*/

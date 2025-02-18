@@ -5,9 +5,9 @@
  * @file logger.ts
  * @author Luca Liguori
  * @date 2023-06-01
- * @version 2.0.0
+ * @version 3.0.1
  *
- * Copyright 2023, 2024, 2025 Luca Liguori.
+ * Copyright 2023, 2024, 2025, 2026 Luca Liguori.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,10 +22,12 @@
  * limitations under the License.
  */
 
-import path from 'path';
+// Node.js built-in modules
+import path from 'node:path';
+import * as fs from 'node:fs';
+import * as os from 'node:os';
+
 import { stringify } from './stringify.js';
-import * as fs from 'fs';
-import * as os from 'os';
 
 // ANSI color codes and styles are defined here for use in the logger
 export const RESET = '[40;0m';
@@ -344,7 +346,7 @@ export class AnsiLogger {
    * @param {number} maxFileSize - The maxFileSize to set.
    */
   set maxFileSize(maxFileSize: number) {
-    this._maxFileSize = Math.min(maxFileSize, 100000000); // 100MB
+    this._maxFileSize = Math.min(maxFileSize, 500000000); // 500MB
   }
 
   /**
@@ -655,8 +657,8 @@ export class AnsiLogger {
             return stringify(parameter);
           case 'string':
             return parameter;
-          case 'undefined':
-            return 'undefined';
+          // case 'undefined':
+          // return 'undefined';
           case 'function':
             return '(function)';
           default:
@@ -926,63 +928,6 @@ export class AnsiLogger {
     this.log(LogLevel.FATAL, message, ...parameters);
   }
 }
-
-// Use with node dist/logger.js --testAnsiLoggerColors to test ANSI colors
-/*
-if (process.argv.includes('--testAnsiLoggerColors')) {
-  for (let i = 0; i < 256; i++) {
-    console.log(`[38;5;${i}mForeground color ${i.toString().padStart(3, ' ')} [1mbright[0m`);
-  }
-  console.log(`${db}Debug message${rs}`);
-  console.log(`${nf}Info message${rs}`);
-  console.log(`${nt}Notice message${rs}`);
-  console.log(`${wr}Warn message${rs}`);
-  console.log(`${er}Error message${rs}`);
-  console.log(`${ft}Fatal message${rs}`);
-  console.log(`${nf}Stringify payload: ${payloadStringify({ number: 1234, string: 'Text', boolean: true, null: null, undefined: undefined })}${rs}`);
-  console.log(`${nf}Stringify color: ${colorStringify({ number: 1234, string: 'Text', boolean: true, null: null, undefined: undefined })}${rs}`);
-  console.log(`${nf}Stringify history: ${historyStringify({ number: 1234, string: 'Text', boolean: true, null: null, undefined: undefined })}${rs}`);
-  console.log(
-    `${nf}Stringify mqtt: ${mqttStringify({
-      number: 1234,
-      string: 'Text',
-      boolean: true,
-      null: null,
-      undefined: undefined,
-      function: () => {
-        //
-      },
-    })}${rs}`,
-  );
-  console.log(
-    `${db}Stringify debug: ${debugStringify({ number: 1234, string: 'Text', boolean: true, null: null, undefined: undefined, object: { number: 1234, string: 'Text', boolean: true } })}${rs}`,
-  );
-
-  const logger = new AnsiLogger({ logName: 'TestLogger', logLevel: LogLevel.DEBUG, logWithColors: true, logTimestampFormat: TimestampFormat.TIME_MILLIS });
-  logger.logFilePath = 'test-local.log';
-  AnsiLogger.setGlobalLogfile('test-global.log', LogLevel.DEBUG, true);
-  logger.debug('Debug message');
-  logger.info('Info message');
-  logger.notice('Notice message');
-  logger.warn('Warn message');
-  logger.error('Error message');
-  logger.fatal('Fatal message');
-  const obj: object = {
-    logName: 'TestLogger',
-    logLevel: LogLevel.DEBUG,
-    logWithColors: true,
-    logTimestampFormat: TimestampFormat.TIME_MILLIS,
-  };
-  logger.log(LogLevel.DEBUG, `Debug message with params: ${rs}\n`, obj);
-  logger.log(LogLevel.DEBUG, `Debug message with params: ${rs}\n`, obj, 123, 212121111111111122121n, 'Text', true, null, undefined, () => {
-    //
-  });
-  logger.log(LogLevel.DEBUG, `Debug message with array params: ${rs}\n`, obj, [123, 'abc', { a: 1, b: 2 }], 123, 212121111111111122121n, 'Text', true, null, undefined, () => {
-    //
-  });
-  logger.log(LogLevel.DEBUG, `Debug message without params: ${debugStringify(obj)}`);
-}
-*/
 
 /*
     [0m - Reset (clear color)
