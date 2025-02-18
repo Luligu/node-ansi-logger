@@ -103,9 +103,21 @@ describe('Stringify functions', () => {
     expect(stringify(input)).toBe(expectedOutput);
   });
 
+  test('works with symbol', () => {
+    const input = { sym: Symbol('testSymbol') };
+    const expectedOutput = '{ sym: Symbol(testSymbol) }';
+    expect(stringify(input as any)).toBe(expectedOutput);
+  });
+
   test('works with array', () => {
     const expectedOutput = "[ 123, 'abc', true, 121211111111111211, { a: 1, b: 2 }, (function), null, undefined ]";
     expect(stringify(testArray)).toBe(expectedOutput);
+  });
+
+  test('works with a huge array', () => {
+    const hugeArray = Array.from({ length: 1000 }, (_, i) => i);
+    const expectedOutput = '{ huge: {...} }';
+    expect(stringify({ huge: hugeArray })).toBe(expectedOutput);
   });
 
   test('works with object', () => {
