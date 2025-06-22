@@ -1,6 +1,8 @@
+// stringify.test.ts
+
 /* eslint-disable no-console */
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import { colorStringify, debugStringify, historyStringify, mqttStringify, payloadStringify, stringify } from './stringify';
+
+import { colorStringify, debugStringify, historyStringify, mqttStringify, payloadStringify, stringify } from './stringify.ts';
 
 describe('Stringify functions', () => {
   const testObject = {

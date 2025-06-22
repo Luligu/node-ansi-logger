@@ -1,42 +1,14 @@
 // logger.test.ts
+
 /* eslint-disable no-console */
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import { jest } from '@jest/globals';
 
-// eslint-disable-next-line jest/no-commented-out-tests
-/*
-jest.unstable_mockModule('node:fs', () => ({
-  unlinkSync: jest.fn((path: any) => {
-    console.error('mockedFs.unlinkSync', path);
-    if ((path as string).includes('throw')) {
-      throw new Error('Test error');
-    } else {
-      // testFs(path);
-    }
-  }),
-}));
-const fs = await import('node:fs');
-// import * as fs from 'node:fs';
-
-// Your test cases
-describe('File System Tests', () => {
-  it('should call unlinkSync with correct path', () => {
-    const path = 'test-local.log';
-    fs.unlinkSync(path);
-    expect(fs.unlinkSync).toHaveBeenCalledWith(path);
-  });
-  it('should throw unlinkSync with correct path', () => {
-    const path = 'throw-local.log';
-    expect(() => fs.unlinkSync(path)).toThrow('Test error');
-    expect(fs.unlinkSync).toHaveBeenCalledWith(path);
-  });
-});
-*/
-
-import { AnsiLogger, AnsiLoggerCallback, db, er, ft, Logger, LogLevel, nf, nt, rs, TimestampFormat, wr } from './logger';
-import { debugStringify } from './stringify';
 import path from 'node:path';
 import * as fs from 'node:fs';
+
+import { jest } from '@jest/globals';
+
+import { AnsiLogger, AnsiLoggerCallback, db, er, ft, Logger, LogLevel, nf, nt, rs, TimestampFormat, wr } from './logger.ts';
+import { debugStringify } from './stringify.ts';
 
 // Mocking console.log to test logging output
 const originalConsoleLog = console.log;
@@ -477,7 +449,6 @@ describe('Local file logger', () => {
   beforeEach(() => {
     try {
       fs.unlinkSync('test-local.log');
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
       // console.error(`${er}Error unlinking the log file: ${error instanceof Error ? error.message : error}`);
     }
