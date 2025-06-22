@@ -1,11 +1,10 @@
 /**
  * This file contains the stringify functions.
  *
- * @param payload
  * @file stringify.ts
  * @author Luca Liguori
  * @created 2023-07-23
- * @version 1.4.1
+ * @version 1.4.2
  * @license Apache-2.0
  *
  * Copyright 2024, 2025, 2026 Luca Liguori.
@@ -128,6 +127,8 @@ export function stringify(
     let newValue = '';
     newValue = value;
     // console.log(typeof newValue, key, value);
+    // Unreachable code for typeof, but included for completeness
+    /* istanbul ignore else */
     if (value === null) {
       newValue = `${clr(colorUndefined)}null${reset()}`;
     } else if (typeof newValue === 'string') {
@@ -151,7 +152,7 @@ export function stringify(
     } else if (typeof newValue === 'symbol') {
       newValue = `${clr(colorString)}${String(newValue)}${reset()}`;
     } else {
-      throw new Error('Stringify unknown type');
+      throw new Error(`Unsupported type: ${typeof newValue}`);
     }
     if (isArray) {
       string += `${newValue}`;

@@ -1,11 +1,10 @@
-/* eslint-disable no-console */
 /**
  * This file contains the AnsiLogger .
  *
  * @file logger.ts
  * @author Luca Liguori
  * @created 2023-06-01
- * @version 3.0.1
+ * @version 3.0.2
  * @license Apache-2.0
  *
  * Copyright 2024, 2025, 2026 Luca Liguori.
@@ -22,6 +21,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+/* eslint-disable no-console */
 
 // Node.js built-in modules
 import path from 'node:path';
@@ -313,7 +314,7 @@ export class AnsiLogger {
       try {
         this._logFilePath = path.resolve(filePath);
       } catch (error) {
-        console.error(`Error resolving log file path ${CYAN}${filePath}${er}: ${error instanceof Error ? error.message : error}`);
+        console.error(`Error resolving log file path ${CYAN}${filePath}${er}: ${error}`);
         this._logFilePath = undefined;
         this._logFileSize = undefined;
         return;
@@ -323,7 +324,7 @@ export class AnsiLogger {
         try {
           fs.unlinkSync(this._logFilePath);
         } catch (error) {
-          console.error(`${er}Error unlinking the log file ${CYAN}${this._logFilePath}${er}: ${error instanceof Error ? error.message : error}`);
+          console.error(`${er}Error unlinking the log file ${CYAN}${this._logFilePath}${er}: ${error}`);
           this._logFilePath = undefined;
           this._logFileSize = undefined;
           return;
@@ -474,7 +475,7 @@ export class AnsiLogger {
         try {
           fs.unlinkSync(logfilePath);
         } catch (error) {
-          console.error(`${er}Error unlinking the log file ${CYAN}${logfilePath}${er}: ${error instanceof Error ? error.message : error}`);
+          console.error(`${er}Error unlinking the log file ${CYAN}${logfilePath}${er}: ${error}`);
         }
       }
       __AnsiLoggerFilePath__ = logfilePath;
@@ -654,6 +655,9 @@ export class AnsiLogger {
           break;
         case TimestampFormat.CUSTOM:
           timestamp = this.formatCustomTimestamp(new Date(), this._logCustomTimestampFormat);
+          break;
+        default:
+          timestamp = new Date().toLocaleString();
           break;
       }
       return timestamp;
