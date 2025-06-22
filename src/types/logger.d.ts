@@ -1,4 +1,3 @@
-/* eslint-disable no-var */
 import { AnsiLoggerCallback, LogLevel } from '../logger.js';
 
 declare global {

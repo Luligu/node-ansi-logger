@@ -3,10 +3,11 @@
  *
  * @file stringify.ts
  * @author Luca Liguori
- * @date 2023-07-23
- * @version 1.4.1
+ * @created 2023-07-23
+ * @version 1.4.2
+ * @license Apache-2.0
  *
- * Copyright 2023, 2024, 2025, 2026 Luca Liguori.
+ * Copyright 2024, 2025, 2026 Luca Liguori.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,26 +22,72 @@
  * limitations under the License.
  */
 
+/**
+ * Stringify the payload as a JSON string with no colors.
+ *
+ * @param {object} payload - The object to stringify.
+ * @returns {string} A JSON string representation of the payload.
+ */
 export function payloadStringify(payload: object): string {
   return stringify(payload, false, 0, 0, 0, 0, 0, 0, '"', '"');
 }
 
+/**
+ * Stringify the payload as a JSON string with colors.
+ *
+ * @param {object} payload - The object to stringify.
+ * @returns {string} A colored JSON string representation of the payload.
+ */
 export function colorStringify(payload: object): string {
   return stringify(payload, true, 69, 252, 2, 3, 6, 168);
 }
 
+/**
+ * Stringify the payload for history logging with specific colors.
+ *
+ * @param {object} payload - The object to stringify.
+ * @returns {string} A colored JSON string representation of the payload for history.
+ */
 export function historyStringify(payload: object): string {
   return stringify(payload, true, 0, 208, 247, 247, 247, 247);
 }
 
+/**
+ * Stringify the payload for MQTT with specific colors.
+ *
+ * @param {object} payload - The object to stringify.
+ * @returns {string} A colored JSON string representation of the payload for MQTT.
+ */
 export function mqttStringify(payload: object): string {
   return stringify(payload, true, 69, 245);
 }
 
+/**
+ * Stringify the payload for debugging with specific colors.
+ *
+ * @param {object} payload - The object to stringify.
+ * @returns {string} A colored JSON string representation of the payload for debugging.
+ */
 export function debugStringify(payload: object): string {
   return stringify(payload, true, 69, 245, 2, 3, 6, 168);
 }
 
+/**
+ * Stringify the payload with customizable colors and quotes.
+ *
+ * @param {object} payload - The object to stringify.
+ * @param {boolean} enableColors - Whether to enable colors in the output.
+ * @param {number} colorPayload - Color for the payload (default: 252).
+ * @param {number} colorKey - Color for the keys (default: 250).
+ * @param {number} colorString - Color for string values (default: 35).
+ * @param {number} colorNumber - Color for number values (default: 220).
+ * @param {number} colorBoolean - Color for boolean values (default: 159).
+ * @param {number} colorUndefined - Color for undefined values (default: 1).
+ * @param {string} keyQuote - Quote character for keys (default: '').
+ * @param {string} stringQuote - Quote character for string values (default: "'").
+ * @param {Set<object>} seenObjects - A set to track already seen objects to prevent circular references.
+ * @returns {string} A string representation of the payload with colors and quotes.
+ */
 export function stringify(
   payload: object,
   enableColors = false,
@@ -80,6 +127,8 @@ export function stringify(
     let newValue = '';
     newValue = value;
     // console.log(typeof newValue, key, value);
+    // Unreachable code for typeof, but included for completeness
+    /* istanbul ignore else */
     if (value === null) {
       newValue = `${clr(colorUndefined)}null${reset()}`;
     } else if (typeof newValue === 'string') {
@@ -103,7 +152,7 @@ export function stringify(
     } else if (typeof newValue === 'symbol') {
       newValue = `${clr(colorString)}${String(newValue)}${reset()}`;
     } else {
-      throw new Error('Stringify unknown type');
+      throw new Error(`Unsupported type: ${typeof newValue}`);
     }
     if (isArray) {
       string += `${newValue}`;

@@ -1,13 +1,13 @@
-/* eslint-disable no-console */
 /**
  * This file contains the AnsiLogger .
  *
  * @file logger.ts
  * @author Luca Liguori
- * @date 2023-06-01
- * @version 3.0.1
+ * @created 2023-06-01
+ * @version 3.0.2
+ * @license Apache-2.0
  *
- * Copyright 2023, 2024, 2025, 2026 Luca Liguori.
+ * Copyright 2024, 2025, 2026 Luca Liguori.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+/* eslint-disable no-console */
 
 // Node.js built-in modules
 import path from 'node:path';
@@ -170,7 +172,8 @@ export class AnsiLogger {
 
   /**
    * Constructs a new AnsiLogger instance with optional configuration parameters.
-   * @param {AnsiLoggerParams} optionalParams - Configuration options for the logger.
+   *
+   * @param {AnsiLoggerParams} params - Configuration options for the logger.
    */
   constructor(params: AnsiLoggerParams) {
     this._extLog = params.extLog;
@@ -185,6 +188,7 @@ export class AnsiLogger {
 
   /**
    * Gets the name of the logger.
+   *
    * @returns {string} The logger name.
    */
   get logName(): string {
@@ -193,6 +197,7 @@ export class AnsiLogger {
 
   /**
    * Sets the log name for the logger.
+   *
    * @param {string} name - The logger name to set.
    */
   set logName(name: string) {
@@ -201,6 +206,7 @@ export class AnsiLogger {
 
   /**
    * Gets the log level of the logger.
+   *
    * @returns {LogLevel} The log level.
    */
   get logLevel(): LogLevel {
@@ -209,6 +215,7 @@ export class AnsiLogger {
 
   /**
    * Sets the log level for the logger.
+   *
    * @param {LogLevel} logLevel - The log level to set.
    */
   set logLevel(logLevel: LogLevel) {
@@ -217,6 +224,7 @@ export class AnsiLogger {
 
   /**
    * Gets the logWithColors flag of the logger.
+   *
    * @returns {boolean} The logWithColors parameter.
    */
   get logWithColors(): boolean {
@@ -225,6 +233,7 @@ export class AnsiLogger {
 
   /**
    * Sets the logWithColors flag of the logger.
+   *
    * @param {boolean} logWithColors - The logWithColors parameter to set.
    */
   set logWithColors(logWithColors: boolean) {
@@ -251,6 +260,7 @@ export class AnsiLogger {
 
   /**
    * Gets the log timestamp format of the logger.
+   *
    * @returns {TimestampFormat} The log timestamp format.
    */
   get logTimestampFormat(): TimestampFormat {
@@ -259,6 +269,7 @@ export class AnsiLogger {
 
   /**
    * Sets the log timestamp format for the logger.
+   *
    * @param {TimestampFormat} logTimestampFormat - The log timestamp format to set.
    */
   set logTimestampFormat(logTimestampFormat: TimestampFormat) {
@@ -267,6 +278,7 @@ export class AnsiLogger {
 
   /**
    * Gets the custom log timestamp format of the logger.
+   *
    * @returns {string} The custom log timestamp format.
    */
   get logCustomTimestampFormat(): string {
@@ -275,6 +287,7 @@ export class AnsiLogger {
 
   /**
    * Sets the custom log timestamp format for the logger.
+   *
    * @param {string} logCustomTimestampFormat - The custom log timestamp format to set.
    */
   set logCustomTimestampFormat(logCustomTimestampFormat: string) {
@@ -301,7 +314,7 @@ export class AnsiLogger {
       try {
         this._logFilePath = path.resolve(filePath);
       } catch (error) {
-        console.error(`Error resolving log file path ${CYAN}${filePath}${er}: ${error instanceof Error ? error.message : error}`);
+        console.error(`Error resolving log file path ${CYAN}${filePath}${er}: ${error}`);
         this._logFilePath = undefined;
         this._logFileSize = undefined;
         return;
@@ -311,7 +324,7 @@ export class AnsiLogger {
         try {
           fs.unlinkSync(this._logFilePath);
         } catch (error) {
-          console.error(`${er}Error unlinking the log file ${CYAN}${this._logFilePath}${er}: ${error instanceof Error ? error.message : error}`);
+          console.error(`${er}Error unlinking the log file ${CYAN}${this._logFilePath}${er}: ${error}`);
           this._logFilePath = undefined;
           this._logFileSize = undefined;
           return;
@@ -335,6 +348,7 @@ export class AnsiLogger {
 
   /**
    * Gets the max file size of the file loggers.
+   *
    * @returns {number} The current maxFileSize.
    */
   get maxFileSize(): number {
@@ -343,6 +357,7 @@ export class AnsiLogger {
 
   /**
    * Sets the max file size of the file loggers.
+   *
    * @param {number} maxFileSize - The maxFileSize to set.
    */
   set maxFileSize(maxFileSize: number) {
@@ -351,6 +366,7 @@ export class AnsiLogger {
 
   /**
    * Starts a timer with an optional message.
+   *
    * @param {string} message - The message to log when starting the timer.
    */
   public startTimer(message: string): void {
@@ -360,6 +376,7 @@ export class AnsiLogger {
 
   /**
    * Stops the timer started by startTimer and logs the elapsed time.
+   *
    * @param {string} message - The message to log along with the elapsed time.
    */
   public stopTimer(message: string): void {
@@ -372,6 +389,7 @@ export class AnsiLogger {
 
   /**
    * Sets the callback function to be used by the logger.
+   *
    * @param {AnsiLoggerCallback} callback - The callback function.
    */
   public setCallback(callback: AnsiLoggerCallback | undefined): void {
@@ -380,6 +398,7 @@ export class AnsiLogger {
 
   /**
    * Gets the callback function currently used by the logger.
+   *
    * @returns {AnsiLoggerCallback | undefined} The callback function.
    */
   public getCallback(): AnsiLoggerCallback | undefined {
@@ -388,8 +407,9 @@ export class AnsiLogger {
 
   /**
    * Sets the global callback function to be used by the logger.
+   *
    * @param {AnsiLoggerCallback | undefined} callback - The callback function.
-   * @param {LogLevel} [callbackLevel=LogLevel.DEBUG]  - The log level of the log file (default LogLevel.DEBUG).
+   * @param {LogLevel} [callbackLevel]  - The log level of the log file (default LogLevel.DEBUG).
    *
    * @returns {AnsiLoggerCallback | undefined} The path name of the log file.
    */
@@ -401,6 +421,7 @@ export class AnsiLogger {
 
   /**
    * Gets the global callback function currently used by the logger.
+   *
    * @returns {AnsiLoggerCallback | undefined} The callback function.
    */
   static getGlobalCallback(): AnsiLoggerCallback | undefined {
@@ -438,6 +459,7 @@ export class AnsiLogger {
 
   /**
    * Sets the global logfile to be used by the logger.
+   *
    * @param {string} logfilePath - The path name of the log file.
    * @param {LogLevel} logfileLevel - Optional: the log level of the log file. Default LogLevel.DEBUG.
    * @param {boolean} unlink - Optional: whether to unlink (delete) the log file if it exists. Default false.
@@ -453,7 +475,7 @@ export class AnsiLogger {
         try {
           fs.unlinkSync(logfilePath);
         } catch (error) {
-          console.error(`${er}Error unlinking the log file ${CYAN}${logfilePath}${er}: ${error instanceof Error ? error.message : error}`);
+          console.error(`${er}Error unlinking the log file ${CYAN}${logfilePath}${er}: ${error}`);
         }
       }
       __AnsiLoggerFilePath__ = logfilePath;
@@ -567,6 +589,7 @@ export class AnsiLogger {
 
   /**
    * Formats a Date object into a custom string format.
+   *
    * @param {Date} date - The Date object to format.
    * @param {string} formatString - The string format to use.
    * @returns {string} The formatted date.
@@ -604,6 +627,7 @@ export class AnsiLogger {
    * Returns the timestamp based on the configured format.
    * If the log start time is set, it returns the time passed since the start time.
    * Otherwise, it returns the current timestamp based on the configured format.
+   *
    * @returns {string} The timestamp string.
    */
   private getTimestamp(): string {
@@ -631,6 +655,9 @@ export class AnsiLogger {
           break;
         case TimestampFormat.CUSTOM:
           timestamp = this.formatCustomTimestamp(new Date(), this._logCustomTimestampFormat);
+          break;
+        default:
+          timestamp = new Date().toLocaleString();
           break;
       }
       return timestamp;
