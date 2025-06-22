@@ -20,3 +20,4 @@ temp/
 # Package specific directories and files that should be ignored
 test-local.log
 test-global.log
+test-error.log
