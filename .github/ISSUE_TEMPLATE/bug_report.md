@@ -6,6 +6,9 @@ labels: ""
 assignees: ""
 ---
 
+**Check if the case is already covered**
+Please read the README.md and the CHANGELOG.md and the opened issues before submitting a new issue.
+
 **Describe the bug**
 A clear and concise description of what the bug is.
 
@@ -26,9 +29,9 @@ Please always add screenshots to help explain your problem. Possibly taken from 
 **Debug file**
 Please always add the debug file to help explain your problem.
 
-**Package (please complete the following information):**
-Version [e.g. 0.0.2]
-OS: [e.g. where you run the package]
+**Version (please complete the following information):**
+
+- Version [e.g. 0.0.2]
 
 **Additional context**
 Add any other context about the problem here.

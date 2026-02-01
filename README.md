@@ -10,10 +10,10 @@
 
 AnsiLogger is a lightweight, customizable color logger for Node.js.
 
-If you like this project and find it useful, please consider giving it a star on GitHub at https://github.com/Luligu/node-ansi-logger and sponsoring it.
+If you like this project and find it useful, please consider giving it a star on [GitHub](https://github.com/Luligu/node-ansi-logger) and sponsoring it.
 
 <a href="https://www.buymeacoffee.com/luligugithub">
-  <img src="bmc-button.svg" alt="Buy me a coffee" width="120">
+  <img src="https://matterbridge.io/assets/bmc-button.svg" alt="Buy me a coffee" width="120">
 </a>
 
 ## Features

@@ -2,16 +2,19 @@
 # This file specifies directories and files that should be ignored by prettier formatting
 
 # Ignore specific directories
+.cache/
 .git/
 coverage/
 dist/
 jest/
 node_modules/
+temp/
 
 # Ignore specific files
 **/*.html
 
 # Package specific directories and files that should be ignored
+
 test-local.log
 test-global.log
 test-error.log
