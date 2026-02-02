@@ -18,6 +18,7 @@ jest.unstable_mockModule('node:fs', () => {
 const { existsSync, appendFileSync, writeFileSync, unlinkSync } = await import('node:fs');
 
 import path from 'node:path';
+import { env } from 'node:process';
 import { type PathLike, type PathOrFileDescriptor, type WriteFileOptions } from 'node:fs';
 
 import { jest } from '@jest/globals';
@@ -97,22 +98,27 @@ describe('AnsiLogger', () => {
 
   it('should log an info message with all logTimestampFormat', () => {
     const logger = new AnsiLogger({ logName: 'TestLogger', logLevel: LogLevel.DEBUG, logWithColors: false, logTimestampFormat: TimestampFormat.LOCAL_DATE });
-    (logger as any)._logTimestampFormat = TimestampFormat.LOCAL_DATE;
+    logger.logTimestampFormat = TimestampFormat.LOCAL_DATE;
     logger.debug('Test info message');
-    (logger as any)._logTimestampFormat = TimestampFormat.LOCAL_TIME;
+    logger.logTimestampFormat = TimestampFormat.LOCAL_TIME;
     logger.info('Test info message');
-    (logger as any)._logTimestampFormat = TimestampFormat.HOMEBRIDGE;
+    logger.logTimestampFormat = TimestampFormat.HOMEBRIDGE;
     logger.notice('Test info message');
-    (logger as any)._logTimestampFormat = TimestampFormat.LOCAL_DATE_TIME;
+    logger.logTimestampFormat = TimestampFormat.LOCAL_DATE_TIME;
     logger.warn('Test info message');
-    (logger as any)._logTimestampFormat = TimestampFormat.ISO;
+    logger.logTimestampFormat = TimestampFormat.ISO;
     logger.error('Test info message');
-    (logger as any)._logTimestampFormat = TimestampFormat.TIME_MILLIS;
+    logger.logTimestampFormat = TimestampFormat.TIME_MILLIS;
     logger.fatal('Test info message');
-    (logger as any)._logTimestampFormat = TimestampFormat.CUSTOM;
+    logger.logTimestampFormat = TimestampFormat.CUSTOM;
     logger.info('Test info message');
-    (logger as any)._logTimestampFormat = 1000;
+    logger.logTimestampFormat = 15 as any;
     logger.info('Test info message');
+
+    logger.logTimeStampColor = 'color';
+    logger.info('Test info message');
+    expect(logger.logTimeStampColor).toBe('color');
+
     expect(consoleOutput[0][0]).toMatch(/TestLogger/);
   });
 
@@ -222,6 +228,43 @@ describe('AnsiLogger', () => {
     logger.info('****Test info message with ****');
   });
 
+  it('should log a debug message without colors when debug is enabled without stars', () => {
+    const logger = new AnsiLogger({ logName: 'TestLogger', logDebug: true, logWithColors: false });
+    logger.logName = 'TestLoggerABC';
+    expect(logger.logName).toBe('TestLoggerABC');
+    logger.debug('Test debug message');
+    expect(consoleOutput[0][0]).toMatch(/TestLoggerABC/);
+    expect((consoleOutput[0][0] as string).includes(db)).toBeFalsy();
+    expect(consoleOutput[0][0]).toMatch(/Test debug message/);
+    consoleOutput = [];
+    consoleError = [];
+    logger.info('*Test info message with *');
+    expect(consoleOutput[0][0]).not.toMatch(/\*Test/);
+    expect(consoleOutput[0][0]).toMatch(/\[TestLoggerABC\] \[info\] Test info message with \*/);
+    logger.info('**Test info message with **');
+    logger.info('***Test info message with ***');
+    logger.info('****Test info message with ****');
+  });
+
+  it('should log a info message without colors when NO_COLOR=1 and without stars', () => {
+    env.NO_COLOR = '1';
+    env.NO_COLOR = '1';
+    const logger = new AnsiLogger({ logName: 'TestLogger' });
+    logger.info('Test debug message');
+    expect(consoleOutput[0][0]).toMatch(/TestLogger/);
+    expect((consoleOutput[0][0] as string).includes(db)).toBeFalsy();
+    expect(consoleOutput[0][0]).toMatch(/Test debug message/);
+    consoleOutput = [];
+    consoleError = [];
+    logger.info('*Test info message with *');
+    expect(consoleOutput[0][0]).not.toMatch(/\*Test/);
+    expect(consoleOutput[0][0]).toMatch(/\[TestLogger\] \[info\] Test info message with \*/);
+    logger.info('**Test info message with **');
+    logger.info('***Test info message with ***');
+    logger.info('****Test info message with ****');
+    env.NO_COLOR = undefined;
+  });
+
   it('should not log a debug message with colors when debug is not enabled', () => {
     const logger = new AnsiLogger({ logName: 'TestLogger', logDebug: false });
     logger.debug('Test debug message');
@@ -289,6 +332,7 @@ describe('AnsiLogger', () => {
     expect((consoleOutput[0][0] as string).includes(nf)).toBeTruthy();
     expect(consoleOutput[0][1]).toMatch(/Test info message/);
   });
+
   it('should log a notice message with colors', () => {
     const logger = new AnsiLogger({ logName: 'TestLogger', logLevel: LogLevel.DEBUG });
     logger.notice('Test notice message');
@@ -296,6 +340,7 @@ describe('AnsiLogger', () => {
     expect((consoleOutput[0][0] as string).includes(nt)).toBeTruthy();
     expect(consoleOutput[0][1]).toMatch(/Test notice message/);
   });
+
   it('should log a warn message with colors', () => {
     const logger = new AnsiLogger({ logName: 'TestLogger', logLevel: LogLevel.DEBUG });
     logger.warn('Test warn message');
@@ -303,6 +348,7 @@ describe('AnsiLogger', () => {
     expect((consoleOutput[0][0] as string).includes(wr)).toBeTruthy();
     expect(consoleOutput[0][1]).toMatch(/Test warn message/);
   });
+
   it('should log a error message with colors', () => {
     const logger = new AnsiLogger({ logName: 'TestLogger', logLevel: LogLevel.DEBUG });
     logger.error('Test error message');
@@ -310,6 +356,7 @@ describe('AnsiLogger', () => {
     expect((consoleOutput[0][0] as string).includes(er)).toBeTruthy();
     expect(consoleOutput[0][1]).toMatch(/Test error message/);
   });
+
   it('should log a fatal message with colors', () => {
     const logger = new AnsiLogger({ logName: 'TestLogger', logLevel: LogLevel.DEBUG });
     logger.fatal('Test fatal message');
@@ -317,16 +364,19 @@ describe('AnsiLogger', () => {
     expect((consoleOutput[0][0] as string).includes(ft)).toBeTruthy();
     expect(consoleOutput[0][1]).toMatch(/Test fatal message/);
   });
+
   it('should not log a none message with colors', () => {
     const logger = new AnsiLogger({ logName: 'TestLogger', logLevel: LogLevel.DEBUG });
     logger.log(LogLevel.NONE, 'Test none message');
     expect(consoleOutput).toHaveLength(0);
   });
+
   it('should not log a none message without colors', () => {
     const logger = new AnsiLogger({ logName: 'TestLogger', logLevel: LogLevel.DEBUG, logWithColors: false });
     logger.log(LogLevel.NONE, 'Test none message');
     expect(consoleOutput).toHaveLength(0);
   });
+
   it('should log timer with colors', () => {
     const logger = new AnsiLogger({ logName: 'TestLogger', logLevel: LogLevel.DEBUG });
     logger.fatal('Test fatal message');
@@ -334,11 +384,11 @@ describe('AnsiLogger', () => {
     expect((consoleOutput[0][0] as string).includes(ft)).toBeTruthy();
     expect(consoleOutput[0][1]).toMatch(/Test fatal message/);
 
-    expect((logger as any).logStartTime).toBe(0);
+    expect(logger.logStartTime).toBe(0);
     logger.startTimer('Test timer');
-    expect((logger as any).logStartTime).not.toBe(0);
+    expect(logger.logStartTime).not.toBe(0);
     logger.stopTimer('Test timer');
-    expect((logger as any).logStartTime).toBe(0);
+    expect(logger.logStartTime).toBe(0);
   });
 });
 
@@ -607,9 +657,9 @@ describe('Local file logger', () => {
     logger.maxFileSize = 1024 * 100 * 1000; // 100 MB
     expect(logger.maxFileSize).toBe(102400000); // 100 MB
     logger.maxFileSize = 1024 * 100; // 100 KB
-    expect(logger.maxFileSize).toBe(102400); // 100 KB
+    expect(logger.maxFileSize).toBe(1_000_000); // 1MB
     logger.maxFileSize = 100;
-    expect(logger.maxFileSize).toBe(100);
+    expect(logger.maxFileSize).toBe(1_000_000); // 1MB
     logger.debug('Test debug message');
     logger.info('Test info message');
     logger.notice('Test notice message');
@@ -695,12 +745,6 @@ describe('Local file logger', () => {
     logger.logFilePath = '';
     expect(logger.logFilePath).toBe(undefined);
     expect(logger.logFileSize).toBe(undefined);
-
-    (logger as any)._logFilePath = 'xxx';
-    (logger as any)._logFileSize = 123;
-    expect(logger.logFileSize).toBe(123);
-    (logger as any)._logFilePath = undefined;
-    (logger as any)._logFileSize = undefined;
 
     logger.fatal('Test fatal message');
     expect(existsSync('test-local.log')).toBe(false);

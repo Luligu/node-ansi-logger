@@ -6,9 +6,9 @@
     "incremental": false,
     "composite": false,
     "declaration": true,
-    "declarationMap": false,
-    "sourceMap": false,
-    "removeComments": true
+    "declarationMap": true,
+    "sourceMap": true,
+    "removeComments": false
   },
   "include": ["src/**/*.ts"],
   "exclude": ["**/*.spec.ts", "**/*.test.ts", "**/__test__/*"]

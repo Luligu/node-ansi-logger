@@ -4,7 +4,7 @@
   "description": "Enhanced Ansi Color Logging and Stringify for Node.js in type script",
   "author": "https://github.com/Luligu",
   "license": "Apache-2.0",
-  "homepage": "https://github.com/Luligu/node-ansi-logger/blob/main/README.md",
+  "homepage": "https://www.npmjs.com/package/node-ansi-logger",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Luligu/node-ansi-logger.git"
@@ -16,20 +16,29 @@
     "type": "buymeacoffee",
     "url": "https://www.buymeacoffee.com/luligugithub"
   },
+  "keywords": [
+    "node-ansi-logger",
+    "ansi escape",
+    "color",
+    "logger",
+    "logging",
+    "console",
+    "terminal",
+    "filelogger"
+  ],
   "type": "module",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "dist/module.js",
+  "types": "dist/module.d.ts",
   "engines": {
     "node": ">=20.0.0 <21.0.0 || >=22.0.0 <23.0.0 || >=24.0.0 <25.0.0"
   },
   "files": [
-    "bin",
     "dist",
     "npm-shrinkwrap.json",
     "CHANGELOG.md"
   ],
   "scripts": {
-    "start": "node dist/index.js",
+    "start": "node dist/module.js",
     "build": "tsc --project tsconfig.json",
     "buildProduction": "tsc --project tsconfig.production.json",
     "clean": "npx shx rm -rf tsconfig.tsbuildinfo dist",
@@ -66,12 +75,11 @@
     "updateDependencies": "npx npm-check-updates -u && npm run reset",
     "automator": "node scripts/runAutomator.mjs --library",
     "runMeBeforePublish": "npm run build && npm run lint && npm run format && npm run test:coverage && npm run build",
-    "prepublishOnly": "npm run cleanBuild && npm pkg delete devDependencies scripts && npx shx rm -rf node_modules/* node_modules/.[!.]* node_modules/..?* package-lock.json npm-shrinkwrap.json && npm install --no-fund --no-audit --omit=dev && npm shrinkwrap --omit=dev",
-    "prepublishOnlyProduction": "npm run cleanBuildProduction && npm pkg delete devDependencies scripts && npx shx rm -rf node_modules/* node_modules/.[!.]* node_modules/..?* package-lock.json npm-shrinkwrap.json && npm install --no-fund --no-audit --omit=dev && npm shrinkwrap --omit=dev",
-    "npmPack": "npx shx cp package.json package.json.backup && node scripts/version.mjs dev && npm run prepublishOnlyProduction && npm pack && npx shx cp package.json.backup package.json && npx shx rm -rf package.json.backup && npm run reset",
-    "npmPublishTagDev": "npx shx cp package.json package.json.backup && node scripts/version.mjs dev && npm run prepublishOnlyProduction && npm publish --tag dev && npx shx cp package.json.backup package.json && npx shx rm -rf package.json.backup && npm run reset",
-    "npmPublishTagEdge": "npx shx cp package.json package.json.backup && node scripts/version.mjs edge && npm run prepublishOnlyProduction && npm publish --tag edge && npx shx cp package.json.backup package.json && npx shx rm -rf package.json.backup && npm run reset",
-    "npmPublishTagLatest": "npx shx cp package.json package.json.backup && npm run prepublishOnlyProduction && npm publish --tag latest && npx shx cp package.json.backup package.json && npx shx rm -rf package.json.backup && npm run reset",
+    "prepublishOnly": "npm run cleanBuildProduction && npm pkg delete devDependencies scripts && npx shx rm -rf node_modules/* node_modules/.[!.]* node_modules/..?* package-lock.json npm-shrinkwrap.json && npm install --omit=dev && npm shrinkwrap --omit=dev",
+    "npmPack": "npx shx cp package.json package.json.backup && node scripts/version.mjs dev && npm run prepublishOnly && npm pack && npx shx cp package.json.backup package.json && npx shx rm -f package.json.backup && npm run reset",
+    "npmPublishTagDev": "npx shx cp package.json package.json.backup && node scripts/version.mjs dev && npm run prepublishOnly && npm publish --tag dev && npx shx cp package.json.backup package.json && npx shx rm -f package.json.backup && npm run reset",
+    "npmPublishTagEdge": "npx shx cp package.json package.json.backup && node scripts/version.mjs edge && npm run prepublishOnly && npm publish --tag edge && npx shx cp package.json.backup package.json && npx shx rm -f package.json.backup && npm run reset",
+    "npmPublishTagLatest": "npx shx cp package.json package.json.backup && npm run prepublishOnly && npm publish --tag latest && npx shx cp package.json.backup package.json && npx shx rm -f package.json.backup && npm run reset",
     "install:dependencies": "echo \"No dependencies to install.\"",
     "install:scripts": "npm install --no-fund --no-audit --save-dev --save-exact npm-check-updates shx cross-env",
     "install:typescript": "npm install --no-fund --no-audit --save-dev --save-exact typescript @types/node",
@@ -80,16 +88,6 @@
     "install:jest": "npm install --no-fund --no-audit --save-dev --save-exact jest ts-jest @types/jest @jest/globals eslint-plugin-jest",
     "install:vitest": "npm install --no-fund --no-audit --save-dev --save-exact vitest @vitest/coverage-v8 @vitest/eslint-plugin"
   },
-  "keywords": [
-    "node-ansi-logger",
-    "ansi escape",
-    "color",
-    "logger",
-    "logging",
-    "console",
-    "terminal",
-    "filelogger"
-  ],
   "devDependencies": {
     "@eslint/js": "9.39.2",
     "@jest/globals": "30.2.0",

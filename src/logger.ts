@@ -23,6 +23,7 @@
  */
 
 /* eslint-disable no-console */
+/* eslint-disable jsdoc/reject-any-type */
 
 // Node.js built-in modules
 import path from 'node:path';
@@ -131,11 +132,17 @@ export const enum TimestampFormat {
 export interface AnsiLoggerParams {
   extLog?: Logger;
   logName?: string;
+  logNameColor?: string;
+  /**
+   * @deprecated Use logLevel instead.
+   */
   logDebug?: boolean; // Deprecated
   logLevel?: LogLevel;
   logWithColors?: boolean;
   logTimestampFormat?: TimestampFormat;
+  logTimeStampColor?: string;
   logCustomTimestampFormat?: string;
+  maxFileSize?: number;
 }
 
 export type AnsiLoggerCallback = (level: string, time: string, name: string, message: string) => void;
@@ -153,22 +160,21 @@ if (typeof globalThis.__AnsiLoggerFileLogSize__ === 'undefined') globalThis.__An
  * It allows for various configurations such as enabling debug logs, customizing log name, and more.
  */
 export class AnsiLogger {
-  private _extLog: Logger | undefined;
-  private _logName: string;
-  private _logFilePath: string | undefined;
-  private _logFileSize: number | undefined;
-  private _logLevel: LogLevel;
-  private _logWithColors: boolean;
-  private _logTimestampFormat: TimestampFormat;
-  private _logCustomTimestampFormat: string;
-  private _logTimeStampColor = '[38;5;245m';
-  private _logNameColor = '[38;5;31m';
+  #extLog: Logger | undefined;
+  #logName: string;
+  #logFilePath: string | undefined;
+  #logFileSize: number | undefined;
+  #logLevel: LogLevel;
+  #logWithColors: boolean;
+  #logTimestampFormat: TimestampFormat;
+  #logCustomTimestampFormat: string;
+  #logTimeStampColor: string;
+  #logNameColor: string;
+  #maxFileSize: number;
 
-  private _maxFileSize = 100000000; // 100MB
+  #logStartTime: number;
 
-  private logStartTime: number;
-
-  private callback: AnsiLoggerCallback | undefined = undefined;
+  #callback: AnsiLoggerCallback | undefined = undefined;
 
   /**
    * Constructs a new AnsiLogger instance with optional configuration parameters.
@@ -176,14 +182,26 @@ export class AnsiLogger {
    * @param {AnsiLoggerParams} params - Configuration options for the logger.
    */
   constructor(params: AnsiLoggerParams) {
-    this._extLog = params.extLog;
-    this._logName = params.logName ?? 'NodeAnsiLogger';
-    this._logLevel = params.logLevel ?? (params.logDebug === true ? LogLevel.DEBUG : LogLevel.INFO);
-    this._logWithColors = params.logWithColors ?? true;
-    this._logTimestampFormat = params.logTimestampFormat ?? TimestampFormat.LOCAL_DATE_TIME;
-    this._logCustomTimestampFormat = params.logCustomTimestampFormat ?? 'yyyy-MM-dd HH:mm:ss';
+    this.#extLog = params.extLog;
+    this.#logName = params.logName ?? 'NodeAnsiLogger';
+    this.#logNameColor = params.logNameColor ?? '[38;5;31m';
+    this.#logLevel = params.logLevel ?? (params.logDebug === true ? LogLevel.DEBUG : LogLevel.INFO);
+    this.#logWithColors = params.logWithColors !== undefined ? params.logWithColors : process.env.NO_COLOR === '1' ? false : true;
+    this.#logTimestampFormat =
+      params.logTimestampFormat !== undefined
+        ? params.logTimestampFormat
+        : process.env.NODE_ANSI_LOGGER_TIMESTAMP_FORMAT !== undefined && ['0', '1', '2', '3', '4', '5', '6'].includes(process.env.NODE_ANSI_LOGGER_TIMESTAMP_FORMAT)
+          ? Number(process.env.NODE_ANSI_LOGGER_TIMESTAMP_FORMAT)
+          : TimestampFormat.LOCAL_DATE_TIME;
+    this.#logTimeStampColor = params.logTimeStampColor ?? '[38;5;245m';
+    this.#logCustomTimestampFormat =
+      params.logCustomTimestampFormat !== undefined && typeof params.logCustomTimestampFormat === 'string'
+        ? params.logCustomTimestampFormat
+        : (process.env.NODE_ANSI_LOGGER_TIMESTAMP_CUSTOM_FORMAT ?? 'yyyy-MM-dd HH:mm:ss');
+    this.#maxFileSize = params.maxFileSize ?? 100_000_000; // Default 100 MB
+    this.#maxFileSize = Math.max(Math.min(this.#maxFileSize, 500_000_000), 1_000_000); // Min 1MB, Max 500MB
 
-    this.logStartTime = 0;
+    this.#logStartTime = 0;
   }
 
   /**
@@ -192,7 +210,7 @@ export class AnsiLogger {
    * @returns {string} The logger name.
    */
   get logName(): string {
-    return this._logName;
+    return this.#logName;
   }
 
   /**
@@ -201,7 +219,7 @@ export class AnsiLogger {
    * @param {string} name - The logger name to set.
    */
   set logName(name: string) {
-    this._logName = name;
+    this.#logName = name;
   }
 
   /**
@@ -210,7 +228,7 @@ export class AnsiLogger {
    * @returns {LogLevel} The log level.
    */
   get logLevel(): LogLevel {
-    return this._logLevel;
+    return this.#logLevel;
   }
 
   /**
@@ -219,7 +237,7 @@ export class AnsiLogger {
    * @param {LogLevel} logLevel - The log level to set.
    */
   set logLevel(logLevel: LogLevel) {
-    this._logLevel = logLevel;
+    this.#logLevel = logLevel;
   }
 
   /**
@@ -228,7 +246,7 @@ export class AnsiLogger {
    * @returns {boolean} The logWithColors parameter.
    */
   get logWithColors(): boolean {
-    return this._logWithColors;
+    return this.#logWithColors;
   }
 
   /**
@@ -237,7 +255,7 @@ export class AnsiLogger {
    * @param {boolean} logWithColors - The logWithColors parameter to set.
    */
   set logWithColors(logWithColors: boolean) {
-    this._logWithColors = logWithColors;
+    this.#logWithColors = logWithColors;
   }
 
   /**
@@ -245,8 +263,8 @@ export class AnsiLogger {
    *
    * @returns {string} The log name color string.
    */
-  get logNameColor(): string {
-    return this._logNameColor;
+  get logTimeStampColor(): string {
+    return this.#logTimeStampColor;
   }
 
   /**
@@ -254,8 +272,8 @@ export class AnsiLogger {
    *
    * @param {string} color - The logger name color string to set.
    */
-  set logNameColor(color: string) {
-    this._logNameColor = color;
+  set logTimeStampColor(color: string) {
+    this.#logTimeStampColor = color;
   }
 
   /**
@@ -264,7 +282,7 @@ export class AnsiLogger {
    * @returns {TimestampFormat} The log timestamp format.
    */
   get logTimestampFormat(): TimestampFormat {
-    return this._logTimestampFormat;
+    return this.#logTimestampFormat;
   }
 
   /**
@@ -273,7 +291,25 @@ export class AnsiLogger {
    * @param {TimestampFormat} logTimestampFormat - The log timestamp format to set.
    */
   set logTimestampFormat(logTimestampFormat: TimestampFormat) {
-    this._logTimestampFormat = logTimestampFormat;
+    this.#logTimestampFormat = logTimestampFormat;
+  }
+
+  /**
+   * Gets the log name color string of the logger.
+   *
+   * @returns {string} The log name color string.
+   */
+  get logNameColor(): string {
+    return this.#logNameColor;
+  }
+
+  /**
+   * Sets the log name color string for the logger.
+   *
+   * @param {string} color - The logger name color string to set.
+   */
+  set logNameColor(color: string) {
+    this.#logNameColor = color;
   }
 
   /**
@@ -282,7 +318,7 @@ export class AnsiLogger {
    * @returns {string} The custom log timestamp format.
    */
   get logCustomTimestampFormat(): string {
-    return this._logCustomTimestampFormat;
+    return this.#logCustomTimestampFormat;
   }
 
   /**
@@ -291,7 +327,7 @@ export class AnsiLogger {
    * @param {string} logCustomTimestampFormat - The custom log timestamp format to set.
    */
   set logCustomTimestampFormat(logCustomTimestampFormat: string) {
-    this._logCustomTimestampFormat = logCustomTimestampFormat;
+    this.#logCustomTimestampFormat = logCustomTimestampFormat;
   }
 
   /**
@@ -300,7 +336,7 @@ export class AnsiLogger {
    * @returns {string | undefined} The file path of the log, or undefined if not set.
    */
   get logFilePath(): string | undefined {
-    return this._logFilePath;
+    return this.#logFilePath;
   }
 
   /**
@@ -312,28 +348,28 @@ export class AnsiLogger {
     if (filePath && typeof filePath === 'string' && filePath !== '') {
       // Convert relative path to absolute path
       try {
-        this._logFilePath = path.resolve(filePath);
+        this.#logFilePath = path.resolve(filePath);
       } catch (error) {
         console.error(`Error resolving log file path ${CYAN}${filePath}${er}: ${error}`);
-        this._logFilePath = undefined;
-        this._logFileSize = undefined;
+        this.#logFilePath = undefined;
+        this.#logFileSize = undefined;
         return;
       }
       // Check if the file exists and unlink
-      if (this._logFilePath && fs.existsSync(this._logFilePath)) {
+      if (this.#logFilePath && fs.existsSync(this.#logFilePath)) {
         try {
-          fs.unlinkSync(this._logFilePath);
+          fs.unlinkSync(this.#logFilePath);
         } catch (error) {
-          console.error(`${er}Error unlinking the log file ${CYAN}${this._logFilePath}${er}: ${error}`);
-          this._logFilePath = undefined;
-          this._logFileSize = undefined;
+          console.error(`${er}Error unlinking the log file ${CYAN}${this.#logFilePath}${er}: ${error}`);
+          this.#logFilePath = undefined;
+          this.#logFileSize = undefined;
           return;
         }
       }
-      this._logFileSize = 0;
+      this.#logFileSize = 0;
     } else {
-      this._logFilePath = undefined;
-      this._logFileSize = undefined;
+      this.#logFilePath = undefined;
+      this.#logFileSize = undefined;
     }
   }
 
@@ -343,7 +379,7 @@ export class AnsiLogger {
    * @returns {number | undefined} The size of log file, or undefined if not set.
    */
   get logFileSize(): number | undefined {
-    return this._logFilePath && this._logFileSize ? this._logFileSize : undefined;
+    return this.#logFilePath && this.#logFileSize ? this.#logFileSize : undefined;
   }
 
   /**
@@ -352,16 +388,25 @@ export class AnsiLogger {
    * @returns {number} The current maxFileSize.
    */
   get maxFileSize(): number {
-    return this._maxFileSize;
+    return this.#maxFileSize;
   }
 
   /**
    * Sets the max file size of the file loggers.
    *
-   * @param {number} maxFileSize - The maxFileSize to set.
+   * @param {number} maxFileSize - The maxFileSize to set. Minimum is 1MB, Maximum is 500MB.
    */
   set maxFileSize(maxFileSize: number) {
-    this._maxFileSize = Math.min(maxFileSize, 500000000); // 500MB
+    this.#maxFileSize = Math.max(Math.min(maxFileSize, 500_000_000), 1_000_000);
+  }
+
+  /**
+   * Gets the log start time of the logger.
+   *
+   * @returns {number} The current log start time.
+   */
+  get logStartTime(): number {
+    return this.#logStartTime;
   }
 
   /**
@@ -370,7 +415,7 @@ export class AnsiLogger {
    * @param {string} message - The message to log when starting the timer.
    */
   public startTimer(message: string): void {
-    this.logStartTime = Date.now();
+    this.#logStartTime = Date.now();
     this.info(`Timer started ${message}`);
   }
 
@@ -380,11 +425,11 @@ export class AnsiLogger {
    * @param {string} message - The message to log along with the elapsed time.
    */
   public stopTimer(message: string): void {
-    if (this.logStartTime !== 0) {
-      const timePassed = Date.now() - this.logStartTime;
+    if (this.#logStartTime !== 0) {
+      const timePassed = Date.now() - this.#logStartTime;
       this.info(`Timer stoppped at ${timePassed} ms ${message}`);
     }
-    this.logStartTime = 0;
+    this.#logStartTime = 0;
   }
 
   /**
@@ -393,7 +438,7 @@ export class AnsiLogger {
    * @param {AnsiLoggerCallback} callback - The callback function.
    */
   public setCallback(callback: AnsiLoggerCallback | undefined): void {
-    this.callback = callback;
+    this.#callback = callback;
   }
 
   /**
@@ -402,7 +447,7 @@ export class AnsiLogger {
    * @returns {AnsiLoggerCallback | undefined} The callback function.
    */
   public getCallback(): AnsiLoggerCallback | undefined {
-    return this.callback;
+    return this.#callback;
   }
 
   /**
@@ -631,12 +676,12 @@ export class AnsiLogger {
    * @returns {string} The timestamp string.
    */
   private getTimestamp(): string {
-    if (this.logStartTime !== 0) {
-      const timePassed = Date.now() - this.logStartTime;
+    if (this.#logStartTime !== 0) {
+      const timePassed = Date.now() - this.#logStartTime;
       return `Timer:    ${timePassed.toString().padStart(7, ' ')} ms`;
     } else {
       let timestamp: string;
-      switch (this._logTimestampFormat) {
+      switch (this.#logTimestampFormat) {
         case TimestampFormat.LOCAL_DATE:
           timestamp = new Date().toLocaleDateString();
           break;
@@ -654,7 +699,7 @@ export class AnsiLogger {
           timestamp = `${new Date().getHours().toString().padStart(2, '0')}:${new Date().getMinutes().toString().padStart(2, '0')}:${new Date().getSeconds().toString().padStart(2, '0')}.${new Date().getMilliseconds().toString().padStart(3, '0')}`;
           break;
         case TimestampFormat.CUSTOM:
-          timestamp = this.formatCustomTimestamp(new Date(), this._logCustomTimestampFormat);
+          timestamp = this.formatCustomTimestamp(new Date(), this.#logCustomTimestampFormat);
           break;
         default:
           timestamp = new Date().toLocaleString();
@@ -694,8 +739,7 @@ export class AnsiLogger {
       })
       .join(' ');
 
-    let messageLog = `[${this.getTimestamp()}] [${this._logName}] [${level}] ` + message + ' ' + parametersString;
-    // messageLog = messageLog.replace(/[\u001b\u009b][[()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-ORZcf-nqry=><]/g, '').replace(/[\t\n\r]/g, '');
+    let messageLog = `[${this.getTimestamp()}] [${this.#logName}] [${level}] ` + message + ' ' + parametersString;
 
     messageLog = messageLog
       // eslint-disable-next-line no-control-regex
@@ -729,11 +773,11 @@ export class AnsiLogger {
 
     // Local callback
     try {
-      if (this.callback !== undefined && this.shouldLog(level, this._logLevel)) {
+      if (this.#callback !== undefined && this.shouldLog(level, this.#logLevel)) {
         // Convert parameters to string and append to message
         const parametersString = parameters.length > 0 ? ' ' + parameters.join(' ') : '';
         const newMessage = message + parametersString;
-        this.callback(level, this.getTimestamp(), this._logName, newMessage);
+        this.#callback(level, this.getTimestamp(), this.#logName, newMessage);
       }
     } catch (error) {
       console.error('Error executing local callback:', error);
@@ -745,7 +789,7 @@ export class AnsiLogger {
         // Convert parameters to string and append to message
         const parametersString = parameters.length > 0 ? ' ' + parameters.join(' ') : '';
         const newMessage = message + parametersString;
-        __AnsiLoggerCallback__(level, this.getTimestamp(), this._logName, newMessage);
+        __AnsiLoggerCallback__(level, this.getTimestamp(), this.#logName, newMessage);
       }
     } catch (error) {
       console.error('Error executing global callback:', error);
@@ -753,11 +797,12 @@ export class AnsiLogger {
 
     // Local file logger
     try {
-      if (this.logFilePath !== undefined && this._logFileSize !== undefined && this._logFileSize < this._maxFileSize && this.shouldLog(level, this._logLevel)) {
+      if (this.logFilePath !== undefined && this.#logFileSize !== undefined && this.#logFileSize < this.#maxFileSize && this.shouldLog(level, this.#logLevel)) {
         const size = this.logToFile(this.logFilePath, level, message, ...parameters);
-        this._logFileSize += size;
-        if (this._logFileSize >= this._maxFileSize) {
-          fs.appendFileSync(this.logFilePath, 'Logging on file has been stoppped because the file size is greater then 100MB.\n');
+        this.#logFileSize += size;
+        if (this.#logFileSize >= this.#maxFileSize) {
+          // istanbul ignore next
+          fs.appendFileSync(this.logFilePath, `Logging on file has been stoppped because the file size is greater then ${this.#maxFileSize}B.\n`);
         }
       }
     } catch (error) {
@@ -770,26 +815,27 @@ export class AnsiLogger {
         __AnsiLoggerFilePath__ &&
         __AnsiLoggerFilePath__ !== undefined &&
         __AnsiLoggerFileLogSize__ !== undefined &&
-        __AnsiLoggerFileLogSize__ < this._maxFileSize &&
+        __AnsiLoggerFileLogSize__ < this.#maxFileSize &&
         this.shouldLog(level, __AnsiLoggerFileLoglevel__)
       ) {
         const size = this.logToFile(__AnsiLoggerFilePath__, level, message, ...parameters);
         __AnsiLoggerFileLogSize__ += size;
-        if (__AnsiLoggerFileLogSize__ >= this._maxFileSize) {
-          fs.appendFileSync(__AnsiLoggerFilePath__, 'Logging on file has been stoppped because the file size is greater then 100MB.\n');
+        if (__AnsiLoggerFileLogSize__ >= this.#maxFileSize) {
+          // istanbul ignore next
+          fs.appendFileSync(__AnsiLoggerFilePath__, `Logging on file has been stoppped because the file size is greater then ${this.#maxFileSize}B.\n`);
         }
       }
     } catch (error) {
       console.error(`Error writing to the global log file ${__AnsiLoggerFilePath__}:`, error);
     }
 
-    if (this._extLog !== undefined) {
+    if (this.#extLog !== undefined) {
       if (level !== LogLevel.NONE) {
-        this._extLog.log(level, message, ...parameters);
+        this.#extLog.log(level, message, ...parameters);
       }
     } else {
-      if (this._logWithColors) {
-        let logNameColor = this._logNameColor;
+      if (this.#logWithColors) {
+        let logNameColor = this.#logNameColor;
         if (message.startsWith('****')) {
           logNameColor = s4ln;
           message = message.slice(4);
@@ -805,81 +851,93 @@ export class AnsiLogger {
         }
         switch (level) {
           case LogLevel.DEBUG:
-            if (this.shouldLog(level, this._logLevel)) {
-              console.log(`${rs}${this._logTimeStampColor}[${this.getTimestamp()}] ${logNameColor}[${this._logName}]${rs}${db}`, message + rs + rk, ...parameters);
+            if (this.shouldLog(level, this.#logLevel)) {
+              console.log(`${rs}${this.#logTimeStampColor}[${this.getTimestamp()}] ${logNameColor}[${this.#logName}]${rs}${db}`, message + rs + rk, ...parameters);
             }
             break;
           case LogLevel.INFO:
-            if (this.shouldLog(level, this._logLevel)) {
-              console.log(`${rs}${this._logTimeStampColor}[${this.getTimestamp()}] ${logNameColor}[${this._logName}]${rs}${nf}`, message + rs + rk, ...parameters);
+            if (this.shouldLog(level, this.#logLevel)) {
+              console.log(`${rs}${this.#logTimeStampColor}[${this.getTimestamp()}] ${logNameColor}[${this.#logName}]${rs}${nf}`, message + rs + rk, ...parameters);
             }
             break;
           case LogLevel.NOTICE:
-            if (this.shouldLog(level, this._logLevel)) {
-              console.log(`${rs}${this._logTimeStampColor}[${this.getTimestamp()}] ${logNameColor}[${this._logName}]${rs}${nt}`, message + rs + rk, ...parameters);
+            if (this.shouldLog(level, this.#logLevel)) {
+              console.log(`${rs}${this.#logTimeStampColor}[${this.getTimestamp()}] ${logNameColor}[${this.#logName}]${rs}${nt}`, message + rs + rk, ...parameters);
             }
             break;
           case LogLevel.WARN:
-            if (this.shouldLog(level, this._logLevel)) {
-              console.log(`${rs}${this._logTimeStampColor}[${this.getTimestamp()}] ${logNameColor}[${this._logName}]${rs}${wr}`, message + rs + rk, ...parameters);
+            if (this.shouldLog(level, this.#logLevel)) {
+              console.log(`${rs}${this.#logTimeStampColor}[${this.getTimestamp()}] ${logNameColor}[${this.#logName}]${rs}${wr}`, message + rs + rk, ...parameters);
             }
             break;
           case LogLevel.ERROR:
-            if (this.shouldLog(level, this._logLevel)) {
-              console.log(`${rs}${this._logTimeStampColor}[${this.getTimestamp()}] ${logNameColor}[${this._logName}]${rs}${er}`, message + rs + rk, ...parameters);
+            if (this.shouldLog(level, this.#logLevel)) {
+              console.log(`${rs}${this.#logTimeStampColor}[${this.getTimestamp()}] ${logNameColor}[${this.#logName}]${rs}${er}`, message + rs + rk, ...parameters);
             }
             break;
           case LogLevel.FATAL:
-            if (this.shouldLog(level, this._logLevel)) {
-              console.log(`${rs}${this._logTimeStampColor}[${this.getTimestamp()}] ${logNameColor}[${this._logName}]${rs}${ft}`, message + rs + rk, ...parameters);
+            if (this.shouldLog(level, this.#logLevel)) {
+              console.log(`${rs}${this.#logTimeStampColor}[${this.getTimestamp()}] ${logNameColor}[${this.#logName}]${rs}${ft}`, message + rs + rk, ...parameters);
             }
             break;
           default:
             break;
         }
       } else {
+        if (message.startsWith('****')) {
+          message = message.slice(4);
+        } else if (message.startsWith('***')) {
+          message = message.slice(3);
+        } else if (message.startsWith('**')) {
+          message = message.slice(2);
+        } else if (message.startsWith('*')) {
+          message = message.slice(1);
+        }
+        // eslint-disable-next-line no-control-regex
+        message = message.replace(/[\u001b\u009b][[()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-ORZcf-nqry=><]/g, '');
+
         switch (level) {
           case LogLevel.DEBUG:
-            if (this._logLevel === LogLevel.DEBUG) {
-              console.log(`[${this.getTimestamp()}] [${this._logName}] [${level}] ${message}`, ...parameters);
+            if (this.#logLevel === LogLevel.DEBUG) {
+              console.log(`[${this.getTimestamp()}] [${this.#logName}] [${level}] ${message}`, ...parameters);
             }
             break;
           case LogLevel.INFO:
-            if (this._logLevel === LogLevel.DEBUG || this._logLevel === LogLevel.INFO) {
-              console.log(`[${this.getTimestamp()}] [${this._logName}] [${level}] ${message}`, ...parameters);
+            if (this.#logLevel === LogLevel.DEBUG || this.#logLevel === LogLevel.INFO) {
+              console.log(`[${this.getTimestamp()}] [${this.#logName}] [${level}] ${message}`, ...parameters);
             }
             break;
           case LogLevel.NOTICE:
-            if (this._logLevel === LogLevel.DEBUG || this._logLevel === LogLevel.INFO || this._logLevel === LogLevel.NOTICE) {
-              console.log(`[${this.getTimestamp()}] [${this._logName}] [${level}] ${message}`, ...parameters);
+            if (this.#logLevel === LogLevel.DEBUG || this.#logLevel === LogLevel.INFO || this.#logLevel === LogLevel.NOTICE) {
+              console.log(`[${this.getTimestamp()}] [${this.#logName}] [${level}] ${message}`, ...parameters);
             }
             break;
           case LogLevel.WARN:
-            if (this._logLevel === LogLevel.DEBUG || this._logLevel === LogLevel.INFO || this._logLevel === LogLevel.NOTICE || this._logLevel === LogLevel.WARN) {
-              console.log(`[${this.getTimestamp()}] [${this._logName}] [${level}] ${message}`, ...parameters);
+            if (this.#logLevel === LogLevel.DEBUG || this.#logLevel === LogLevel.INFO || this.#logLevel === LogLevel.NOTICE || this.#logLevel === LogLevel.WARN) {
+              console.log(`[${this.getTimestamp()}] [${this.#logName}] [${level}] ${message}`, ...parameters);
             }
             break;
           case LogLevel.ERROR:
             if (
-              this._logLevel === LogLevel.DEBUG ||
-              this._logLevel === LogLevel.INFO ||
-              this._logLevel === LogLevel.NOTICE ||
-              this._logLevel === LogLevel.WARN ||
-              this._logLevel === LogLevel.ERROR
+              this.#logLevel === LogLevel.DEBUG ||
+              this.#logLevel === LogLevel.INFO ||
+              this.#logLevel === LogLevel.NOTICE ||
+              this.#logLevel === LogLevel.WARN ||
+              this.#logLevel === LogLevel.ERROR
             ) {
-              console.log(`[${this.getTimestamp()}] [${this._logName}] [${level}] ${message}`, ...parameters);
+              console.log(`[${this.getTimestamp()}] [${this.#logName}] [${level}] ${message}`, ...parameters);
             }
             break;
           case LogLevel.FATAL:
             if (
-              this._logLevel === LogLevel.DEBUG ||
-              this._logLevel === LogLevel.INFO ||
-              this._logLevel === LogLevel.NOTICE ||
-              this._logLevel === LogLevel.WARN ||
-              this._logLevel === LogLevel.ERROR ||
-              this._logLevel === LogLevel.FATAL
+              this.#logLevel === LogLevel.DEBUG ||
+              this.#logLevel === LogLevel.INFO ||
+              this.#logLevel === LogLevel.NOTICE ||
+              this.#logLevel === LogLevel.WARN ||
+              this.#logLevel === LogLevel.ERROR ||
+              this.#logLevel === LogLevel.FATAL
             ) {
-              console.log(`[${this.getTimestamp()}] [${this._logName}] [${level}] ${message}`, ...parameters);
+              console.log(`[${this.getTimestamp()}] [${this.#logName}] [${level}] ${message}`, ...parameters);
             }
             break;
           default:
