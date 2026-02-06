@@ -51,6 +51,11 @@ afterAll(() => {
 });
 
 describe('AnsiLogger', () => {
+  it('should create the logger', () => {
+    const logger = AnsiLogger.create({ logName: 'TestLogger' });
+    expect(logger.logName).toBe('TestLogger');
+  });
+
   it('should name the logger', () => {
     const logger = new AnsiLogger({ logName: 'TestLogger' });
     expect(logger.logName).toBe('TestLogger');

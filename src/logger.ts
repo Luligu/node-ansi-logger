@@ -205,6 +205,20 @@ export class AnsiLogger {
   }
 
   /**
+   * Creates a new AnsiLogger instance with the specified parameters.
+   * This static method provides a convenient way to create an AnsiLogger without directly calling the constructor.
+   *
+   * @param {AnsiLoggerParams} params - Configuration options for the logger.
+   * @returns {AnsiLogger} A new instance of AnsiLogger configured with the provided parameters.
+   *
+   * @example
+   * AnsiLogger.create({ logName: 'MyLogger' }).info('This is a info message');
+   */
+  static create(params: AnsiLoggerParams): AnsiLogger {
+    return new AnsiLogger(params);
+  }
+
+  /**
    * Gets the name of the logger.
    *
    * @returns {string} The logger name.

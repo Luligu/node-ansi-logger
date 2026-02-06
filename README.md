@@ -26,7 +26,7 @@ If you like this project and find it useful, please consider giving it a star on
 - Supports environment variable NO_COLOR=1 (https://no-color.org/).
 - It is also possible to pass a top level logger (like Homebridge or Matter logger) and AnsiLogger will use it
   for output instead of console.
-- Includes also a fully customizable stringify funtions with colors.
+- Includes also a fully customizable stringify funtions with colors (it is bigint aware and manage circular reference).
 
 ## Getting Started
 

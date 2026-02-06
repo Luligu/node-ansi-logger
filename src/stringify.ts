@@ -33,6 +33,16 @@ export function payloadStringify(payload: object): string {
 }
 
 /**
+ * Stringify the payload as a JSON string with no colors.
+ *
+ * @param {object} payload - The object to stringify.
+ * @returns {string} A JSON string representation of the payload.
+ */
+export function jsonStringify(payload: object): string {
+  return stringify(payload, false, 0, 0, 0, 0, 0, 0, '', '"', 2);
+}
+
+/**
  * Stringify the payload as a JSON string with colors.
  *
  * @param {object} payload - The object to stringify.
@@ -85,6 +95,8 @@ export function debugStringify(payload: object): string {
  * @param {number} colorUndefined - Color for undefined values (default: 1).
  * @param {string} keyQuote - Quote character for keys (default: '').
  * @param {string} stringQuote - Quote character for string values (default: "'").
+ * @param {number} tab - Number of spaces for indentation (default: 0).
+ * @param {number} index - Current index for array elements (default: 0).
  * @param {Set<object>} seenObjects - A set to track already seen objects to prevent circular references.
  * @returns {string} A string representation of the payload with colors and quotes.
  */
@@ -99,8 +111,11 @@ export function stringify(
   colorUndefined = 1,
   keyQuote = '',
   stringQuote = "'",
+  tab = 0,
+  index = 0,
   seenObjects = new Set<object>(),
 ): string {
+  if (process.env.NO_COLOR === '1') enableColors = false;
   if (payload === null) return 'null';
   if (payload === undefined) return 'undefined';
 
@@ -119,10 +134,16 @@ export function stringify(
   seenObjects.add(payload);
 
   const isArray = Array.isArray(payload);
-  let string = `${reset()}${clr(colorPayload)}` + (isArray ? '[ ' : '{ ');
-  Object.entries(payload).forEach(([key, value], index) => {
-    if (index > 0) {
-      string += ', ';
+  let string = `${reset()}${clr(colorPayload)}` + (isArray ? '[' : '{');
+  if (tab) {
+    string += '\n' + ' '.repeat(tab * (index + 1));
+  } else {
+    string += ' ';
+  }
+  Object.entries(payload).forEach(([key, value], entryIndex) => {
+    if (entryIndex > 0) {
+      if (tab) string += ',\n' + ' '.repeat(tab * (index + 1));
+      else string += ', ';
     }
     let newValue = '';
     newValue = value;
@@ -145,7 +166,21 @@ export function stringify(
       newValue = `${clr(colorUndefined)}(function)${reset()}`;
     } else if (typeof newValue === 'object') {
       if (Object.keys(newValue).length < 100) {
-        newValue = stringify(newValue, enableColors, colorPayload, colorKey, colorString, colorNumber, colorBoolean, colorUndefined, keyQuote, stringQuote, seenObjects);
+        newValue = stringify(
+          newValue,
+          enableColors,
+          colorPayload,
+          colorKey,
+          colorString,
+          colorNumber,
+          colorBoolean,
+          colorUndefined,
+          keyQuote,
+          stringQuote,
+          tab,
+          index + 1,
+          seenObjects,
+        );
       } else {
         newValue = '{...}';
       }
@@ -164,5 +199,10 @@ export function stringify(
   // Remove the current object from the seenObjects set after processing
   seenObjects.delete(payload);
 
-  return (string += ` ${clr(colorPayload)}` + (isArray ? ']' : '}') + `${reset()}`);
+  if (tab) {
+    string += '\n' + ' '.repeat(tab * index);
+  } else {
+    string += ' ';
+  }
+  return (string += `${clr(colorPayload)}` + (isArray ? ']' : '}') + `${reset()}`);
 }

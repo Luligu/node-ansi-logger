@@ -23,14 +23,16 @@ If you like this project and find it useful, please consider giving it a star on
 ### Added
 
 - [AnsiLoggerParams]: Added logNameColor, logTimeStampColor and maxFileSize.
-- [AnsiLoggerParams]: Added support for environment variable NO_COLOR=1 (https://no-color.org).
-- [AnsiLoggerParams]: Added support for environment variable NODE_ANSI_LOGGER_TIMESTAMP_FORMAT to set logTimestampFormat.
-- [AnsiLoggerParams]: Added support for environment variable NODE_ANSI_LOGGER_TIMESTAMP_CUSTOM_FORMAT to set logCustomTimestampFormat.
+- [stringify]: Added jsonStringify().
+- [constructor]: Added support for environment variable NO_COLOR=1 (https://no-color.org) to set logWithColors.
+- [constructor]: Added support for environment variable NODE_ANSI_LOGGER_TIMESTAMP_FORMAT to set logTimestampFormat.
+- [constructor]: Added support for environment variable NODE_ANSI_LOGGER_TIMESTAMP_CUSTOM_FORMAT to set logCustomTimestampFormat.
+- [constructor]: Added static create(params: AnsiLoggerParams).
 
 ### Changed
 
 - [package]: Updated dependencies.
-- [package]: Bump to Automator v. 3.0.4.
+- [package]: Bump to Automator v. 3.0.5.
 
 <a href="https://www.buymeacoffee.com/luligugithub"><img src="https://matterbridge.io/assets/bmc-button.svg" alt="Buy me a coffee" width="80"></a>
 
