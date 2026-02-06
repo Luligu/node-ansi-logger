@@ -25,7 +25,7 @@
 /**
  * Stringify the payload as a JSON string with no colors.
  *
- * @param {object} payload - The object to stringify.
+ * @param {unknown} payload - The object to stringify.
  * @returns {string} A JSON string representation of the payload.
  */
 export function payloadStringify(payload: unknown): string {
@@ -35,7 +35,7 @@ export function payloadStringify(payload: unknown): string {
 /**
  * Stringify the payload as a JSON string with no colors.
  *
- * @param {object} payload - The object to stringify.
+ * @param {unknown} payload - The object to stringify.
  * @returns {string} A JSON string representation of the payload.
  */
 export function jsonStringify(payload: unknown): string {
@@ -45,7 +45,7 @@ export function jsonStringify(payload: unknown): string {
 /**
  * Stringify the payload as a JSON string with colors.
  *
- * @param {object} payload - The object to stringify.
+ * @param {unknown} payload - The object to stringify.
  * @returns {string} A colored JSON string representation of the payload.
  */
 export function colorStringify(payload: unknown): string {
@@ -55,7 +55,7 @@ export function colorStringify(payload: unknown): string {
 /**
  * Stringify the payload for history logging with specific colors.
  *
- * @param {object} payload - The object to stringify.
+ * @param {unknown} payload - The object to stringify.
  * @returns {string} A colored JSON string representation of the payload for history.
  */
 export function historyStringify(payload: unknown): string {
@@ -65,7 +65,7 @@ export function historyStringify(payload: unknown): string {
 /**
  * Stringify the payload for MQTT with specific colors.
  *
- * @param {object} payload - The object to stringify.
+ * @param {unknown} payload - The object to stringify.
  * @returns {string} A colored JSON string representation of the payload for MQTT.
  */
 export function mqttStringify(payload: unknown): string {
@@ -75,7 +75,7 @@ export function mqttStringify(payload: unknown): string {
 /**
  * Stringify the payload for debugging with specific colors.
  *
- * @param {object} payload - The object to stringify.
+ * @param {unknown} payload - The object to stringify.
  * @returns {string} A colored JSON string representation of the payload for debugging.
  */
 export function debugStringify(payload: unknown): string {
@@ -85,7 +85,7 @@ export function debugStringify(payload: unknown): string {
 /**
  * Stringify the payload with customizable colors and quotes.
  *
- * @param {object} payload - The object to stringify.
+ * @param {unknown} payload - The object to stringify.
  * @param {boolean} enableColors - Whether to enable colors in the output.
  * @param {number} colorPayload - Color for the payload (default: 252).
  * @param {number} colorKey - Color for the keys (default: 250).
