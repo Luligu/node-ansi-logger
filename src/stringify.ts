@@ -28,7 +28,7 @@
  * @param {object} payload - The object to stringify.
  * @returns {string} A JSON string representation of the payload.
  */
-export function payloadStringify(payload: object): string {
+export function payloadStringify(payload: unknown): string {
   return stringify(payload, false, 0, 0, 0, 0, 0, 0, '"', '"');
 }
 
@@ -38,7 +38,7 @@ export function payloadStringify(payload: object): string {
  * @param {object} payload - The object to stringify.
  * @returns {string} A JSON string representation of the payload.
  */
-export function jsonStringify(payload: object): string {
+export function jsonStringify(payload: unknown): string {
   return stringify(payload, false, 0, 0, 0, 0, 0, 0, '', '"', 2);
 }
 
@@ -48,7 +48,7 @@ export function jsonStringify(payload: object): string {
  * @param {object} payload - The object to stringify.
  * @returns {string} A colored JSON string representation of the payload.
  */
-export function colorStringify(payload: object): string {
+export function colorStringify(payload: unknown): string {
   return stringify(payload, true, 69, 252, 2, 3, 6, 168);
 }
 
@@ -58,7 +58,7 @@ export function colorStringify(payload: object): string {
  * @param {object} payload - The object to stringify.
  * @returns {string} A colored JSON string representation of the payload for history.
  */
-export function historyStringify(payload: object): string {
+export function historyStringify(payload: unknown): string {
   return stringify(payload, true, 0, 208, 247, 247, 247, 247);
 }
 
@@ -68,7 +68,7 @@ export function historyStringify(payload: object): string {
  * @param {object} payload - The object to stringify.
  * @returns {string} A colored JSON string representation of the payload for MQTT.
  */
-export function mqttStringify(payload: object): string {
+export function mqttStringify(payload: unknown): string {
   return stringify(payload, true, 69, 245);
 }
 
@@ -78,7 +78,7 @@ export function mqttStringify(payload: object): string {
  * @param {object} payload - The object to stringify.
  * @returns {string} A colored JSON string representation of the payload for debugging.
  */
-export function debugStringify(payload: object): string {
+export function debugStringify(payload: unknown): string {
   return stringify(payload, true, 69, 245, 2, 3, 6, 168);
 }
 
@@ -101,7 +101,7 @@ export function debugStringify(payload: object): string {
  * @returns {string} A string representation of the payload with colors and quotes.
  */
 export function stringify(
-  payload: object,
+  payload: unknown,
   enableColors = false,
   colorPayload = 252,
   colorKey = 250,
@@ -117,7 +117,7 @@ export function stringify(
 ): string {
   if (process.env.NO_COLOR === '1') enableColors = false;
   if (payload === null) return 'null';
-  if (payload === undefined) return 'undefined';
+  // Let formatScalar handle undefined so it can be covered and colored consistently.
 
   const clr = (color: number) => {
     return enableColors ? `\x1b[38;5;${color}m` : '';
@@ -126,12 +126,40 @@ export function stringify(
     return enableColors ? '\x1b[0m' : '';
   };
 
+  const formatScalar = (value: unknown): string => {
+    switch (typeof value) {
+      case 'undefined':
+        return `${clr(colorUndefined)}undefined${reset()}`;
+      case 'symbol':
+        return `${clr(colorString)}${String(value)}${reset()}`;
+      case 'string':
+        return `${clr(colorString)}${stringQuote}${value}${stringQuote}${reset()}`;
+      case 'number':
+        return `${clr(colorNumber)}${value}${reset()}`;
+      case 'bigint':
+        return `${clr(colorNumber)}${value}${reset()}`;
+      case 'boolean':
+        return `${clr(colorBoolean)}${value}${reset()}`;
+      case 'function':
+        return `${clr(colorUndefined)}(function)${reset()}`;
+    }
+
+    /* istanbul ignore next */
+    return `${clr(colorUndefined)}${String(value)}${reset()}`;
+  };
+
+  const isTrackable = typeof payload === 'object' && payload !== null;
+
+  if (!isTrackable) {
+    return formatScalar(payload);
+  }
+
   // Check if the object is already in the seenObjects set
-  if (seenObjects.has(payload)) {
+  if (seenObjects.has(payload as object)) {
     return `${clr(colorUndefined)}[Circular]${reset()}`;
   }
   // Add the current object to the seenObjects set
-  seenObjects.add(payload);
+  seenObjects.add(payload as object);
 
   const isArray = Array.isArray(payload);
   let string = `${reset()}${clr(colorPayload)}` + (isArray ? '[' : '{');
@@ -140,12 +168,13 @@ export function stringify(
   } else {
     string += ' ';
   }
-  Object.entries(payload).forEach(([key, value], entryIndex) => {
+  Object.entries(payload as Record<string, unknown>).forEach(([key, value], entryIndex) => {
     if (entryIndex > 0) {
       if (tab) string += ',\n' + ' '.repeat(tab * (index + 1));
       else string += ', ';
     }
     let newValue = '';
+    // @ts-expect-error -- The type of value is unknown, but we will handle it in the code below
     newValue = value;
     // console.log(typeof newValue, key, value);
     // Unreachable code for typeof, but included for completeness
@@ -197,7 +226,7 @@ export function stringify(
   });
 
   // Remove the current object from the seenObjects set after processing
-  seenObjects.delete(payload);
+  seenObjects.delete(payload as object);
 
   if (tab) {
     string += '\n' + ' '.repeat(tab * index);
