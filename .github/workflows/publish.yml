@@ -63,7 +63,7 @@ jobs:
     steps:
       - name: Select branch dev if exists, else default branch
         id: select_ref
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           script: |
             const owner = context.repo.owner;
