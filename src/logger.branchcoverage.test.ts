@@ -4,7 +4,7 @@ import path from 'node:path';
 
 import { jest } from '@jest/globals';
 
-import { AnsiLogger, LogLevel, TimestampFormat } from './logger.ts';
+import { AnsiLogger, LogLevel, TimestampFormat } from './logger.js';
 
 describe('Logger branch coverage', () => {
   const originalNoColor = process.env.NO_COLOR;
@@ -143,7 +143,7 @@ describe('Logger branch coverage', () => {
     (globalThis as any).__AnsiLoggerFileLogSize__ = null;
 
     jest.resetModules();
-    await import('./logger.ts');
+    await import('./logger.js');
 
     expect((globalThis as any).__AnsiLoggerCallback__).toBeNull();
     expect((globalThis as any).__AnsiLoggerFilePath__).toBeNull();

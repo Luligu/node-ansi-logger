@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 
-# postCreateCommand.sh
+# postStartCommand.sh
 
-# This script runs after the Dev Container is created to set up the dev container environment.
+# This script runs after the Dev Container is started to set up the dev container environment.
 
 set -euo pipefail
 
@@ -20,19 +20,10 @@ echo "Node.js version: $(node -v)"
 echo "Npm version: $(npm -v)"
 echo ""
 
-echo "1 - Installing updates and scripts packages..."
-npm install --global --no-fund --no-audit npm-check-updates shx cross-env 
-
-echo "2 - Setting permissions..."
-sudo chown -R node:node .
-
-echo "3 - Installing package dependencies..."
+echo "1 - Installing package dependencies..."
 npm install --no-fund --no-audit
 
-echo "4 - Building the package..."
+echo "2 - Building the package..."
 npm run build
 
-echo "5 - Checking for outdated packages..."
-npm outdated || true
-
-echo "6 - Setup completed!"
+echo "3 - Post start setup completed!"

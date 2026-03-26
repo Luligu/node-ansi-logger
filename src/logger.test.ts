@@ -17,15 +17,15 @@ jest.unstable_mockModule('node:fs', () => {
 });
 const { existsSync, appendFileSync, writeFileSync, unlinkSync } = await import('node:fs');
 
+import { type PathLike, type PathOrFileDescriptor, type WriteFileOptions } from 'node:fs';
 import path from 'node:path';
 import { env } from 'node:process';
-import { type PathLike, type PathOrFileDescriptor, type WriteFileOptions } from 'node:fs';
 
 import { jest } from '@jest/globals';
 
-const { AnsiLogger, db, er, ft, LogLevel, nf, nt, rs, TimestampFormat, wr } = await import('./logger.ts');
+const { AnsiLogger, db, er, ft, LogLevel, nf, nt, rs, TimestampFormat, wr } = await import('./logger.js');
 import type { AnsiLoggerCallback, Logger } from './logger.ts';
-import { debugStringify } from './stringify.ts';
+import { debugStringify } from './stringify.js';
 
 // Mocking console.log to test logging output
 const originalConsoleLog = console.log;

@@ -173,12 +173,11 @@ export function stringify(
       if (tab) string += ',\n' + ' '.repeat(tab * (index + 1));
       else string += ', ';
     }
-    let newValue = '';
+    let newValue: string;
     // @ts-expect-error -- The type of value is unknown, but we will handle it in the code below
     newValue = value;
     // console.log(typeof newValue, key, value);
-    // Unreachable code for typeof, but included for completeness
-    /* istanbul ignore else */
+    // istanbul ignore next cause is unreachable code for typeof, but included for completeness
     if (value === null) {
       newValue = `${clr(colorUndefined)}null${reset()}`;
     } else if (typeof newValue === 'string') {

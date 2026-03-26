@@ -2,7 +2,7 @@
 
 /* eslint-disable no-console */
 
-import { colorStringify, debugStringify, historyStringify, jsonStringify, mqttStringify, payloadStringify, stringify } from './stringify.ts';
+import { colorStringify, debugStringify, historyStringify, jsonStringify, mqttStringify, payloadStringify, stringify } from './stringify.js';
 
 describe('Stringify functions', () => {
   const testObject = {

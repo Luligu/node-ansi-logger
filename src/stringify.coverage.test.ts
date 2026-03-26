@@ -1,4 +1,4 @@
-import { stringify } from './stringify.ts';
+import { stringify } from './stringify.js';
 
 describe('Stringify coverage (scalars + NO_COLOR)', () => {
   const originalNoColor = process.env.NO_COLOR;

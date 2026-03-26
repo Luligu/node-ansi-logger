@@ -1,4 +1,4 @@
-import { jsonStringify, stringify } from './stringify.ts';
+import { jsonStringify, stringify } from './stringify.js';
 
 describe('Stringify edge cases', () => {
   const makeObjectWithNKeys = (n: number) => {

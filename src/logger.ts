@@ -26,9 +26,9 @@
 /* eslint-disable jsdoc/reject-any-type */
 
 // Node.js built-in modules
-import path from 'node:path';
 import * as fs from 'node:fs';
 import * as os from 'node:os';
+import path from 'node:path';
 
 import { stringify } from './stringify.js';
 
@@ -147,13 +147,21 @@ export interface AnsiLoggerParams {
 
 export type AnsiLoggerCallback = (level: string, time: string, name: string, message: string) => void;
 
-// Initialize the global variables
-if (typeof globalThis.__AnsiLoggerCallback__ === 'undefined') globalThis.__AnsiLoggerCallback__ = undefined;
-if (typeof globalThis.__AnsiLoggerCallbackLoglevel__ === 'undefined') globalThis.__AnsiLoggerCallbackLoglevel__ = undefined;
+declare global {
+  var __AnsiLoggerCallback__: AnsiLoggerCallback | undefined;
+  var __AnsiLoggerCallbackLoglevel__: LogLevel | undefined;
+  var __AnsiLoggerFilePath__: string | undefined;
+  var __AnsiLoggerFileLoglevel__: LogLevel | undefined;
+  var __AnsiLoggerFileLogSize__: number | undefined;
+}
 
-if (typeof globalThis.__AnsiLoggerFilePath__ === 'undefined') globalThis.__AnsiLoggerFilePath__ = undefined;
-if (typeof globalThis.__AnsiLoggerFileLoglevel__ === 'undefined') globalThis.__AnsiLoggerFileLoglevel__ = undefined;
-if (typeof globalThis.__AnsiLoggerFileLogSize__ === 'undefined') globalThis.__AnsiLoggerFileLogSize__ = undefined;
+// Initialize the global variables
+if (typeof __AnsiLoggerCallback__ === 'undefined') __AnsiLoggerCallback__ = undefined;
+if (typeof __AnsiLoggerCallbackLoglevel__ === 'undefined') __AnsiLoggerCallbackLoglevel__ = undefined;
+
+if (typeof __AnsiLoggerFilePath__ === 'undefined') __AnsiLoggerFilePath__ = undefined;
+if (typeof __AnsiLoggerFileLoglevel__ === 'undefined') __AnsiLoggerFileLoglevel__ = undefined;
+if (typeof __AnsiLoggerFileLogSize__ === 'undefined') __AnsiLoggerFileLogSize__ = undefined;
 
 /**
  * AnsiLogger provides a customizable logging utility with ANSI color support.
