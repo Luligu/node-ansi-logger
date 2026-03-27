@@ -156,12 +156,12 @@ declare global {
 }
 
 // Initialize the global variables
-if (typeof __AnsiLoggerCallback__ === 'undefined') __AnsiLoggerCallback__ = undefined;
-if (typeof __AnsiLoggerCallbackLoglevel__ === 'undefined') __AnsiLoggerCallbackLoglevel__ = undefined;
+if (typeof globalThis.__AnsiLoggerCallback__ === 'undefined') globalThis.__AnsiLoggerCallback__ = undefined;
+if (typeof globalThis.__AnsiLoggerCallbackLoglevel__ === 'undefined') globalThis.__AnsiLoggerCallbackLoglevel__ = undefined;
 
-if (typeof __AnsiLoggerFilePath__ === 'undefined') __AnsiLoggerFilePath__ = undefined;
-if (typeof __AnsiLoggerFileLoglevel__ === 'undefined') __AnsiLoggerFileLoglevel__ = undefined;
-if (typeof __AnsiLoggerFileLogSize__ === 'undefined') __AnsiLoggerFileLogSize__ = undefined;
+if (typeof globalThis.__AnsiLoggerFilePath__ === 'undefined') globalThis.__AnsiLoggerFilePath__ = undefined;
+if (typeof globalThis.__AnsiLoggerFileLoglevel__ === 'undefined') globalThis.__AnsiLoggerFileLoglevel__ = undefined;
+if (typeof globalThis.__AnsiLoggerFileLogSize__ === 'undefined') globalThis.__AnsiLoggerFileLogSize__ = undefined;
 
 /**
  * AnsiLogger provides a customizable logging utility with ANSI color support.
