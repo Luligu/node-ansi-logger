@@ -34,8 +34,8 @@ Dev containers have networking limitations depending on the host OS and Docker s
     "source=${localWorkspaceFolderBasename}-node_modules,target=${containerWorkspaceFolder}/node_modules,type=volume",
     "source=${localWorkspaceFolderBasename}-cache,target=${containerWorkspaceFolder}/.cache,type=volume"
   ],
-  // Create the matterbridge Docker network if it doesn't exist and pull the base image (runs on the HOST before the container starts).
-  "initializeCommand": "docker network inspect matterbridge || docker network create matterbridge && docker pull mcr.microsoft.com/devcontainers/javascript-node:24-trixie",
+  // Create the matterbridge Docker network if it doesn't exist, then pull the base image (runs on the HOST before the container starts).
+  "initializeCommand": "(docker network inspect matterbridge || docker network create matterbridge) && docker pull mcr.microsoft.com/devcontainers/javascript-node:24-trixie",
   // On create, update npm and build the package (runs inside the container)
   "postCreateCommand": "bash .devcontainer/postCreateCommand.sh",
   // On start, run the plugin in watch mode (runs inside the container)
@@ -77,7 +77,30 @@ Dev containers have networking limitations depending on the host OS and Docker s
         "git.autofetch": true,
         "files.eol": "\n",
         "files.insertFinalNewline": true,
-        "files.trimFinalNewlines": true
+        "files.trimFinalNewlines": true,
+        "files.watcherExclude": {
+          "**/node_modules/**": true,
+          "**/build/**": true,
+          "**/.cache/**": true,
+          "**/coverage/**": true
+        },
+        "search.exclude": {
+          "**/node_modules": true,
+          "**/dist": true,
+          "**/build": true,
+          "**/.cache": true,
+          "**/coverage": true
+        },
+        "git.autoRepositoryDetection": false,
+        "git.ignoredRepositories": ["**/node_modules/**", "**/dist/**", "**/build/**", "**/.cache/**", "**/coverage/**", "**/docs/**"],
+        "js/ts.tsdk.path": "node_modules/typescript/lib",
+        "js/ts.tsdk.promptToUseWorkspaceVersion": false,
+        "js/ts.tsserver.watchOptions": {
+          "watchFile": "dynamicPriorityPolling",
+          "watchDirectory": "dynamicPriorityPolling",
+          "fallbackPolling": "dynamicPriorityPolling",
+          "excludeDirectories": ["**/.cache/**", "**/node_modules/**", "**/coverage/**", "**/dist/**", "**/build/**", "**/docs/**"]
+        }
       }
     }
   }
