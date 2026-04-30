@@ -31,7 +31,7 @@ Please always add the debug file to help explain your problem.
 
 **Version (please complete the following information):**
 
-- Version [e.g. 0.0.2]
+- Version (e.g. 0.0.2)
 
 **Additional context**
 Add any other context about the problem here.
