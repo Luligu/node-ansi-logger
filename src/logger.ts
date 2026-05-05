@@ -148,10 +148,15 @@ export interface AnsiLoggerParams {
 export type AnsiLoggerCallback = (level: string, time: string, name: string, message: string) => void;
 
 declare global {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   var __AnsiLoggerCallback__: AnsiLoggerCallback | undefined;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   var __AnsiLoggerCallbackLoglevel__: LogLevel | undefined;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   var __AnsiLoggerFilePath__: string | undefined;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   var __AnsiLoggerFileLoglevel__: LogLevel | undefined;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   var __AnsiLoggerFileLogSize__: number | undefined;
 }
 

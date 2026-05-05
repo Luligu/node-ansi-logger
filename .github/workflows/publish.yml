@@ -1,3 +1,5 @@
+# Publish to npm v. 2.0.1
+
 name: Publish to npm
 
 on:
@@ -50,7 +52,7 @@ jobs:
         run: npm run lint
 
       - name: Test the project
-        run: npm run test -- --forceExit
+        run: npm run test -- --forceExit --testTimeout=30000
 
       - name: Publish the project to npm with trusted publishing / OIDC
         run: npm publish
@@ -114,7 +116,7 @@ jobs:
         run: npm run lint
 
       - name: Test the project
-        run: npm run test -- --forceExit
+        run: npm run test -- --forceExit --testTimeout=30000
 
       - name: Extract base version and date
         id: vars

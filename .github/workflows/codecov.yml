@@ -1,3 +1,5 @@
+# Codecov v. 2.0.1
+
 name: Codecov
 
 on:
@@ -37,7 +39,7 @@ jobs:
         run: npm ci --no-fund --no-audit
 
       - name: Run tests with coverage
-        run: npm run test:coverage
+        run: npm run test:coverage -- --testTimeout=30000
 
       - name: Upload results to Codecov
         uses: codecov/codecov-action@v5

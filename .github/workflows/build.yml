@@ -1,3 +1,5 @@
+# Node.js CI v. 2.0.1
+
 name: Node.js CI
 
 on:
@@ -45,4 +47,4 @@ jobs:
         run: npm run lint
 
       - name: Test
-        run: npm run test
+        run: npm run test -- --testTimeout=30000

@@ -27,18 +27,19 @@ If you like this project and find it useful, please consider giving it a star on
 - [package]: Update dependencies.
 - [package]: Bump package to `automator` v.3.1.7.
 - [eslint]: Remove `eslint-plugin-promise` (not actively maintained) and add optional @typescript-eslint promise rules.
-- [package]: Remove `overrides` that was necessary for eslint-plugin-promise.
-- [package]: Bump `typescript-eslint` to v.8.59.1.
+- [package]: Add `overrides` necessary for eslint-plugin-n.
 - [package]: Bump `typescript` to v.6.0.3.
-- [package]: Bump `eslint` to v.10.2.1.
-- [package]: Bump `typescript-eslint` to v.8.59.0.
-- [eslint]: Add `eslint` v.2.0.0 config.
+- [package]: Bump `eslint` to v.10.3.0.
+- [package]: Bump `typescript-eslint` to v.8.59.2.
+- [eslint]: Add `eslint` v.2.0.1 config.
+- [prettier]: Add `prettier` v.2.0.0 config.
+- [jest]: Add `jest` v.2.0.1 config.
 - [package]: Add `.vscode\tasks.json`.
 - [package]: Add `.vscode\settings.json`.
 - [devcontainer]: Add `Claude Code for VS Code extension` to Dev Container.
-- [agent]: Add `.github\copilot-instructions.md` for copilot.
-- [agent]: Add `.claude\CLAUDE.md` for claude.
-- [agent]: Add agent custom instructions (`testing`) for copilot and claude.
+- [agent]: Add `.github\copilot-instructions.md` for Copilot.
+- [agent]: Add `.claude\CLAUDE.md` for Claude.
+- [agent]: Add agent custom instructions (`testing`) for Copilot and Claude.
 
 <a href="https://www.buymeacoffee.com/luligugithub"><img src="https://matterbridge.io/assets/bmc-button.svg" alt="Buy me a coffee" width="80"></a>
 
