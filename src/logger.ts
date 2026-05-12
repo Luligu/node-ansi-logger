@@ -1,10 +1,10 @@
 /**
- * This file contains the AnsiLogger .
+ * This file contains the AnsiLogger class.
  *
  * @file logger.ts
  * @author Luca Liguori
  * @created 2023-06-01
- * @version 3.0.2
+ * @version 3.0.3
  * @license Apache-2.0
  *
  * Copyright 2024, 2025, 2026 Luca Liguori.
@@ -33,7 +33,7 @@ import path from 'node:path';
 import { stringify } from './stringify.js';
 
 // ANSI color codes and styles are defined here for use in the logger
-export const RESET = '[40;0m';
+export const RESET = '[0m';
 export const BRIGHT = '[1m';
 export const DIM = '[2m';
 export const NORMAL = '[22m';
@@ -60,13 +60,14 @@ export const GREY = '[90m';
 export const WHITE = '[97m';
 
 // ANSI color codes short form to use in the logger
-export const db = '[38;5;245m'; // Debug 247
-export const nf = '[38;5;252m'; // Info 255
+export const db = '[38;5;245m'; // Debug
+export const nf = '[38;5;252m'; // Info
 export const nt = '[38;5;2m'; // Notice
-export const wr = '[38;5;220m'; // Warn 220
+export const wr = '[38;5;220m'; // Warn
 export const er = '[38;5;1m'; // Error
 export const ft = '[38;5;9m'; // Fatal
-export const rs = '[40;0m'; // Reset colors to default foreground and background
+export const sc = '[38;5;45m'; // Success
+export const rs = '[0m'; // Reset colors to default foreground and background
 export const rk = '[K'; // Erase from cursor
 
 // Used internally by plugins
@@ -485,7 +486,7 @@ export class AnsiLogger {
    *
    * @returns {AnsiLoggerCallback | undefined} The path name of the log file.
    */
-  static setGlobalCallback(callback: AnsiLoggerCallback | undefined, callbackLevel = LogLevel.DEBUG): AnsiLoggerCallback | undefined {
+  static setGlobalCallback(callback: AnsiLoggerCallback | undefined, callbackLevel: LogLevel = LogLevel.DEBUG): AnsiLoggerCallback | undefined {
     __AnsiLoggerCallback__ = callback;
     __AnsiLoggerCallbackLoglevel__ = callbackLevel;
     return __AnsiLoggerCallback__;
@@ -524,7 +525,7 @@ export class AnsiLogger {
    *
    * @returns {LogLevel | undefined} The log level that was set.
    */
-  static setGlobalCallbackLevel(logLevel = LogLevel.DEBUG): LogLevel | undefined {
+  static setGlobalCallbackLevel(logLevel: LogLevel = LogLevel.DEBUG): LogLevel | undefined {
     __AnsiLoggerCallbackLoglevel__ = logLevel;
     return __AnsiLoggerCallbackLoglevel__;
   }
@@ -538,7 +539,7 @@ export class AnsiLogger {
    *
    * @returns {string | undefined} The absolute path name of the log file.
    */
-  static setGlobalLogfile(logfilePath: string | undefined, logfileLevel = LogLevel.DEBUG, unlink = false): string | undefined {
+  static setGlobalLogfile(logfilePath: string | undefined, logfileLevel: LogLevel = LogLevel.DEBUG, unlink: boolean = false): string | undefined {
     if (logfilePath && typeof logfilePath === 'string' && logfilePath !== '') {
       // Convert relative path to absolute path
       logfilePath = path.resolve(logfilePath);
