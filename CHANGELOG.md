@@ -22,6 +22,10 @@ If you like this project and find it useful, please consider giving it a star on
 
 ## [3.2.2] - Dev branch
 
+### Added
+
+- [package]: Enable @typescript-eslint promise rules.
+
 ### Changed
 
 - [package]: Update dependencies.
