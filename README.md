@@ -29,6 +29,7 @@ If you like this project and find it useful, please consider giving it a star on
 - It is also possible to pass a top level logger (like Homebridge or Matter logger) and AnsiLogger will use it
   for output instead of console.
 - Includes also a fully customizable stringify funtion with colors (it is bigint aware and manage circular reference).
+- Includes a chainable ANSI tagged template API (`ansi`) for styling terminal strings directly.
 
 ## Getting Started
 
@@ -94,6 +95,81 @@ log.stopTimer('Time sensitive code finished')
 ```typescript
 stringify({...})
 colorStringify({...})
+```
+
+## Using the ansi tagged template API:
+
+Import the `ansi` root tag or individual named styles:
+
+```typescript
+import { bold, red, green, cyan, bgBlue, warn, error, fatal, hex, rgb, bgHex, bgRgb } from 'node-ansi-logger';
+```
+
+Apply a single style:
+
+```typescript
+console.log(red`Something went wrong`);
+console.log(bold`Important message`);
+```
+
+Chain multiple styles:
+
+```typescript
+console.log(bold.red`Critical error`);
+console.log(bgBlue.green`Green on blue`);
+console.log(bold.italic.underline`Decorated text`);
+```
+
+Use dynamic RGB or hex colors:
+
+```typescript
+console.log(rgb(255, 128, 0)`Orange text`);
+console.log(hex('#ff75d1').bold`Pink bold`);
+console.log(bgRgb(30, 30, 30).cyan`Cyan on dark background`);
+console.log(bgHex('#1a1a2e').white`White on dark blue`);
+```
+
+Nest styles — outer styles are automatically restored after inner resets:
+
+```typescript
+console.log(green`Connected ${bold.red`FAILED`} retrying...`);
+console.log(warn`Server ${error.bold`crashed`} restarting`);
+```
+
+Use the 24-step grayscale ramp (`gray0` = darkest, `gray23` = lightest):
+
+```typescript
+import { gray0, gray8, gray13, gray20, gray23 } from 'node-ansi-logger';
+
+console.log(gray0`Nearly black`);
+console.log(gray8`Dark gray`);
+console.log(gray13`Mid gray`);
+console.log(gray20`Light gray`);
+console.log(gray23`Nearly white`);
+```
+
+Log-level color exports:
+
+```typescript
+import { success, debug, info, notice, warn, error, fatal } from 'node-ansi-logger';
+
+console.log(success`Operation completed`);
+console.log(debug`Debug details`);
+console.log(fatal`Unrecoverable error`);
+```
+
+Mix ansi styles inside AnsiLogger calls:
+
+```typescript
+import { AnsiLogger } from 'node-ansi-logger';
+import { bold, red, green, cyan, yellow } from 'node-ansi-logger';
+
+const log = new AnsiLogger({ logName: 'MyApp' });
+
+log.info(`Device ${bold.cyan`Kitchen Light`} connected`);
+log.warn(`Retry ${yellow`${3}`} of ${yellow`5`} — response timeout`);
+log.error(`Failed to reach ${bold`192.168.1.10`}: ${red`connection refused`}`);
+log.debug(`State changed: ${green`on`} → ${red`off`}`);
 ```
 
 # Screenshot

@@ -25,6 +25,14 @@ If you like this project and find it useful, please consider giving it a star on
 ### Added
 
 - [package]: Enable @typescript-eslint promise rules.
+- [ansi]: Add `ansi.ts` — a chainable ANSI tagged template styling API (`AnsiTag` type).
+- [ansi]: Add named style exports: `bold`, `dim`, `italic`, `underline`, `inverse`, `strikethrough`.
+- [ansi]: Add foreground color exports: `black`, `red`, `green`, `yellow`, `blue`, `magenta`, `cyan`, `white`, `gray`.
+- [ansi]: Add background color exports: `bgBlack`, `bgRed`, `bgGreen`, `bgYellow`, `bgBlue`, `bgMagenta`, `bgCyan`, `bgWhite`.
+- [ansi]: Add log-level color exports: `success` (sky cyan), `debug`, `info`, `notice`, `warn`, `error`, `fatal`.
+- [ansi]: Add dynamic color methods: `rgb(r, g, b)`, `hex(color)`, `bgRgb(r, g, b)`, `bgHex(color)`.
+- [ansi]: Styles are fully chainable (e.g. `bold.red\`text\``, `bgBlue.green.bold\`text\``).
+- [ansi]: Nested style restoration — outer styles are automatically re-applied after inner style resets.
 
 ### Changed
 
