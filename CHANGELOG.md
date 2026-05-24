@@ -37,11 +37,21 @@ If you like this project and find it useful, please consider giving it a star on
 ### Changed
 
 - [package]: Update dependencies.
-- [package]: Bump package to `automator` v.3.1.9.
+- [package]: Bump package to `automator` v.3.1.10.
+- [package]: Bump `eslint` to v.10.4.0.
+- [package]: Bump `@types/node` to v.25.9.1.
+- [package]: Bump `ts-jest` to v.29.4.11.
+- [package]: Bump `typescript-eslint` to v.8.59.4.
+- [package]: Bump `vitest` to v.4.1.7.
+- [package]: Bump `@vitest/coverage-v8` to v.4.1.7.
+- [package]: Bump `eslint-plugin-jsdoc` to v.63.0.0.
+- [package]: Bump `@eslint/markdown` to v.8.0.2.
+- [package]: Bump `npm-check-updates` to v.22.2.0.
+- [package]: Update `.devcontainer/devcontainer.json`.
+- [package]: Update `.vscode/settings.json`.
+- [package]: Add `.vscode/extensions.json`.
 - [package]: Bump `typescript` to v.6.0.3.
 - [package]: Bump `jest` to v.30.4.2.
-- [package]: Bump `eslint` to v.10.3.0.
-- [package]: Bump `typescript-eslint` to v.8.59.3.
 - [eslint]: Add `eslint` v.2.0.4 config.
 - [prettier]: Add `prettier` v.2.0.0 config.
 - [jest]: Add `jest` v.2.0.1 config.
