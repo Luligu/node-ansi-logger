@@ -112,12 +112,12 @@ const STYLES = {
   bgBrightWhite: ['\x1b[107m', CLOSE_BACKGROUND],
 
   success: ['\x1b[38;5;45m', CLOSE_FOREGROUND],
-  debug: ['\x1b[38;5;245m', CLOSE_FOREGROUND],
-  info: ['\x1b[38;5;252m', CLOSE_FOREGROUND],
-  notice: ['\x1b[38;5;2m', CLOSE_FOREGROUND],
-  warn: ['\x1b[38;5;220m', CLOSE_FOREGROUND],
-  error: ['\x1b[38;5;1m', CLOSE_FOREGROUND],
-  fatal: ['\x1b[38;5;9m', CLOSE_FOREGROUND],
+  debug: ['\x1b[38;5;245m', CLOSE_FOREGROUND + '\x1b[38;5;245m'],
+  info: ['\x1b[38;5;252m', CLOSE_FOREGROUND + '\x1b[38;5;252m'],
+  notice: ['\x1b[38;5;2m', CLOSE_FOREGROUND + '\x1b[38;5;2m'],
+  warn: ['\x1b[38;5;220m', CLOSE_FOREGROUND + '\x1b[38;5;220m'],
+  error: ['\x1b[38;5;1m', CLOSE_FOREGROUND + '\x1b[38;5;1m'],
+  fatal: ['\x1b[38;5;9m', CLOSE_FOREGROUND + '\x1b[38;5;9m'],
 } as const satisfies Record<string, AnsiStyle>;
 
 type StyleName = keyof typeof STYLES;

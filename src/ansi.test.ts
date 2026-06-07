@@ -392,27 +392,27 @@ describe('log level styles', () => {
   });
 
   test('should apply debug', () => {
-    expect(debug`text`).toBe(`${ESC}38;5;245mtext${FG_RESET}`);
+    expect(debug`text`).toBe(`${ESC}38;5;245mtext${FG_RESET}${ESC}38;5;245m`);
   });
 
   test('should apply info', () => {
-    expect(info`text`).toBe(`${ESC}38;5;252mtext${FG_RESET}`);
+    expect(info`text`).toBe(`${ESC}38;5;252mtext${FG_RESET}${ESC}38;5;252m`);
   });
 
   test('should apply notice', () => {
-    expect(notice`text`).toBe(`${ESC}38;5;2mtext${FG_RESET}`);
+    expect(notice`text`).toBe(`${ESC}38;5;2mtext${FG_RESET}${ESC}38;5;2m`);
   });
 
   test('should apply warn', () => {
-    expect(warn`text`).toBe(`${ESC}38;5;220mtext${FG_RESET}`);
+    expect(warn`text`).toBe(`${ESC}38;5;220mtext${FG_RESET}${ESC}38;5;220m`);
   });
 
   test('should apply error', () => {
-    expect(error`text`).toBe(`${ESC}38;5;1mtext${FG_RESET}`);
+    expect(error`text`).toBe(`${ESC}38;5;1mtext${FG_RESET}${ESC}38;5;1m`);
   });
 
   test('should apply fatal', () => {
-    expect(fatal`text`).toBe(`${ESC}38;5;9mtext${FG_RESET}`);
+    expect(fatal`text`).toBe(`${ESC}38;5;9mtext${FG_RESET}${ESC}38;5;9m`);
   });
 });
 

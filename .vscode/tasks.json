@@ -1,3 +1,4 @@
+// VS Code tasks v. 1.0.1
 {
   "version": "2.0.0",
   "tasks": [
@@ -72,11 +73,9 @@
     },
     {
       "label": "Test",
-      "detail": "Run Jest with coverage and verbose",
-      "type": "shell",
-      "command": "node",
-      "args": ["--no-warnings", "--experimental-vm-modules", "node_modules/jest/bin/jest.js", "--verbose", "--coverage", "--maxWorkers=100%"],
-      "group": { "kind": "test", "isDefault": true },
+      "detail": "Run Test with coverage and verbose",
+      "type": "npm",
+      "script": "test:coverage",
       "problemMatcher": []
     },
     {

@@ -199,6 +199,7 @@ export class AnsiLogger {
     this.#extLog = params.extLog;
     this.#logName = params.logName ?? 'NodeAnsiLogger';
     this.#logNameColor = params.logNameColor ?? '[38;5;31m';
+    // eslint-disable-next-line @typescript-eslint/no-deprecated
     this.#logLevel = params.logLevel ?? (params.logDebug === true ? LogLevel.DEBUG : LogLevel.INFO);
     this.#logWithColors = params.logWithColors !== undefined ? params.logWithColors : process.env.NO_COLOR === '1' ? false : true;
     this.#logTimestampFormat =
