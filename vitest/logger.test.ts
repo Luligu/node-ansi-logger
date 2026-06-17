@@ -2,30 +2,31 @@
 
 /* oxlint-disable no-console */
 
-import { jest } from '@jest/globals';
-
-jest.unstable_mockModule('node:fs', () => {
-  const originalModule = jest.requireActual<typeof import('node:fs')>('node:fs');
-  return {
-    ...originalModule,
-
-    unlinkSync: jest.fn<typeof unlinkSync>((path: PathLike) => {
-      return originalModule.unlinkSync(path);
-    }),
-    appendFileSync: jest.fn((path: PathOrFileDescriptor, data: string | Uint8Array, options?: WriteFileOptions) => {
-      return originalModule.appendFileSync(path, data, options);
-    }),
-  };
-});
-const { existsSync, appendFileSync, writeFileSync, unlinkSync } = await import('node:fs');
-
-import type { PathLike, PathOrFileDescriptor, WriteFileOptions } from 'node:fs';
+import { type PathLike, type PathOrFileDescriptor, type WriteFileOptions, existsSync, writeFileSync, unlinkSync } from 'node:fs';
 import path from 'node:path';
 import { env } from 'node:process';
 
-const { AnsiLogger, db, er, ft, getErrorMessage, LogLevel, nf, nt, rs, TimestampFormat, wr } = await import('../src/logger.js');
+import { vi } from 'vitest';
+
+import { AnsiLogger, db, er, ft, getErrorMessage, LogLevel, nf, nt, rs, TimestampFormat, wr } from '../src/logger.js';
 import type { AnsiLoggerCallback, Logger } from '../src/logger.ts';
 import { debugStringify } from '../src/stringify.js';
+
+vi.mock('node:fs', async () => {
+  const originalModule = await vi.importActual<typeof import('node:fs')>('node:fs');
+  return {
+    ...originalModule,
+
+    unlinkSync: vi.fn<typeof unlinkSync>((path: PathLike) => {
+      return originalModule.unlinkSync(path);
+    }),
+    appendFileSync: vi.fn<(path: PathOrFileDescriptor, data: string | Uint8Array, options?: WriteFileOptions) => void>(
+      (path: PathOrFileDescriptor, data: string | Uint8Array, options?: WriteFileOptions) => {
+        return originalModule.appendFileSync(path, data, options);
+      },
+    ),
+  };
+});
 
 // Mocking console.log to test logging output
 const originalConsoleLog = console.log;
@@ -437,7 +438,7 @@ describe('Logger callbacks', () => {
   });
 
   test('calls instance-specific callback with correct parameters', () => {
-    const mockCallback = jest.fn();
+    const mockCallback = vi.fn<AnsiLoggerCallback>();
     const logger = new AnsiLogger({ logName: 'TestLogger callback' });
     originalLocalCallback = logger.getCallback();
     expect(originalLocalCallback).toBeUndefined();
@@ -452,7 +453,7 @@ describe('Logger callbacks', () => {
   });
 
   test('calls global callback with correct parameters when instance-specific callback is not set', () => {
-    const mockCallback = jest.fn();
+    const mockCallback = vi.fn<AnsiLoggerCallback>();
     const logger = new AnsiLogger({ logName: 'TestLogger1 callback' });
     originalGlobalCallback = AnsiLogger.getGlobalCallback();
     expect(originalGlobalCallback).toBeUndefined();
@@ -575,7 +576,7 @@ describe('Global file logger', () => {
   });
 
   test('setGlobalLogfile should fail', () => {
-    (unlinkSync as jest.Mocked<typeof unlinkSync>).mockImplementationOnce((path: PathLike) => {
+    vi.mocked(unlinkSync).mockImplementationOnce((path: PathLike) => {
       throw new Error('Test error unlinking the log file');
     });
     writeFileSync('test-error.log', 'Test log file content');
@@ -585,7 +586,7 @@ describe('Global file logger', () => {
   });
 
   test('GlobalCallback should fail', () => {
-    const spy = jest.spyOn(console, 'error');
+    const spy = vi.spyOn(console, 'error');
 
     AnsiLogger.setGlobalLogfile('test-error.log', LogLevel.DEBUG, true);
     AnsiLogger.setGlobalCallbackLevel(LogLevel.DEBUG);
@@ -599,7 +600,7 @@ describe('Global file logger', () => {
       throw new Error('Test error in local callback');
     });
 
-    const mock = jest.spyOn(AnsiLogger.prototype as any, 'logToFile').mockImplementation(() => {
+    const mock = vi.spyOn(AnsiLogger.prototype as any, 'logToFile').mockImplementation(() => {
       throw new Error('Test error in logToFile');
     });
     logger.logFilePath = 'test-error.log';
@@ -618,7 +619,7 @@ describe('Local file logger', () => {
   });
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     try {
       unlinkSync('test-local.log');
     } catch (error) {
@@ -643,10 +644,10 @@ describe('Local file logger', () => {
     logger.logFilePath = 1 as unknown as string;
     expect(logger.logFilePath).toBe(undefined);
 
-    jest.spyOn(path, 'resolve').mockImplementationOnce(() => {
+    vi.spyOn(path, 'resolve').mockImplementationOnce(() => {
       throw new Error('Test error');
     });
-    const spy = jest.spyOn(console, 'error').mockImplementationOnce(() => {
+    const spy = vi.spyOn(console, 'error').mockImplementationOnce(() => {
       //
     });
     logger.logFilePath = 'test-local.log';
@@ -763,7 +764,7 @@ describe('Local file logger', () => {
     expect(existsSync('test-local.log')).toBe(false);
 
     writeFileSync('test-error.log', 'Test log file content');
-    (unlinkSync as jest.Mocked<typeof unlinkSync>).mockImplementationOnce((path: PathLike) => {
+    vi.mocked(unlinkSync).mockImplementationOnce((path: PathLike) => {
       throw new Error('Test error unlinking the log file');
     });
     logger.logFilePath = 'test-error.log';

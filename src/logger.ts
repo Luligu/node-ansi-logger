@@ -22,12 +22,13 @@
  * limitations under the License.
  */
 
-/* eslint-disable no-console */
-/* eslint-disable jsdoc/reject-any-type */
+// oxlint-disable no-console
+// oxlint-disable unicorn/no-negated-condition
+// oxlint-disable no-param-reassign
 
 // Node.js built-in modules
-import * as fs from 'node:fs';
-import * as os from 'node:os';
+import { appendFileSync, existsSync, unlinkSync } from 'node:fs';
+import { EOL } from 'node:os';
 import path from 'node:path';
 
 import { stringify } from './stringify.js';
@@ -84,6 +85,7 @@ export const or = '[38;5;208m'; // history
 /**
  * LogLevel enumeration to specify the logging level.
  */
+// oxlint-disable-next-line oxc/no-const-enum
 export const enum LogLevel {
   NONE = '',
   DEBUG = 'debug',
@@ -98,25 +100,26 @@ export const enum LogLevel {
  * Logger interface for custom loggers that can be passed to AnsiLogger for output instead of console output.
  */
 export interface Logger {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // oxlint-disable-next-line @typescript-eslint/no-explicit-any
   debug: (...data: any[]) => void;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // oxlint-disable-next-line @typescript-eslint/no-explicit-any
   info: (...data: any[]) => void;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // oxlint-disable-next-line @typescript-eslint/no-explicit-any
   notice: (...data: any[]) => void;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // oxlint-disable-next-line @typescript-eslint/no-explicit-any
   warn: (...data: any[]) => void;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // oxlint-disable-next-line @typescript-eslint/no-explicit-any
   error: (...data: any[]) => void;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // oxlint-disable-next-line @typescript-eslint/no-explicit-any
   fatal: (...data: any[]) => void;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // oxlint-disable-next-line @typescript-eslint/no-explicit-any
   log: (level: LogLevel, message: string, ...parameters: any[]) => void;
 }
 
 /**
  * TimestampFormat enumeration to specify the format of timestamps in log messages.
  */
+// oxlint-disable-next-line oxc/no-const-enum
 export const enum TimestampFormat {
   ISO,
   LOCAL_DATE,
@@ -149,15 +152,10 @@ export interface AnsiLoggerParams {
 export type AnsiLoggerCallback = (level: string, time: string, name: string, message: string) => void;
 
 declare global {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   var __AnsiLoggerCallback__: AnsiLoggerCallback | undefined;
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   var __AnsiLoggerCallbackLoglevel__: LogLevel | undefined;
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   var __AnsiLoggerFilePath__: string | undefined;
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   var __AnsiLoggerFileLoglevel__: LogLevel | undefined;
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   var __AnsiLoggerFileLogSize__: number | undefined;
 }
 
@@ -168,6 +166,16 @@ if (typeof globalThis.__AnsiLoggerCallbackLoglevel__ === 'undefined') globalThis
 if (typeof globalThis.__AnsiLoggerFilePath__ === 'undefined') globalThis.__AnsiLoggerFilePath__ = undefined;
 if (typeof globalThis.__AnsiLoggerFileLoglevel__ === 'undefined') globalThis.__AnsiLoggerFileLoglevel__ = undefined;
 if (typeof globalThis.__AnsiLoggerFileLogSize__ === 'undefined') globalThis.__AnsiLoggerFileLogSize__ = undefined;
+
+/**
+ * Extracts a printable message from an unknown thrown value.
+ *
+ * @param {unknown} error - The caught value.
+ * @returns {string} The error message when it is an Error, otherwise its string form.
+ */
+export function getErrorMessage(error: unknown): string {
+  return error instanceof Error ? error.message : String(error);
+}
 
 /**
  * AnsiLogger provides a customizable logging utility with ANSI color support.
@@ -199,10 +207,11 @@ export class AnsiLogger {
     this.#extLog = params.extLog;
     this.#logName = params.logName ?? 'NodeAnsiLogger';
     this.#logNameColor = params.logNameColor ?? '[38;5;31m';
-    // eslint-disable-next-line @typescript-eslint/no-deprecated
+    // oxlint-disable-next-line @typescript-eslint/no-deprecated
     this.#logLevel = params.logLevel ?? (params.logDebug === true ? LogLevel.DEBUG : LogLevel.INFO);
-    this.#logWithColors = params.logWithColors !== undefined ? params.logWithColors : process.env.NO_COLOR === '1' ? false : true;
+    this.#logWithColors = params.logWithColors ?? process.env.NO_COLOR !== '1';
     this.#logTimestampFormat =
+      // oxlint-disable-next-line typescript/prefer-nullish-coalescing
       params.logTimestampFormat !== undefined
         ? params.logTimestampFormat
         : process.env.NODE_ANSI_LOGGER_TIMESTAMP_FORMAT !== undefined && ['0', '1', '2', '3', '4', '5', '6'].includes(process.env.NODE_ANSI_LOGGER_TIMESTAMP_FORMAT)
@@ -379,17 +388,17 @@ export class AnsiLogger {
       try {
         this.#logFilePath = path.resolve(filePath);
       } catch (error) {
-        console.error(`Error resolving log file path ${CYAN}${filePath}${er}: ${error}`);
+        console.error(`Error resolving log file path ${CYAN}${filePath}${er}: ${getErrorMessage(error)}`);
         this.#logFilePath = undefined;
         this.#logFileSize = undefined;
         return;
       }
       // Check if the file exists and unlink
-      if (this.#logFilePath && fs.existsSync(this.#logFilePath)) {
+      if (this.#logFilePath && existsSync(this.#logFilePath)) {
         try {
-          fs.unlinkSync(this.#logFilePath);
+          unlinkSync(this.#logFilePath);
         } catch (error) {
-          console.error(`${er}Error unlinking the log file ${CYAN}${this.#logFilePath}${er}: ${error}`);
+          console.error(`${er}Error unlinking the log file ${CYAN}${this.#logFilePath}${er}: ${getErrorMessage(error)}`);
           this.#logFilePath = undefined;
           this.#logFileSize = undefined;
           return;
@@ -545,11 +554,11 @@ export class AnsiLogger {
       // Convert relative path to absolute path
       logfilePath = path.resolve(logfilePath);
       // Check if the file exists and unlink it if requested
-      if (unlink && fs.existsSync(logfilePath)) {
+      if (unlink && existsSync(logfilePath)) {
         try {
-          fs.unlinkSync(logfilePath);
+          unlinkSync(logfilePath);
         } catch (error) {
-          console.error(`${er}Error unlinking the log file ${CYAN}${logfilePath}${er}: ${error}`);
+          console.error(`${er}Error unlinking the log file ${CYAN}${logfilePath}${er}: ${getErrorMessage(error)}`);
         }
       }
       __AnsiLoggerFilePath__ = logfilePath;
@@ -705,6 +714,7 @@ export class AnsiLogger {
    * @returns {string} The timestamp string.
    */
   private getTimestamp(): string {
+    // oxlint-disable-next-line unicorn/no-negated-condition
     if (this.#logStartTime !== 0) {
       const timePassed = Date.now() - this.#logStartTime;
       return `Timer:    ${timePassed.toString().padStart(7, ' ')} ms`;
@@ -747,7 +757,7 @@ export class AnsiLogger {
    * @param {...any[]} parameters - Additional parameters to include in the log message.
    * @returns {number} - The length of the log message including the appended newline character.
    */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // oxlint-disable-next-line @typescript-eslint/no-explicit-any
   private logToFile(filePath: string, level: LogLevel, message: string, ...parameters: any[]): number {
     const parametersString = parameters
       .map((parameter) => {
@@ -771,12 +781,12 @@ export class AnsiLogger {
     let messageLog = `[${this.getTimestamp()}] [${this.#logName}] [${level}] ` + message + ' ' + parametersString;
 
     messageLog = messageLog
-      // eslint-disable-next-line no-control-regex
+      // oxlint-disable-next-line no-control-regex
       .replace(/[\u001b\u009b][[()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-ORZcf-nqry=><]/g, '')
       .replaceAll('\t', ' ')
       .replaceAll('\r', '')
-      .replaceAll('\n', os.EOL);
-    fs.appendFileSync(filePath, messageLog + os.EOL);
+      .replaceAll('\n', EOL);
+    appendFileSync(filePath, messageLog + EOL);
     return messageLog.length + 1;
   }
 
@@ -789,7 +799,7 @@ export class AnsiLogger {
    * @param {string} message - The primary log message to be displayed.
    * @param {...any[]} parameters - Additional parameters to be logged. Supports any number of parameters.
    */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // oxlint-disable-next-line @typescript-eslint/no-explicit-any
   public log(level: LogLevel, message: string, ...parameters: any[]): void {
     const s1ln = '[38;5;0;48;5;31m'; // Highlight  LogName Black on Cyan
     const s2ln = '[38;5;0;48;5;255m'; // Highlight  LogName Black on White
@@ -831,7 +841,7 @@ export class AnsiLogger {
         this.#logFileSize += size;
         if (this.#logFileSize >= this.#maxFileSize) {
           // istanbul ignore next
-          fs.appendFileSync(this.logFilePath, `Logging on file has been stoppped because the file size is greater then ${this.#maxFileSize}B.\n`);
+          appendFileSync(this.logFilePath, `Logging on file has been stoppped because the file size is greater then ${this.#maxFileSize}B.\n`);
         }
       }
     } catch (error) {
@@ -851,7 +861,7 @@ export class AnsiLogger {
         __AnsiLoggerFileLogSize__ += size;
         if (__AnsiLoggerFileLogSize__ >= this.#maxFileSize) {
           // istanbul ignore next
-          fs.appendFileSync(__AnsiLoggerFilePath__, `Logging on file has been stoppped because the file size is greater then ${this.#maxFileSize}B.\n`);
+          appendFileSync(__AnsiLoggerFilePath__, `Logging on file has been stoppped because the file size is greater then ${this.#maxFileSize}B.\n`);
         }
       }
     } catch (error) {
@@ -922,7 +932,7 @@ export class AnsiLogger {
         } else if (message.startsWith('*')) {
           message = message.slice(1);
         }
-        // eslint-disable-next-line no-control-regex
+        // oxlint-disable-next-line no-control-regex
         message = message.replace(/[\u001b\u009b][[()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-ORZcf-nqry=><]/g, '');
 
         switch (level) {
@@ -982,7 +992,7 @@ export class AnsiLogger {
    * @param {string} message - The message to log.
    * @param {...any[]} parameters - Additional parameters to be included in the log message. Supports any number of parameters.
    */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // oxlint-disable-next-line @typescript-eslint/no-explicit-any
   public debug(message: string, ...parameters: any[]): void {
     this.log(LogLevel.DEBUG, message, ...parameters);
   }
@@ -993,7 +1003,7 @@ export class AnsiLogger {
    * @param {string} message - The message to log.
    * @param {...any[]} parameters - Additional parameters to be included in the log message. Supports any number of parameters.
    */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // oxlint-disable-next-line @typescript-eslint/no-explicit-any
   public info(message: string, ...parameters: any[]): void {
     this.log(LogLevel.INFO, message, ...parameters);
   }
@@ -1004,7 +1014,7 @@ export class AnsiLogger {
    * @param {string} message - The message to log.
    * @param {...any[]} parameters - Additional parameters to be included in the log message. Supports any number of parameters.
    */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // oxlint-disable-next-line @typescript-eslint/no-explicit-any
   public notice(message: string, ...parameters: any[]): void {
     this.log(LogLevel.NOTICE, message, ...parameters);
   }
@@ -1015,7 +1025,7 @@ export class AnsiLogger {
    * @param {string} message - The message to log.
    * @param {...any[]} parameters - Additional parameters to be included in the log message. Supports any number of parameters.
    */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // oxlint-disable-next-line @typescript-eslint/no-explicit-any
   public warn(message: string, ...parameters: any[]): void {
     this.log(LogLevel.WARN, message, ...parameters);
   }
@@ -1026,7 +1036,7 @@ export class AnsiLogger {
    * @param {string} message - The message to log.
    * @param {...any[]} parameters - Additional parameters to be included in the log message. Supports any number of parameters.
    */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // oxlint-disable-next-line @typescript-eslint/no-explicit-any
   public error(message: string, ...parameters: any[]): void {
     this.log(LogLevel.ERROR, message, ...parameters);
   }
@@ -1037,7 +1047,7 @@ export class AnsiLogger {
    * @param {string} message - The message to log.
    * @param {...any[]} parameters - Additional parameters to be included in the log message. Supports any number of parameters.
    */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // oxlint-disable-next-line @typescript-eslint/no-explicit-any
   public fatal(message: string, ...parameters: any[]): void {
     this.log(LogLevel.FATAL, message, ...parameters);
   }

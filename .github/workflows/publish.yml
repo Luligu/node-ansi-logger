@@ -1,4 +1,4 @@
-# Publish to npm v. 2.0.4
+# Publish to npm v. 2.0.5
 # Path: .github/workflows/publish.yml
 
 name: Publish to npm
@@ -43,13 +43,16 @@ jobs:
       - name: Verify Npm version
         run: npm -v
 
-      - name: Install project dependencies
+      - name: Install dependencies
         run: npm ci --no-fund --no-audit
 
-      - name: Build the project (typescript)
-        run: npx tsc --build tsconfig.build.json
+      - name: Build
+        run: npm run build
 
-      - name: Lint the project
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Lint
         run: npm run lint
 
       - name: Check config files
@@ -75,7 +78,7 @@ jobs:
             npm run test -- --testTimeout=30000
           fi
 
-      - name: Publish the project to npm with trusted publishing / OIDC
+      - name: Publish to npm with trusted publishing / OIDC
         run: npm publish
 
   publish-dev:
@@ -127,13 +130,16 @@ jobs:
       - name: Verify Npm version
         run: npm -v
 
-      - name: Install project dependencies
+      - name: Install dependencies
         run: npm ci --no-fund --no-audit
 
-      - name: Build the project (typescript)
-        run: npx tsc --build tsconfig.build.json
+      - name: Build
+        run: npm run build
 
-      - name: Lint the project
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Lint
         run: npm run lint
 
       - name: Check config files

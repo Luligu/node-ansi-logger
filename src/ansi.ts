@@ -125,10 +125,10 @@ type StyleName = keyof typeof STYLES;
 export type AnsiTag = ((strings: TemplateStringsArray, ...values: unknown[]) => string) & {
   readonly [K in StyleName]: AnsiTag;
 } & {
-  hex(color: string): AnsiTag;
-  rgb(r: number, g: number, b: number): AnsiTag;
-  bgHex(color: string): AnsiTag;
-  bgRgb(r: number, g: number, b: number): AnsiTag;
+  hex: (color: string) => AnsiTag;
+  rgb: (r: number, g: number, b: number) => AnsiTag;
+  bgHex: (color: string) => AnsiTag;
+  bgRgb: (r: number, g: number, b: number) => AnsiTag;
 };
 
 /**
@@ -168,7 +168,7 @@ function applyStyles(text: string, styles: readonly AnsiStyle[]): string {
   const open = styles.map(([start]) => start).join('');
   const close = styles
     .map(([, end]) => end)
-    .reverse()
+    .toReversed()
     .join('');
 
   return open + output + close;
@@ -201,6 +201,7 @@ function hexToRgb(color: string): readonly [number, number, number] {
     throw new TypeError(`Invalid hex color: ${color}`);
   }
 
+  // oxlint-disable-next-line typescript/no-misused-spread
   const value = match[1].length === 3 ? [...match[1]].map((char) => char + char).join('') : match[1];
 
   return [Number.parseInt(value.slice(0, 2), 16), Number.parseInt(value.slice(2, 4), 16), Number.parseInt(value.slice(4, 6), 16)];
@@ -231,12 +232,23 @@ function bgRgbStyle(r: number, g: number, b: number): AnsiStyle {
 }
 
 /**
+ * Type guard that checks whether a string is a known style name.
+ *
+ * @param {string} prop - Property name to test.
+ * @returns {boolean} True when the property is a key of STYLES.
+ */
+function isStyleName(prop: string): prop is StyleName {
+  return prop in STYLES;
+}
+
+/**
  * Creates a chainable ANSI tagged template function.
  *
  * @param {readonly AnsiStyle[]} styles - Accumulated ANSI styles.
  * @returns {AnsiTag} Chainable ANSI tag.
  */
 function createTag(styles: readonly AnsiStyle[] = []): AnsiTag {
+  // oxlint-disable-next-line typescript/no-unsafe-type-assertion
   const tag = ((strings: TemplateStringsArray, ...values: unknown[]): string => {
     return applyStyles(joinTemplate(strings, values), styles);
   }) as AnsiTag;
@@ -247,8 +259,8 @@ function createTag(styles: readonly AnsiStyle[] = []): AnsiTag {
         return Reflect.get(target, prop);
       }
 
-      if (prop in STYLES) {
-        return createTag([...styles, STYLES[prop as StyleName]]);
+      if (isStyleName(prop)) {
+        return createTag([...styles, STYLES[prop]]);
       }
 
       if (prop === 'rgb') {

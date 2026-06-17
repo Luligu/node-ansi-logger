@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 
-import { jest } from '@jest/globals';
+import { vi } from 'vitest';
 
 import { AnsiLogger, LogLevel, TimestampFormat } from '../src/logger.js';
 
@@ -10,10 +10,10 @@ describe('Logger branch coverage', () => {
   const originalNoColor = process.env.NO_COLOR;
   const originalTsFormat = process.env.NODE_ANSI_LOGGER_TIMESTAMP_FORMAT;
 
-  let consoleLogSpy: ReturnType<typeof jest.spyOn>;
+  let consoleLogSpy: ReturnType<typeof vi.spyOn>;
 
   beforeEach(() => {
-    consoleLogSpy = jest.spyOn(console, 'log').mockImplementation(() => {});
+    consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
   });
 
   afterEach(() => {
@@ -64,7 +64,7 @@ describe('Logger branch coverage', () => {
   });
 
   test('covers extLog branch when level is NONE', () => {
-    const extLog = { log: jest.fn() };
+    const extLog = { log: vi.fn<(level: string, message: string, ...parameters: unknown[]) => void>() };
     const logger = new AnsiLogger({ extLog: extLog as any, logWithColors: false, logLevel: LogLevel.DEBUG });
 
     logger.log(LogLevel.NONE, 'should not forward');
@@ -142,7 +142,7 @@ describe('Logger branch coverage', () => {
     (globalThis as any).__AnsiLoggerFileLoglevel__ = null;
     (globalThis as any).__AnsiLoggerFileLogSize__ = null;
 
-    jest.resetModules();
+    vi.resetModules();
     await import('../src/logger.js');
 
     expect((globalThis as any).__AnsiLoggerCallback__).toBeNull();

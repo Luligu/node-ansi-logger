@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# postCreateCommand.sh
+# postCreateCommand.sh v. 1.0.1
 
 # This script runs after the Dev Container is created to set up the dev container environment.
 
@@ -20,19 +20,18 @@ echo "Node.js version: $(node -v)"
 echo "Npm version: $(npm -v)"
 echo ""
 
-echo "1 - Installing updates and scripts packages..."
-npm install --global --no-fund --no-audit npm-check-updates shx cross-env 
-
-echo "2 - Setting permissions..."
+echo "1 - Setting permissions..."
 sudo chown -R node:node .
+sudo mkdir -p /home/node/.claude /home/node/.codex
+sudo chown -R node:node /home/node/.claude /home/node/.codex
 
-echo "3 - Installing package dependencies..."
+echo "2 - Installing package dependencies..."
 npm install --no-fund --no-audit
 
-echo "4 - Building the package..."
+echo "3 - Building the package..."
 npm run build
 
-echo "5 - Checking for outdated packages..."
+echo "4 - Checking for outdated packages..."
 npm outdated || true
 
-echo "6 - Setup completed!"
+echo "5 - Post create setup completed!"

@@ -22,6 +22,8 @@
  * limitations under the License.
  */
 
+// oxlint-disable no-param-reassign
+
 /**
  * Stringify the payload as a JSON string with no colors.
  *
@@ -119,10 +121,10 @@ export function stringify(
   if (payload === null) return 'null';
   // Let formatScalar handle undefined so it can be covered and colored consistently.
 
-  const clr = (color: number) => {
+  const clr = (color: number): string => {
     return enableColors ? `\x1b[38;5;${color}m` : '';
   };
-  const reset = () => {
+  const reset = (): string => {
     return enableColors ? '\x1b[0m' : '';
   };
 
@@ -142,6 +144,7 @@ export function stringify(
         return `${clr(colorBoolean)}${value}${reset()}`;
       case 'function':
         return `${clr(colorUndefined)}(function)${reset()}`;
+      // No Default
     }
 
     /* istanbul ignore next */
@@ -155,11 +158,11 @@ export function stringify(
   }
 
   // Check if the object is already in the seenObjects set
-  if (seenObjects.has(payload as object)) {
+  if (seenObjects.has(payload)) {
     return `${clr(colorUndefined)}[Circular]${reset()}`;
   }
   // Add the current object to the seenObjects set
-  seenObjects.add(payload as object);
+  seenObjects.add(payload);
 
   const isArray = Array.isArray(payload);
   let string = `${reset()}${clr(colorPayload)}` + (isArray ? '[' : '{');
@@ -168,7 +171,8 @@ export function stringify(
   } else {
     string += ' ';
   }
-  Object.entries(payload as Record<string, unknown>).forEach(([key, value], entryIndex) => {
+  const entries: [string, unknown][] = Object.entries(payload);
+  entries.forEach(([key, value], entryIndex) => {
     if (entryIndex > 0) {
       if (tab) string += ',\n' + ' '.repeat(tab * (index + 1));
       else string += ', ';
@@ -183,11 +187,11 @@ export function stringify(
     } else if (typeof newValue === 'string') {
       newValue = `${clr(colorString)}${stringQuote}${newValue}${stringQuote}${reset()}`;
     } else if (typeof newValue === 'number') {
-      newValue = `${clr(colorNumber)}${newValue}${reset()}`;
+      newValue = `${clr(colorNumber)}${String(newValue)}${reset()}`;
     } else if (typeof newValue === 'bigint') {
-      newValue = `${clr(colorNumber)}${newValue}${reset()}`;
+      newValue = `${clr(colorNumber)}${String(newValue)}${reset()}`;
     } else if (typeof newValue === 'boolean') {
-      newValue = `${clr(colorBoolean)}${newValue}${reset()}`;
+      newValue = `${clr(colorBoolean)}${String(newValue)}${reset()}`;
     } else if (typeof newValue === 'undefined') {
       newValue = `${clr(colorUndefined)}undefined${reset()}`;
     } else if (typeof newValue === 'function') {
@@ -218,19 +222,19 @@ export function stringify(
       throw new Error(`Unsupported type: ${typeof newValue}`);
     }
     if (isArray) {
-      string += `${newValue}`;
+      string += newValue;
     } else {
       string += `${clr(colorKey)}${keyQuote}${key}${keyQuote}${reset()}: ${newValue}`;
     }
   });
 
   // Remove the current object from the seenObjects set after processing
-  seenObjects.delete(payload as object);
+  seenObjects.delete(payload);
 
   if (tab) {
     string += '\n' + ' '.repeat(tab * index);
   } else {
     string += ' ';
   }
-  return (string += `${clr(colorPayload)}` + (isArray ? ']' : '}') + `${reset()}`);
+  return (string += clr(colorPayload) + (isArray ? ']' : '}') + reset());
 }

@@ -56,7 +56,7 @@ import { AnsiLogger, AnsiLoggerParams, LogLevel } from 'node-ansi-logger';
 ```
 
 ```typescript
-const log = new AnsiLogger({logName: '<your name>'}); // Eventually other params in AnsiLoggerParams
+const log = new AnsiLogger({ logName: '<your name>' }); // Eventually other params in AnsiLoggerParams
 ```
 
 To import the stringify functions
@@ -74,7 +74,7 @@ log.notice('Notice message...', ...parameters);
 log.warn('Warning message', ...parameters);
 log.error('Error message', ...parameters);
 log.fatal('Fatal message', ...parameters);
-log(LogLevel.WARN, 'Warning message', ...parameters)
+log(LogLevel.WARN, 'Warning message', ...parameters);
 ```
 
 ## Using the logger with colors inside the message:
@@ -86,8 +86,8 @@ log.debug(`Debug message ${YELLOW}with yellow part${db}`, ...);
 ## Using the logger internal timer:
 
 ```typescript
-log.startTimer('Time sensitive code started')
-log.stopTimer('Time sensitive code finished')
+log.startTimer('Time sensitive code started');
+log.stopTimer('Time sensitive code finished');
 ```
 
 ## Using the stringify function:

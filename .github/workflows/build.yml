@@ -1,4 +1,4 @@
-# Node.js CI v. 2.0.4
+# Node.js CI v. 2.0.5
 # Path: .github/workflows/build.yml
 
 name: Node.js CI
@@ -44,6 +44,9 @@ jobs:
 
       - name: Build
         run: npm run build
+
+      - name: Typecheck
+        run: npm run typecheck
 
       - name: Lint
         run: npm run lint
