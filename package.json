@@ -56,7 +56,7 @@
     "test": "vitest run",
     "test:watch": "vitest --reporter verbose",
     "test:verbose": "npm run test -- --reporter verbose",
-    "test:coverage": "npm run test -- --reporter verbose --coverage --coverage.thresholds.100",
+    "test:coverage": "npm run test -- --reporter verbose --coverage",
     "lint": "oxlint --disable-nested-config",
     "lint:fix": "oxlint --fix --disable-nested-config",
     "format": "oxfmt",

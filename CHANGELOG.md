@@ -20,11 +20,10 @@ If you like this project and find it useful, please consider giving it a star on
 
 <a href="https://www.buymeacoffee.com/luligugithub"><img src="https://matterbridge.io/assets/bmc-button.svg" alt="Buy me a coffee" width="120"></a>
 
-## [3.2.2] - Dev branch
+## [3.3.0] - Dev branch
 
 ### Added
 
-- [package]: Enable @typescript-eslint promise rules.
 - [ansi]: Add `ansi.ts` — a chainable ANSI tagged template styling API (`AnsiTag` type).
 - [ansi]: Add named style exports: `bold`, `dim`, `italic`, `underline`, `inverse`, `strikethrough`.
 - [ansi]: Add foreground color exports: `black`, `red`, `green`, `yellow`, `blue`, `magenta`, `cyan`, `white`, `gray`.
@@ -37,37 +36,29 @@ If you like this project and find it useful, please consider giving it a star on
 ### Changed
 
 - [package]: Update dependencies.
-- [package]: Bump package to `automator` v.3.1.12.
-- [package]: Bump `eslint` to v.10.4.1.
-- [package]: Bump `@types/node` to v.25.9.2.
-- [package]: Bump `ts-jest` to v.29.4.11.
-- [package]: Bump `typescript-eslint` to v.8.60.1.
-- [package]: Bump `eslint-plugin-jsdoc` to v.63.0.2.
-- [package]: Bump `@eslint/markdown` to v.8.0.2.
-- [package]: Bump `npm-check-updates` to v.22.2.3.
+- [package]: Bump package to `automator` v.3.1.12 and the new toolchain.
 - [package]: Bump `typescript` to v.6.0.3.
-- [package]: Bump `jest` to v.30.4.2.
 
-- [package]: Bump `.devcontainer/devcontainer.json` config to v.1.0.2.
-- [package]: Bump `.vscode/settings.json` config to v.1.0.2.
-- [package]: Bump `.vscode/extensions.json` config to v.1.0.1.
+- [package]: Bump `.devcontainer/devcontainer.json` config to v.1.0.3.
+- [package]: Bump `.vscode/settings.json` config to v.1.0.3.
+- [package]: Bump `.vscode/extensions.json` config to v.1.0.3.
 - [package]: Bump `.vscode/tasks.json` config to v.1.0.1.
-- [eslint]: Bump `eslint.config.js` config to v.2.0.7.
-- [prettier]: Bump `prettier.config.js` config to v.2.0.0.
-- [jest]: Bump `jest.config.js` config to v.2.0.2.
-- [workflows]: Bump `build.yml` workflow to v.2.0.4.
+- [workflows]: Bump `build.yml` workflow to v.2.0.5.
 - [workflows]: Bump `codecov.yml` workflow to v.2.0.5.
-- [workflows]: Bump `publish.yml` workflow to v.2.0.4.
+- [workflows]: Bump `publish.yml` workflow to v.2.0.5.
 - [workflows]: Bump `codeql.yml` workflow to v.2.0.0.
 
 - [package]: Refactor `scripts`.
 - [package]: Add package script `typecheck`.
 - [package]: Add Node.js 26 to package `engines` field.
 - [workflows]: Add Node.js 26 to `build.yml` Node matrix and remove Node.js 20.
-- [eslint]: Remove `eslint-plugin-promise` (not actively maintained) and add @typescript-eslint promise rules.
-- [devcontainer]: Add `Claude Code for VS Code extension` to Dev Container.
+- [devcontainer]: Add `Claude Code VS Code extension` to Dev Container.
+- [devcontainer]: Add `Codex for VS Code extension` to Dev Container.
+- [devcontainer]: Add `Jest / Vitest Runner VS Code extension` to Dev Container.
 - [agent]: Add `.github\copilot-instructions.md` for Copilot.
 - [agent]: Add `CLAUDE.md` for Claude.
+- [agent]: Add `AGENTS.md` for Codex.
+- [agent]: Add `.codex` config for Codex.
 - [agent]: Add agent custom instructions (`testing`) for Copilot and Claude.
 
 <a href="https://www.buymeacoffee.com/luligugithub"><img src="https://matterbridge.io/assets/bmc-button.svg" alt="Buy me a coffee" width="80"></a>
