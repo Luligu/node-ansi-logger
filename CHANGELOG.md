@@ -7,9 +7,11 @@
 ![Node.js CI](https://github.com/Luligu/node-ansi-logger/actions/workflows/build.yml/badge.svg)
 ![CodeQL](https://github.com/Luligu/node-ansi-logger/actions/workflows/codeql.yml/badge.svg)
 [![codecov](https://codecov.io/gh/Luligu/node-ansi-logger/branch/main/graph/badge.svg)](https://codecov.io/gh/Luligu/node-ansi-logger)
-[![styled with prettier](https://img.shields.io/badge/styled_with-Prettier-f8bc45.svg?logo=prettier)](https://prettier.io/)
-[![linted with eslint](https://img.shields.io/badge/linted_with-ES_Lint-4B32C3.svg?logo=eslint)](https://eslint.org/)
+[![tested with Vitest](https://img.shields.io/badge/tested_with-Vitest-6E9F18.svg?logo=vitest&logoColor=white)](https://vitest.dev)
+[![styled with Oxc](https://img.shields.io/badge/styled_with-Oxc-9BE4E0.svg?logo=oxc&logoColor=white)](https://oxc.rs/docs/guide/usage/formatter.html)
+[![linted with Oxc](https://img.shields.io/badge/linted_with-Oxc-9BE4E0.svg?logo=oxc&logoColor=white)](https://oxc.rs/docs/guide/usage/linter.html)
 [![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![TypeScript Native](https://img.shields.io/badge/TypeScript_Native-3178C6?logo=typescript&logoColor=white)](https://github.com/microsoft/typescript-go)
 [![ESM](https://img.shields.io/badge/ESM-Node.js-339933?logo=node.js&logoColor=white)](https://nodejs.org/)
 
 ---
@@ -53,7 +55,7 @@ If you like this project and find it useful, please consider giving it a star on
 - [package]: Add Node.js 26 to package `engines` field.
 - [workflows]: Add Node.js 26 to `build.yml` Node matrix and remove Node.js 20.
 - [devcontainer]: Add `Claude Code VS Code extension` to Dev Container.
-- [devcontainer]: Add `Codex for VS Code extension` to Dev Container.
+- [devcontainer]: Add `Codex VS Code extension` to Dev Container.
 - [devcontainer]: Add `Jest / Vitest Runner VS Code extension` to Dev Container.
 - [agent]: Add `.github\copilot-instructions.md` for Copilot.
 - [agent]: Add `CLAUDE.md` for Claude.
