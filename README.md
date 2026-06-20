@@ -185,7 +185,7 @@ log.debug(`State changed: ${green`on`} → ${red`off`}`);
 - **No `typescript` package** — replaced by [TypeScript Native](https://github.com/microsoft/typescript-go). The `typescript` package is kept only as a publish-time dependency while tsgo is still in preview.
 - **No ESLint, no Prettier** — replaced by the [oxc](https://oxc.rs) stack: [oxlint](https://oxc.rs/docs/guide/usage/linter.html) for linting and [oxfmt](https://oxc.rs/docs/guide/usage/formatter.html) for formatting.
 - **No Jest** — replaced by [Vitest](https://vitest.dev), which is much faster and natively supports ESM without extra configuration.
-- **Far fewer development dependencies** — the number of installed packages drops from **~600** to **~80**. A clean install is much faster.
+- **Far fewer development dependencies** — the number of installed packages drops from **~600** to **~75**. A clean install is much faster.
 - **Much faster linting and formatting** — oxlint and oxfmt run in a fraction of the time required by the ESLint / Prettier pipeline.
 - **Much faster builds** — tsgo compiles the project in a fraction of the time required by the standard `tsc` build.
 - **Editor support** — uses the VS Code extensions for tsgo and oxc to get the same experience in the editor.
