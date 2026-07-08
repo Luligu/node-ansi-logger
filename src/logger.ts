@@ -1,7 +1,6 @@
 /**
- * This file contains the AnsiLogger class.
- *
- * @file logger.ts
+ * @file src/logger.ts
+ * @description This file contains the AnsiLogger class.
  * @author Luca Liguori
  * @created 2023-06-01
  * @version 3.0.3
@@ -22,9 +21,9 @@
  * limitations under the License.
  */
 
-// oxlint-disable no-console
-// oxlint-disable unicorn/no-negated-condition
-// oxlint-disable no-param-reassign
+/* oxlint-disable no-console */
+/* oxlint-disable unicorn/no-negated-condition */
+/* oxlint-disable no-param-reassign */
 
 // Node.js built-in modules
 import { appendFileSync, existsSync, unlinkSync } from 'node:fs';

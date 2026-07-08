@@ -1,3 +1,9 @@
+/**
+ * @file vitest/stringify.coverage.test.ts
+ * @description This file contains the coverage tests for the stringify functions (scalars and NO_COLOR).
+ * @author Luca Liguori
+ */
+
 import { stringify } from '../src/stringify.js';
 
 describe('Stringify coverage (scalars + NO_COLOR)', () => {

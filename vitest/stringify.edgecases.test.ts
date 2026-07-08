@@ -1,3 +1,9 @@
+/**
+ * @file vitest/stringify.edgecases.test.ts
+ * @description This file contains the edge case tests for the stringify functions.
+ * @author Luca Liguori
+ */
+
 import { jsonStringify, stringify } from '../src/stringify.js';
 
 describe('Stringify edge cases', () => {

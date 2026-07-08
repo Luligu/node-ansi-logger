@@ -1,4 +1,8 @@
-// stringify.test.ts
+/**
+ * @file vitest/stringify.test.ts
+ * @description This file contains the tests for the stringify functions.
+ * @author Luca Liguori
+ */
 
 /* oxlint-disable no-console */
 

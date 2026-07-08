@@ -1,7 +1,6 @@
 /**
- * This file contains the stringify functions.
- *
- * @file stringify.ts
+ * @file src/stringify.ts
+ * @description This file contains the stringify functions.
  * @author Luca Liguori
  * @created 2023-07-23
  * @version 1.4.2
@@ -22,7 +21,7 @@
  * limitations under the License.
  */
 
-// oxlint-disable no-param-reassign
+/* oxlint-disable no-param-reassign */
 
 /**
  * Stringify the payload as a JSON string with no colors.

@@ -1,4 +1,8 @@
-// logger.test.ts
+/**
+ * @file vitest/logger.test.ts
+ * @description This file contains the tests for the AnsiLogger class.
+ * @author Luca Liguori
+ */
 
 /* oxlint-disable no-console */
 
@@ -78,6 +82,7 @@ describe('AnsiLogger', () => {
   });
 
   it('should not log a debug message when debug is enabled and logLevel is higher', () => {
+    // oxlint-disable-next-line typescript/no-deprecated
     const logger = new AnsiLogger({ logDebug: true, logLevel: LogLevel.INFO });
     expect(logger.logLevel).toBe(LogLevel.INFO);
     expect(logger.logWithColors).toBe(true);
@@ -88,6 +93,7 @@ describe('AnsiLogger', () => {
   });
 
   it('should log a debug message when debug is enabled', () => {
+    // oxlint-disable-next-line typescript/no-deprecated
     const logger = new AnsiLogger({ logName: 'TestLogger', logDebug: true, logWithColors: false });
     expect(logger.logLevel).toBe(LogLevel.DEBUG);
     expect(logger.logWithColors).toBe(false);
@@ -98,6 +104,7 @@ describe('AnsiLogger', () => {
   });
 
   it('should not log a debug message when debug is disabled', () => {
+    // oxlint-disable-next-line typescript/no-deprecated
     const logger = new AnsiLogger({ logName: 'TestLogger', logDebug: false, logWithColors: false });
     expect(logger.logLevel).toBe(LogLevel.INFO);
     expect(logger.logName).toBe('TestLogger');
@@ -215,6 +222,7 @@ describe('AnsiLogger', () => {
   });
 
   it('should log a debug message with colors when debug is enabled', () => {
+    // oxlint-disable-next-line typescript/no-deprecated
     const logger = new AnsiLogger({ logName: 'TestLogger', logDebug: true });
     logger.logName = 'TestLoggerABC';
     expect(logger.logName).toBe('TestLoggerABC');
@@ -225,6 +233,7 @@ describe('AnsiLogger', () => {
   });
 
   it('should log a debug message with colors when debug is enabled with stars', () => {
+    // oxlint-disable-next-line typescript/no-deprecated
     const logger = new AnsiLogger({ logName: 'TestLogger', logDebug: true });
     logger.logName = 'TestLoggerABC';
     expect(logger.logName).toBe('TestLoggerABC');
@@ -239,6 +248,7 @@ describe('AnsiLogger', () => {
   });
 
   it('should log a debug message without colors when debug is enabled without stars', () => {
+    // oxlint-disable-next-line typescript/no-deprecated
     const logger = new AnsiLogger({ logName: 'TestLogger', logDebug: true, logWithColors: false });
     logger.logName = 'TestLoggerABC';
     expect(logger.logName).toBe('TestLoggerABC');
@@ -276,6 +286,7 @@ describe('AnsiLogger', () => {
   });
 
   it('should not log a debug message with colors when debug is not enabled', () => {
+    // oxlint-disable-next-line typescript/no-deprecated
     const logger = new AnsiLogger({ logName: 'TestLogger', logDebug: false });
     logger.debug('Test debug message');
     expect(consoleOutput.length).toBe(0);
@@ -753,7 +764,7 @@ describe('Local file logger', () => {
     logger.logFilePath = 123 as unknown as string;
     expect(logger.logFilePath).toBe(undefined);
     expect(logger.logFileSize).toBe(undefined);
-    logger.logFilePath = undefined as unknown as string;
+    logger.logFilePath = undefined;
     expect(logger.logFilePath).toBe(undefined);
     expect(logger.logFileSize).toBe(undefined);
     logger.logFilePath = '';

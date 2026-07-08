@@ -1,4 +1,8 @@
-// ansi.test.ts
+/**
+ * @file vitest/ansi.test.ts
+ * @description This file contains the tests for the ANSI styling system.
+ * @author Luca Liguori
+ */
 
 import {
   ansi,

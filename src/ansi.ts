@@ -1,7 +1,6 @@
 /**
- * This file contains the ANSI styling system: a chainable tagged template API for applying ANSI escape codes to terminal output.
- *
- * @file ansi.ts
+ * @file src/ansi.ts
+ * @description This file contains the ANSI styling system: a chainable tagged template API for applying ANSI escape codes to terminal output.
  * @author Luca Liguori
  * @created 2026-05-12
  * @version 1.0.0

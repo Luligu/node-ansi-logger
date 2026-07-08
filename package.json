@@ -1,6 +1,6 @@
 {
   "name": "node-ansi-logger",
-  "version": "3.3.0",
+  "version": "3.3.1",
   "description": "Enhanced Ansi Color Logging and Stringify for Node.js in type script",
   "author": "https://github.com/Luligu",
   "license": "Apache-2.0",
@@ -44,6 +44,7 @@
     "CHANGELOG.md"
   ],
   "automator": {
+    "node": true,
     "library": true,
     "jest": false,
     "vitest": true,
@@ -70,10 +71,10 @@
     "typecheck": "tsgo --project tsconfig.json --noEmit",
     "test": "vitest run",
     "test:watch": "vitest watch",
-    "test:verbose": "npm run test -- --reporter verbose",
+    "test:verbose": "vitest run --reporter verbose",
     "test:coverage": "vitest run --coverage --coverage.thresholds.statements=100 --coverage.thresholds.branches=100 --coverage.thresholds.lines=100 --coverage.thresholds.functions=100",
     "lint": "oxlint --disable-nested-config",
-    "lint:fix": "oxlint --fix --disable-nested-config",
+    "lint:fix": "oxlint --disable-nested-config --fix",
     "format": "oxfmt",
     "format:check": "oxfmt --check",
     "reset": "npm run deepClean && npm run softReset",
@@ -84,13 +85,13 @@
     "prepublishOnly": "npm run cleanBuildProduction && npm pkg delete devDependencies scripts automator && node scripts/prepublish-clean.mjs && npm install --no-fund --no-audit --omit=dev && npm shrinkwrap --omit=dev"
   },
   "devDependencies": {
-    "@types/node": "26.0.0",
-    "@typescript/native-preview": "7.0.0-dev.20260620.1",
-    "@vitest/coverage-v8": "4.1.9",
-    "oxfmt": "0.55.0",
-    "oxlint": "1.70.0",
-    "oxlint-tsgolint": "0.23.0",
+    "@types/node": "26.1.1",
+    "@typescript/native-preview": "7.0.0-dev.20260707.2",
+    "@vitest/coverage-v8": "4.1.10",
+    "oxfmt": "0.58.0",
+    "oxlint": "1.73.0",
+    "oxlint-tsgolint": "0.24.0",
     "typescript": "6.0.3",
-    "vitest": "4.1.9"
+    "vitest": "4.1.10"
   }
 }

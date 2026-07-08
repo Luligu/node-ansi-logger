@@ -1,3 +1,9 @@
+/**
+ * @file vitest/logger.branchcoverage.test.ts
+ * @description This file contains the branch coverage tests for the AnsiLogger class.
+ * @author Luca Liguori
+ */
+
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
