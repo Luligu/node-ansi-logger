@@ -62,9 +62,11 @@
   "scripts": {
     "start": "node dist/module.js",
     "build": "tsc --project tsconfig.build.json",
+    "buildDts": "tsc --project tsconfig.build.json --incremental false --composite false --declaration --declarationMap false --emitDeclarationOnly",
     "buildProduction": "tsc --project tsconfig.build.production.json",
     "clean": "node scripts/clean.mjs",
     "cleanBuild": "npm run clean && npm run build",
+    "cleanBuildDts": "npm run clean && npm run buildDts",
     "cleanBuildProduction": "npm run clean && npm run buildProduction",
     "deepClean": "node scripts/deep-clean.mjs",
     "watch": "tsc --project tsconfig.build.json --watch",
@@ -85,10 +87,10 @@
     "prepublishOnly": "npm run cleanBuildProduction && npm pkg delete devDependencies scripts automator && node scripts/prepublish-clean.mjs && npm install --no-fund --no-audit --omit=dev && npm shrinkwrap --omit=dev"
   },
   "devDependencies": {
-    "@types/node": "26.1.1",
+    "@types/node": "26.1.2",
     "@vitest/coverage-v8": "4.1.10",
-    "oxfmt": "0.60.0",
-    "oxlint": "1.75.0",
+    "oxfmt": "0.62.0",
+    "oxlint": "1.77.0",
     "oxlint-tsgolint": "7.0.2001",
     "typescript": "7.0.2",
     "vitest": "4.1.10"

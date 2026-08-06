@@ -34,4 +34,3 @@
 For task-specific guidance, read relevant files in [.agents](./.agents/):
 
 - `.agents/testing.md` for testing and validation expectations;
-- `.agents/matterbridge.md` for instruction about using matterbridge in a plugin.

@@ -26,10 +26,11 @@ If you like this project and find it useful, please consider giving it a star on
 
 - [package]: Apply uniform style.
 - [package]: Update dependencies.
-- [package]: Upgrade package: agents instructions and typescript 7.
-- [package]: Bump `oxfmt` to v.0.60.0.
-- [package]: Bump `oxlint` to v.1.75.0.
+- [package]: Upgrade package.
+- [package]: Bump `oxfmt` to v.0.62.0.
+- [package]: Bump `oxlint` to v.1.77.0.
 - [package]: Bump `oxlint-tsgolint` to v.7.0.2001.
+- [package]: Bump `@types/node` to v.26.1.2.
 
 <a href="https://www.buymeacoffee.com/luligugithub"><img src="https://matterbridge.io/assets/bmc-button.svg" alt="Buy me a coffee" width="80"></a>
 
