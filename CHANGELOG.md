@@ -1,5 +1,3 @@
-<!-- eslint-disable markdown/no-missing-label-refs -->
-
 # Node ansi logger and stringify changelog
 
 [![npm version](https://img.shields.io/npm/v/node-ansi-logger.svg)](https://www.npmjs.com/package/node-ansi-logger)
