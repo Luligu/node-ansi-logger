@@ -26,6 +26,7 @@ If you like this project and find it useful, please consider giving it a star on
 - [package]: Apply uniform style.
 - [package]: Update dependencies.
 - [package]: Upgrade package.
+- [package]: Bump `Dev Container` to v.1.2.0.
 - [package]: Bump `oxfmt` to v.0.63.0.
 - [package]: Bump `oxlint` to v.1.78.0.
 - [package]: Bump `oxlint-tsgolint` to v.7.0.2001.
