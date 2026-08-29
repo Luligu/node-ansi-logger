@@ -1,6 +1,6 @@
 {
   "name": "node-ansi-logger",
-  "version": "3.3.1",
+  "version": "3.3.2",
   "description": "Enhanced Ansi Color Logging and Stringify for Node.js in type script",
   "author": "https://github.com/Luligu",
   "license": "Apache-2.0",
