@@ -23,15 +23,19 @@ If you like this project and find it useful, please consider giving it a star on
 
 ## [3.3.1] - Dev branch
 
+### Added
+
+- [devcontainer]: Add Dev Container (Bun and Node) v.2.0.0.
+
+### Changed
+
 - [package]: Apply uniform style.
 - [package]: Update dependencies.
 - [package]: Upgrade package.
-- [package]: Bump `Dev Container` to v.1.2.0.
-- [package]: Bump `oxfmt` to v.0.63.0.
-- [package]: Bump `oxlint` to v.1.78.0.
+- [package]: Bump `oxfmt` to v.0.65.0.
+- [package]: Bump `oxlint` to v.1.80.0.
 - [package]: Bump `oxlint-tsgolint` to v.7.0.2001.
-- [package]: Bump `@types/node` to v.26.2.0.
-- [devcontainer]: Add Dev Container (Bun and Node) v.2.0.0.
+- [package]: Bump `@types/node` to v.26.4.0.
 
 <a href="https://www.buymeacoffee.com/luligugithub"><img src="https://matterbridge.io/assets/bmc-button.svg" alt="Buy me a coffee" width="80"></a>
 
