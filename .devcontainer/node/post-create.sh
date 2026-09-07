@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# .devcontainer/node/post-create.sh v.2.0.0
+# .devcontainer/node/post-create.sh v.2.1.0
 
 # This script runs after the Dev Container is created to set up the dev container environment.
 
@@ -21,19 +21,30 @@ echo "Npm version: $(npm -v)"
 echo "Npm cache: $(npm config get cache)"
 echo ""
 
-echo "1.post-create - Creating directories..."
-sudo mkdir -p /home/node/.claude /home/node/.codex /home/node/.agents /home/node/.bash-cache /home/node/.npm /home/node/.bun/install/cache
+# Ensure required directories exist and are owned by the current user
+workspace_paths=("$PWD/node_modules" "$PWD/.cache")
+home_paths=("$HOME/.claude" "$HOME/.codex" "$HOME/.agents" "$HOME/.bash-cache" "$HOME/.npm" "$HOME/.bun" "$HOME/.bun/install/cache" "$HOME/.vscode-server/extensions")
 
-echo "2.post-create - Setting permissions..."
-sudo chown -R node:node . /home/node/.claude /home/node/.codex /home/node/.agents /home/node/.bash-cache /home/node/.npm /home/node/.bun
+echo $'\033[36m'"[$(date '+%Y-%m-%d %H:%M:%S')]"$'\033[0m' "1.post-create - Creating directories..."
+sudo mkdir -p "${workspace_paths[@]}" "${home_paths[@]}" # Create directories if they don't exist
 
-echo "3.post-create - Installing the project dependencies..."
+echo $'\033[36m'"[$(date '+%Y-%m-%d %H:%M:%S')]"$'\033[0m' "2.post-create - Setting permissions..."
+# Only chown paths that are not already owned by the current user. The image pre-creates the
+# home paths, so fresh volumes are seeded correctly and this is a no-op; the workspace volumes
+# still need it on first create, but they are empty then, so the recursion is instant.
+for path in . "${workspace_paths[@]}" "${home_paths[@]}"; do
+  if [ "$(stat -c %u "$path")" != "$(id -u)" ]; then
+    sudo chown -R "$(id -u):$(id -g)" "$path" # Transfer ownership to the current user
+  fi
+done
+
+echo $'\033[36m'"[$(date '+%Y-%m-%d %H:%M:%S')]"$'\033[0m' "3.post-create - Installing the project dependencies..."
 npm install --no-fund --no-audit
 
-echo "4.post-create - Building the project..."
+echo $'\033[36m'"[$(date '+%Y-%m-%d %H:%M:%S')]"$'\033[0m' "4.post-create - Building the project..."
 npm run build
 
-echo "5.post-create - Checking for outdated packages..."
+echo $'\033[36m'"[$(date '+%Y-%m-%d %H:%M:%S')]"$'\033[0m' "5.post-create - Checking for outdated packages..."
 npm outdated || true
 
-echo "6.post-create - Post create setup completed!"
+echo $'\033[36m'"[$(date '+%Y-%m-%d %H:%M:%S')]"$'\033[0m' "6.post-create - Post create setup completed!"

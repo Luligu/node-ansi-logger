@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# .devcontainer/node/post-start.sh v.2.0.0
+# .devcontainer/node/post-start.sh v.2.1.0
 
 # This script runs after the Dev Container is started to set up the dev container environment.
 
@@ -21,13 +21,10 @@ echo "Npm version: $(npm -v)"
 echo "Npm cache: $(npm config get cache)"
 echo ""
 
-echo "1.post-start - Installing the project dependencies..."
+echo $'\033[36m'"[$(date '+%Y-%m-%d %H:%M:%S')]"$'\033[0m' "1.post-start - Installing the project dependencies..."
 npm install --no-fund --no-audit
 
-echo "2.post-start - Setting node_modules permissions..."
-sudo chown -R node:node ./node_modules
-
-echo "3.post-start - Building the project..."
+echo $'\033[36m'"[$(date '+%Y-%m-%d %H:%M:%S')]"$'\033[0m' "2.post-start - Building the project..."
 npm run build
 
-echo "4.post-start - Post start setup completed!"
+echo $'\033[36m'"[$(date '+%Y-%m-%d %H:%M:%S')]"$'\033[0m' "3.post-start - Post start setup completed!"
