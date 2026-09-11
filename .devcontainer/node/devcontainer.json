@@ -1,4 +1,4 @@
-// .devcontainer/node/devcontainer.json v.2.1.0
+// .devcontainer/node/devcontainer.json v.2.1.1
 
 // This file defines the node development container configuration for a Matterbridge project.
 
@@ -20,14 +20,15 @@
     // Package specific volumes for node node_modules, .cache to improve performance
     "source=${localWorkspaceFolderBasename}-node-node_modules,target=${containerWorkspaceFolder}/node_modules,type=volume",
     "source=${localWorkspaceFolderBasename}-cache,target=${containerWorkspaceFolder}/.cache,type=volume",
-    // Shared by Node and Bun: both images seed extensions with UID/GID 1000.
+    // Dev container shared volumes for vscode extensions, npm cache, bun cache, bash history, claude, codex, gemini and agents to improve performance
+    // Shared with the bun variant: both images create /home/<user>/.vscode-server/extensions owned by UID/GID 1000, so the volume seeds correctly for either
     "source=vscode-extensions,target=/home/node/.vscode-server/extensions,type=volume",
-    // Dev container shared volumes for matterbridge, npm cache, bun cache, bash history, claude, codex and agents to improve performance
     "source=npm-cache,target=/home/node/.npm,type=volume",
     "source=bun-cache,target=/home/node/.bun/install/cache,type=volume",
     "source=bash-cache,target=/home/node/.bash-cache,type=volume",
     "source=claude,target=/home/node/.claude,type=volume",
     "source=codex,target=/home/node/.codex,type=volume",
+    "source=gemini,target=/home/node/.gemini,type=volume",
     "source=agents,target=/home/node/.agents,type=volume"
   ],
   // Set up the Docker environment (runs on the host before the container starts).
@@ -43,7 +44,7 @@
     "network": "docker network inspect matterbridge --format ok || docker network create --ipv6 matterbridge",
     "pull": "docker pull luligu/matterbridge:node-dev-container"
   },
-  // On create, prepare directories, install dependencies, build the project and check outdated packages
+  // On create, prepare directories, install dependencies, build the project and check outdated packages (runs inside the container)
   "postCreateCommand": "bash .devcontainer/node/post-create.sh",
   // On start, install and build the project (runs inside the container)
   "postStartCommand": "bash .devcontainer/node/post-start.sh",
