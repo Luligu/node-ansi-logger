@@ -88,7 +88,7 @@
     "prepublishOnly": "npm run cleanBuildProduction && npm pkg delete devDependencies scripts automator && node scripts/prepublish-clean.mjs && npm install --no-fund --no-audit --omit=dev && npm shrinkwrap --omit=dev"
   },
   "devDependencies": {
-    "@types/node": "22.20.2",
+    "@types/node": "24.13.4",
     "@vitest/coverage-v8": "5.0.0",
     "oxfmt": "0.67.0",
     "oxlint": "1.82.0",
