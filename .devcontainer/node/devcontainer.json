@@ -45,9 +45,9 @@
     "pull": "docker pull luligu/matterbridge:node-dev-container"
   },
   // On create, prepare directories, install dependencies, build the project and check outdated packages (runs inside the container)
-  "postCreateCommand": "bash .devcontainer/node/post-create.sh",
+  "postCreateCommand": "post-create.sh --node",
   // On start, install and build the project (runs inside the container)
-  "postStartCommand": "bash .devcontainer/node/post-start.sh",
+  "postStartCommand": "post-start.sh --node",
   "runArgs": [
     // Give the Docker container the same name as the repository (must be unique on host)
     "--name",

@@ -45,9 +45,9 @@
     "pull": "docker pull luligu/matterbridge:bun-dev-container"
   },
   // On create, prepare directories, install dependencies, build the project and check outdated packages (runs inside the container)
-  "postCreateCommand": "bash .devcontainer/bun/post-create.sh",
+  "postCreateCommand": "post-create.sh --bun",
   // On start, install and build the project (runs inside the container)
-  "postStartCommand": "bash .devcontainer/bun/post-start.sh",
+  "postStartCommand": "post-start.sh --bun",
   "runArgs": [
     // Give the Docker container the same name as the repository (must be unique on host)
     "--name",
