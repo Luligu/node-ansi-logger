@@ -247,9 +247,9 @@ function isStyleName(prop: string): prop is StyleName {
  * @returns {AnsiTag} Chainable ANSI tag.
  */
 function createTag(styles: readonly AnsiStyle[] = []): AnsiTag {
-  // oxlint-disable-next-line typescript/no-unsafe-type-assertion
   const tag = ((strings: TemplateStringsArray, ...values: unknown[]): string => {
     return applyStyles(joinTemplate(strings, values), styles);
+    // oxlint-disable-next-line typescript/no-unsafe-type-assertion
   }) as AnsiTag;
 
   return new Proxy(tag, {

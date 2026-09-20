@@ -1,10 +1,16 @@
-# Dev Containers v.2.1.1
+# Dev Containers v.2.2.0
 
 Node and Bun configurations for ordinary repositories, including libraries and utilities, aligned with Matterbridge’s Docker VMM setup. Open **Dev Containers: Reopen in Container** and select a runtime.
 
+## Lifecycle scripts
+
+- The lifecycle scripts ship inside the shared image in /usr/local/bin and are on PATH. The repository no longer carries post-create.sh or post-start.sh: this directory holds only the two devcontainer.json files and this README.
+- `postCreateCommand` runs `post-create.sh --node` or `post-create.sh --bun`, `postStartCommand` runs `post-start.sh --node` or `post-start.sh --bun`. The runtime flag is mandatory; the scripts exit with a usage message without it.
+- Updating the scripts means pulling a newer image, not editing repository files. The unconditional pull in `initializeCommand` keeps the image fresh, but an existing container keeps the image it was created from: run **Dev Containers: Rebuild Container** to pick the new scripts up.
+
 ## Startup and storage
 
-- The host bootstrap uses only Docker: network inspection/creation and an unconditional image pull run in parallel. No host Bash, Node or Bun installation is needed. All shell scripts run inside the container.
+- The host bootstrap uses only Docker: network inspection/creation and an unconditional image pull run in parallel. No host Bash, Node or Bun installation is needed. Everything else runs inside the container.
 - Repository source remains bind-mounted. Runtime-specific named volumes hold node_modules; a shared repository volume holds .cache.
 - Both runtimes share the vscode-extensions volume, plus package caches, Bash history and agent state. The images seed home volume ownership with UID/GID 1000; workspace volume ownership is checked during creation.
 - Creation prepares workspace dependency/cache directories and shared home directories, repairing ownership only when the owner differs.

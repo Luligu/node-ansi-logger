@@ -1,4 +1,4 @@
-// .devcontainer/bun/devcontainer.json v.2.1.1
+// .devcontainer/bun/devcontainer.json v.2.2.0
 
 // This file defines the bun development container configuration for a Matterbridge project.
 
@@ -72,7 +72,8 @@
         "github.copilot-chat",
         "github.vscode-github-actions",
         "github.vscode-pull-request-github",
-        "openai.chatgpt"
+        "openai.chatgpt",
+        "google.google-antigravity"
       ],
       // Settings for the VS Code environment specific to the dev container (overrides user and workspace settings)
       "settings": {
