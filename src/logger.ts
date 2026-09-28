@@ -839,7 +839,7 @@ export class AnsiLogger {
         const size = this.logToFile(this.logFilePath, level, message, ...parameters);
         this.#logFileSize += size;
         if (this.#logFileSize >= this.#maxFileSize) {
-          // istanbul ignore next
+          /* v8 ignore next */
           appendFileSync(this.logFilePath, `Logging on file has been stoppped because the file size is greater then ${this.#maxFileSize}B.\n`);
         }
       }
@@ -859,7 +859,7 @@ export class AnsiLogger {
         const size = this.logToFile(__AnsiLoggerFilePath__, level, message, ...parameters);
         __AnsiLoggerFileLogSize__ += size;
         if (__AnsiLoggerFileLogSize__ >= this.#maxFileSize) {
-          // istanbul ignore next
+          /* v8 ignore next */
           appendFileSync(__AnsiLoggerFilePath__, `Logging on file has been stoppped because the file size is greater then ${this.#maxFileSize}B.\n`);
         }
       }

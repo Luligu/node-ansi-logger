@@ -146,7 +146,7 @@ export function stringify(
       // No Default
     }
 
-    /* istanbul ignore next */
+    /* v8 ignore next */
     return `${clr(colorUndefined)}${String(value)}${reset()}`;
   };
 
@@ -180,7 +180,7 @@ export function stringify(
     // @ts-expect-error -- The type of value is unknown, but we will handle it in the code below
     newValue = value;
     // console.log(typeof newValue, key, value);
-    // istanbul ignore next cause is unreachable code for typeof, but included for completeness
+    /* v8 ignore next cause is unreachable code for typeof, but included for completeness */
     if (value === null) {
       newValue = `${clr(colorUndefined)}null${reset()}`;
     } else if (typeof newValue === 'string') {
