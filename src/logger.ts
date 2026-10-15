@@ -3,7 +3,7 @@
  * @description This file contains the AnsiLogger class.
  * @author Luca Liguori
  * @created 2023-06-01
- * @version 3.0.3
+ * @version 3.3.2
  * @license Apache-2.0
  *
  * Copyright 2024, 2025, 2026 Luca Liguori.
@@ -30,6 +30,7 @@ import { appendFileSync, existsSync, unlinkSync } from 'node:fs';
 import { EOL } from 'node:os';
 import path from 'node:path';
 
+import type { AnsiLoggerCache } from './cache.js';
 import { stringify } from './stringify.js';
 
 // ANSI color codes and styles are defined here for use in the logger
@@ -151,14 +152,28 @@ export interface AnsiLoggerParams {
 export type AnsiLoggerCallback = (level: string, time: string, name: string, message: string) => void;
 
 declare global {
+  /**
+   * Global cache for AnsiLogger messages.
+   */
+  var __AnsiLoggerCache__: AnsiLoggerCache | undefined;
+
+  /**
+   * Global callback for AnsiLogger messages.
+   */
   var __AnsiLoggerCallback__: AnsiLoggerCallback | undefined;
   var __AnsiLoggerCallbackLoglevel__: LogLevel | undefined;
+
+  /**
+   * Global file path for AnsiLogger file output.
+   */
   var __AnsiLoggerFilePath__: string | undefined;
   var __AnsiLoggerFileLoglevel__: LogLevel | undefined;
   var __AnsiLoggerFileLogSize__: number | undefined;
 }
 
 // Initialize the global variables
+if (typeof globalThis.__AnsiLoggerCache__ === 'undefined') globalThis.__AnsiLoggerCache__ = undefined;
+
 if (typeof globalThis.__AnsiLoggerCallback__ === 'undefined') globalThis.__AnsiLoggerCallback__ = undefined;
 if (typeof globalThis.__AnsiLoggerCallbackLoglevel__ === 'undefined') globalThis.__AnsiLoggerCallbackLoglevel__ = undefined;
 
@@ -488,6 +503,26 @@ export class AnsiLogger {
   }
 
   /**
+   * Sets the shared cache used by all logger instances.
+   *
+   * @param {AnsiLoggerCache | undefined} cache - Cache to enable, or undefined to disable caching without clearing retained messages.
+   * @returns {AnsiLoggerCache | undefined} The configured cache.
+   */
+  static setGlobalCache(cache: AnsiLoggerCache | undefined): AnsiLoggerCache | undefined {
+    globalThis.__AnsiLoggerCache__ = cache;
+    return globalThis.__AnsiLoggerCache__;
+  }
+
+  /**
+   * Gets the shared cache currently used by all logger instances.
+   *
+   * @returns {AnsiLoggerCache | undefined} The configured cache, or undefined when caching is disabled.
+   */
+  static getGlobalCache(): AnsiLoggerCache | undefined {
+    return globalThis.__AnsiLoggerCache__;
+  }
+
+  /**
    * Sets the global callback function to be used by the logger.
    *
    * @param {AnsiLoggerCallback | undefined} callback - The callback function.
@@ -807,6 +842,21 @@ export class AnsiLogger {
 
     if (typeof level !== 'string' || level.startsWith === undefined || typeof message !== 'string' || message.startsWith === undefined) {
       return;
+    }
+
+    // Cache the log message in the global cache if available
+    try {
+      if (globalThis.__AnsiLoggerCache__ !== undefined && this.shouldLog(level, this.#logLevel)) {
+        const parametersString = parameters.length > 0 ? ' ' + parameters.join(' ') : '';
+        globalThis.__AnsiLoggerCache__.add({
+          level,
+          time: this.getTimestamp(),
+          name: this.#logName,
+          message: message + parametersString,
+        });
+      }
+    } catch (error) {
+      console.error('Error caching log message:', error);
     }
 
     // Local callback

@@ -29,12 +29,13 @@ If you like this project and find it useful, please consider giving it a star on
   for output instead of console.
 - Includes also a fully customizable stringify funtion with colors (it is bigint aware and manage circular reference).
 - Includes a chainable ANSI tagged template API (`ansi`) for styling terminal strings directly.
+- Optional shared circular message cache with configurable capacity (default 200), snapshots, callback replay, and clearing.
 
 ## Getting Started
 
 ### Prerequisites
 
-- Node.js 20-22-24 installed on your machine.
+- Node.js 20.19.0 or later within 20.x, 22.13.0 or later within 22.x, 24.x, or 26.x.
 
 ### Installation
 
@@ -81,6 +82,46 @@ log(LogLevel.WARN, 'Warning message', ...parameters);
 ```typescript
 log.debug(`Debug message ${YELLOW}with yellow part${db}`, ...);
 ```
+
+## Caching and replaying messages
+
+Set a shared cache to enable caching for all logger instances:
+
+```typescript
+import { AnsiLogger, AnsiLoggerCache } from 'node-ansi-logger';
+
+const cache = new AnsiLoggerCache(); // Retains the latest 200 messages by default.
+AnsiLogger.setGlobalCache(cache);
+
+const log = new AnsiLogger({ logName: 'MyApp' });
+log.info('Connected');
+
+const messages = cache.get(); // [{ level: 'info', time: '...', name: 'MyApp', message: 'Connected' }]
+const activeCache = AnsiLogger.getGlobalCache(); // Returns cache, or undefined when disabled.
+cache.replay((entry) => {
+  console.log(`[${entry.time}] [${entry.name}] [${entry.level}] ${entry.message}`);
+});
+
+cache.clear(); // Removes retained messages; caching remains enabled.
+AnsiLogger.setGlobalCache(undefined); // Disables caching without clearing retained messages.
+```
+
+`setGlobalCache(cache)` returns the configured cache. Both static methods use
+`globalThis.__AnsiLoggerCache__`, which can also be assigned directly.
+
+Pass a positive safe integer to customize capacity, for example `new AnsiLoggerCache(500)`.
+The circular buffer overwrites the oldest entry when full. Only messages allowed by each
+logger's configured log level are cached, including messages routed to an external logger.
+Additional parameters are joined with spaces, matching logger callbacks; message text and
+ANSI codes are preserved. Existing console, file and callback output is unchanged.
+
+`get()` returns independent copies in oldest-to-newest order. `replay(callback)` sends
+the same structured entries to the callback from a snapshot without consuming the cache.
+Messages added during replay are not included in that replay. Callback errors propagate
+to the caller.
+
+`clear()` empties the cache and resets the circular buffer without changing its capacity
+or disabling caching. Existing snapshots returned by `get()` are unaffected.
 
 ## Using the logger internal timer:
 

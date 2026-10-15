@@ -3,7 +3,7 @@
  * @description This file contains the public API entry point for the node-ansi-logger package.
  * @author Luca Liguori
  * @created 2024-02-20
- * @version 3.3.1
+ * @version 3.3.2
  * @license Apache-2.0
  *
  * Copyright 2024, 2025, 2026 Luca Liguori.
@@ -24,5 +24,6 @@
 /* v8 ignore file -- barrel file with only re-exports; nothing to cover (honored by both jest/istanbul and vitest/v8) */
 
 export * from './ansi.js';
+export * from './cache.js';
 export * from './logger.js';
 export * from './stringify.js';
