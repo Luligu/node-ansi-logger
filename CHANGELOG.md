@@ -38,8 +38,8 @@ If you like this project and find it useful, please consider giving it a star on
 - [styleguide]: Update [`STYLEGUIDE.md`](STYLEGUIDE.md) to v.1.1.0: align it with the lint and format config and add the Commit Messages and Changelog sections.
 - [scripts]: Update scripts to v.2.0.0.
 - [package]: Upgrade package.
-- [package]: Bump `oxfmt` to v.0.73.0.
-- [package]: Bump `oxlint` to v.1.88.0.
+- [package]: Bump `oxfmt` to v.0.74.0.
+- [package]: Bump `oxlint` to v.1.89.0.
 - [package]: Bump `oxlint-tsgolint` to v.7.0.2004.
 - [package]: Bump `vitest` to v.5.0.5.
 - [package]: Bump `@vitest/coverage-v8` to v.5.0.5.
