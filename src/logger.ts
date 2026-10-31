@@ -257,6 +257,17 @@ export class AnsiLogger {
   }
 
   /**
+   * Checks whether a value is a valid LogLevel.
+   *
+   * @param {unknown} value - The value to check.
+   * @returns {value is LogLevel} True if the value is one of the LogLevel values.
+   */
+  static isLogLevel(value: unknown): value is LogLevel {
+    const levels: string[] = [LogLevel.DEBUG, LogLevel.INFO, LogLevel.NOTICE, LogLevel.WARN, LogLevel.ERROR, LogLevel.FATAL, LogLevel.NONE];
+    return typeof value === 'string' && levels.includes(value);
+  }
+
+  /**
    * Gets the name of the logger.
    *
    * @returns {string} The logger name.

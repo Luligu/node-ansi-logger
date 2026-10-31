@@ -65,6 +65,21 @@ describe('AnsiLogger', () => {
     expect(logger.logName).toBe('TestLogger');
   });
 
+  it('should check whether a value is a valid LogLevel', () => {
+    expect(AnsiLogger.isLogLevel(LogLevel.DEBUG)).toBe(true);
+    expect(AnsiLogger.isLogLevel(LogLevel.INFO)).toBe(true);
+    expect(AnsiLogger.isLogLevel(LogLevel.NOTICE)).toBe(true);
+    expect(AnsiLogger.isLogLevel(LogLevel.WARN)).toBe(true);
+    expect(AnsiLogger.isLogLevel(LogLevel.ERROR)).toBe(true);
+    expect(AnsiLogger.isLogLevel(LogLevel.FATAL)).toBe(true);
+    expect(AnsiLogger.isLogLevel(LogLevel.NONE)).toBe(true);
+    expect(AnsiLogger.isLogLevel('invalid')).toBe(false);
+    expect(AnsiLogger.isLogLevel(123)).toBe(false);
+    expect(AnsiLogger.isLogLevel(null)).toBe(false);
+    // oxlint-disable-next-line unicorn/no-useless-undefined -- intentionally testing undefined handling
+    expect(AnsiLogger.isLogLevel(undefined)).toBe(false);
+  });
+
   it('should name the logger', () => {
     const logger = new AnsiLogger({ logName: 'TestLogger' });
     expect(logger.logName).toBe('TestLogger');
