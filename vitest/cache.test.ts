@@ -217,6 +217,7 @@ describe('AnsiLogger global cache', () => {
     warnings.logLevel = LogLevel.NONE;
     warnings.fatal('Disabled');
     expect(cache.get()).toEqual([
+      // oxlint-disable-next-line typescript/no-unsafe-enum-assignment
       ...levels.map((level) => ({ ...entry, level, name: 'Debug', message: level })),
       { ...entry, level: LogLevel.WARN, name: 'Warnings', message: 'Retained' },
     ]);

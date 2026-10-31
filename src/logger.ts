@@ -137,10 +137,6 @@ export interface AnsiLoggerParams {
   extLog?: Logger;
   logName?: string;
   logNameColor?: string;
-  /**
-   * @deprecated Use logLevel instead.
-   */
-  logDebug?: boolean; // Deprecated
   logLevel?: LogLevel;
   logWithColors?: boolean;
   logTimestampFormat?: TimestampFormat;
@@ -221,16 +217,10 @@ export class AnsiLogger {
     this.#extLog = params.extLog;
     this.#logName = params.logName ?? 'NodeAnsiLogger';
     this.#logNameColor = params.logNameColor ?? '[38;5;31m';
-    // oxlint-disable-next-line @typescript-eslint/no-deprecated
-    this.#logLevel = params.logLevel ?? (params.logDebug === true ? LogLevel.DEBUG : LogLevel.INFO);
+    this.#logLevel = params.logLevel ?? LogLevel.INFO;
     this.#logWithColors = params.logWithColors ?? process.env.NO_COLOR !== '1';
-    this.#logTimestampFormat =
-      // oxlint-disable-next-line typescript/prefer-nullish-coalescing
-      params.logTimestampFormat !== undefined
-        ? params.logTimestampFormat
-        : process.env.NODE_ANSI_LOGGER_TIMESTAMP_FORMAT !== undefined && ['0', '1', '2', '3', '4', '5', '6'].includes(process.env.NODE_ANSI_LOGGER_TIMESTAMP_FORMAT)
-          ? Number(process.env.NODE_ANSI_LOGGER_TIMESTAMP_FORMAT)
-          : TimestampFormat.LOCAL_DATE_TIME;
+    const envTimestampFormat = /^\d$/.test(process.env.NODE_ANSI_LOGGER_TIMESTAMP_FORMAT ?? '') ? Number(process.env.NODE_ANSI_LOGGER_TIMESTAMP_FORMAT) : undefined;
+    this.#logTimestampFormat = params.logTimestampFormat ?? (AnsiLogger.isTimestampFormat(envTimestampFormat) ? envTimestampFormat : TimestampFormat.LOCAL_DATE_TIME);
     this.#logTimeStampColor = params.logTimeStampColor ?? '[38;5;245m';
     this.#logCustomTimestampFormat =
       params.logCustomTimestampFormat !== undefined && typeof params.logCustomTimestampFormat === 'string'
@@ -265,6 +255,25 @@ export class AnsiLogger {
   static isLogLevel(value: unknown): value is LogLevel {
     const levels: string[] = [LogLevel.DEBUG, LogLevel.INFO, LogLevel.NOTICE, LogLevel.WARN, LogLevel.ERROR, LogLevel.FATAL, LogLevel.NONE];
     return typeof value === 'string' && levels.includes(value);
+  }
+
+  /**
+   * Checks whether a value is a valid TimestampFormat.
+   *
+   * @param {unknown} value - The value to check.
+   * @returns {value is TimestampFormat} True if the value is one of the TimestampFormat values.
+   */
+  static isTimestampFormat(value: unknown): value is TimestampFormat {
+    const formats: number[] = [
+      TimestampFormat.ISO,
+      TimestampFormat.LOCAL_DATE,
+      TimestampFormat.LOCAL_TIME,
+      TimestampFormat.LOCAL_DATE_TIME,
+      TimestampFormat.TIME_MILLIS,
+      TimestampFormat.HOMEBRIDGE,
+      TimestampFormat.CUSTOM,
+    ];
+    return typeof value === 'number' && formats.includes(value);
   }
 
   /**

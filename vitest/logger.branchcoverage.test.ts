@@ -47,6 +47,14 @@ describe('Logger branch coverage', () => {
 
     process.env.NODE_ANSI_LOGGER_TIMESTAMP_FORMAT = '99';
     expect(() => new AnsiLogger({})).not.toThrow();
+
+    for (const value of ['1abc', '3.9', ' 2', '+4', '0x5', '7', '']) {
+      process.env.NODE_ANSI_LOGGER_TIMESTAMP_FORMAT = value;
+      expect(new AnsiLogger({}).logTimestampFormat).toBe(TimestampFormat.LOCAL_DATE_TIME);
+    }
+
+    process.env.NODE_ANSI_LOGGER_TIMESTAMP_FORMAT = '5';
+    expect(new AnsiLogger({}).logTimestampFormat).toBe(TimestampFormat.HOMEBRIDGE);
   });
 
   test('covers logFileSize getter branches (undefined vs number)', () => {
