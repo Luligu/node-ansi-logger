@@ -3,7 +3,7 @@
  * @description Circular message cache for AnsiLogger.
  * @author Luca Liguori
  * @created 2026-10-15
- * @version 3.3.2
+ * @version 1.0.0
  * @license Apache-2.0
  *
  * Copyright 2026 Luca Liguori.

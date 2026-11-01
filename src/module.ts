@@ -3,7 +3,7 @@
  * @description This file contains the public API entry point for the node-ansi-logger package.
  * @author Luca Liguori
  * @created 2024-02-20
- * @version 3.3.2
+ * @version 1.0.1
  * @license Apache-2.0
  *
  * Copyright 2024, 2025, 2026 Luca Liguori.
