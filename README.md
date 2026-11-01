@@ -24,7 +24,7 @@ If you like this project and find it useful, please consider giving it a star on
 - Simple and intuitive API for data logging.
 - No dependencies.
 - Customizable colors and apperance.
-- Supports environment variable NO_COLOR=1 (https://no-color.org/).
+- Supports the NO_COLOR environment variable (https://no-color.org/): any non-empty value disables colors.
 - It is also possible to pass a top level logger (like Homebridge or Matter logger) and AnsiLogger will use it
   for output instead of console.
 - Includes also a fully customizable stringify funtion with colors (it is bigint aware and manage circular reference).

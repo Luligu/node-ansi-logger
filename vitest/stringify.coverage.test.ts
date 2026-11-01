@@ -31,6 +31,16 @@ describe('Stringify coverage (scalars + NO_COLOR)', () => {
     expect(out.includes('\x1b[')).toBe(false);
   });
 
+  test('NO_COLOR with any non-empty value disables colors', () => {
+    process.env.NO_COLOR = 'yes';
+    expect(stringify({ a: 1 }, true)).toBe('{ a: 1 }');
+  });
+
+  test('NO_COLOR empty string does not disable colors', () => {
+    process.env.NO_COLOR = '';
+    expect(stringify({ a: 1 }, true).includes('\x1b[')).toBe(true);
+  });
+
   test('stringifies a big nested object (50 properties)', () => {
     const big: Record<string, unknown> = {};
 

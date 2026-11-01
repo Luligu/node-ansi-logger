@@ -63,6 +63,10 @@ If you like this project and find it useful, please consider giving it a star on
 
 ### Fixed
 
+- [logger]: Honor the NO_COLOR standard: any non-empty value (not only `1`) disables colors in the logger, ansi helpers and stringify.
+- [logger]: `logFileSize` now returns `0` instead of `undefined` right after a log file path is set.
+- [logger]: Correct typos in the timer stop message and the file-size limit message.
+- [logger]: Correct the `setGlobalCallback` and `logTimeStampColor` JSDoc.
 - [ansi]: Move the unsafe type assertion suppression to match the current lint diagnostic.
 
 <a href="https://www.buymeacoffee.com/luligugithub"><img src="https://matterbridge.io/assets/bmc-button.svg" alt="Buy me a coffee" width="80"></a>

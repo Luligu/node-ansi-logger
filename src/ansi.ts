@@ -156,7 +156,7 @@ function joinTemplate(strings: TemplateStringsArray, values: unknown[]): string 
  * @returns {string} ANSI-decorated text.
  */
 function applyStyles(text: string, styles: readonly AnsiStyle[]): string {
-  if ('NO_COLOR' in process.env) return text;
+  if (process.env.NO_COLOR) return text;
 
   let output = text;
 

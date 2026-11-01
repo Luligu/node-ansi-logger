@@ -66,6 +66,7 @@ describe('Logger branch coverage', () => {
     const filePath = path.join(tempDir, 'test.log');
 
     logger.logFilePath = filePath;
+    expect(logger.logFileSize).toBe(0);
     logger.log(LogLevel.INFO, 'hello');
 
     expect(typeof logger.logFileSize).toBe('number');
@@ -145,8 +146,16 @@ describe('Logger branch coverage', () => {
 
     logger.log(LogLevel.INFO, 'huge', huge);
 
-    expect(fs.existsSync(localPath)).toBe(true);
-    expect(fs.existsSync(globalPath)).toBe(true);
+    const stopMessage = 'Logging on file has been stopped because the file size is greater than 1000000B.';
+    const localContent = fs.readFileSync(localPath, 'utf8');
+    const globalContent = fs.readFileSync(globalPath, 'utf8');
+    expect(localContent).toContain(stopMessage);
+    expect(globalContent).toContain(stopMessage);
+
+    // Once the limit is reached, nothing else is written to either file
+    logger.log(LogLevel.INFO, 'after limit');
+    expect(fs.readFileSync(localPath, 'utf8')).toBe(localContent);
+    expect(fs.readFileSync(globalPath, 'utf8')).toBe(globalContent);
   });
 
   test('covers module-global init branches (globals already defined)', async () => {

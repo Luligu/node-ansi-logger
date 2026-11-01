@@ -116,7 +116,7 @@ export function stringify(
   index = 0,
   seenObjects = new Set<object>(),
 ): string {
-  if (process.env.NO_COLOR === '1') enableColors = false;
+  if (process.env.NO_COLOR) enableColors = false;
   if (payload === null) return 'null';
   // Let formatScalar handle undefined so it can be covered and colored consistently.
 
@@ -146,7 +146,7 @@ export function stringify(
       // No Default
     }
 
-    /* v8 ignore next */
+    /* v8 ignore next -- unreachable: only primitives reach formatScalar and every primitive typeof is handled above */
     return `${clr(colorUndefined)}${String(value)}${reset()}`;
   };
 
@@ -180,7 +180,6 @@ export function stringify(
     // @ts-expect-error -- The type of value is unknown, but we will handle it in the code below
     newValue = value;
     // console.log(typeof newValue, key, value);
-    /* v8 ignore next cause is unreachable code for typeof, but included for completeness */
     if (value === null) {
       newValue = `${clr(colorUndefined)}null${reset()}`;
     } else if (typeof newValue === 'string') {
@@ -217,9 +216,9 @@ export function stringify(
       }
     } else if (typeof newValue === 'symbol') {
       newValue = `${clr(colorString)}${String(newValue)}${reset()}`;
-    } else {
+    } /* v8 ignore start -- unreachable: every typeof result is handled above */ else {
       throw new Error(`Unsupported type: ${typeof newValue}`);
-    }
+    } /* v8 ignore stop */
     if (isArray) {
       string += newValue;
     } else {

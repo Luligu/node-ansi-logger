@@ -308,7 +308,7 @@ describe('AnsiLogger', () => {
     logger.info('**Test info message with **');
     logger.info('***Test info message with ***');
     logger.info('****Test info message with ****');
-    env.NO_COLOR = undefined;
+    delete env.NO_COLOR;
   });
 
   it('should not log a debug message with colors when debug is not enabled', () => {

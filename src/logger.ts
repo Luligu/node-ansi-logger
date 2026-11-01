@@ -218,7 +218,7 @@ export class AnsiLogger {
     this.#logName = params.logName ?? 'NodeAnsiLogger';
     this.#logNameColor = params.logNameColor ?? '[38;5;31m';
     this.#logLevel = params.logLevel ?? LogLevel.INFO;
-    this.#logWithColors = params.logWithColors ?? process.env.NO_COLOR !== '1';
+    this.#logWithColors = params.logWithColors ?? !process.env.NO_COLOR;
     const envTimestampFormat = /^\d$/.test(process.env.NODE_ANSI_LOGGER_TIMESTAMP_FORMAT ?? '') ? Number(process.env.NODE_ANSI_LOGGER_TIMESTAMP_FORMAT) : undefined;
     this.#logTimestampFormat = params.logTimestampFormat ?? (AnsiLogger.isTimestampFormat(envTimestampFormat) ? envTimestampFormat : TimestampFormat.LOCAL_DATE_TIME);
     this.#logTimeStampColor = params.logTimeStampColor ?? '[38;5;245m';
@@ -331,18 +331,18 @@ export class AnsiLogger {
   }
 
   /**
-   * Gets the log name color string of the logger.
+   * Gets the log timestamp color string of the logger.
    *
-   * @returns {string} The log name color string.
+   * @returns {string} The log timestamp color string.
    */
   get logTimeStampColor(): string {
     return this.#logTimeStampColor;
   }
 
   /**
-   * Sets the log name color string for the logger.
+   * Sets the log timestamp color string for the logger.
    *
-   * @param {string} color - The logger name color string to set.
+   * @param {string} color - The log timestamp color string to set.
    */
   set logTimeStampColor(color: string) {
     this.#logTimeStampColor = color;
@@ -451,7 +451,7 @@ export class AnsiLogger {
    * @returns {number | undefined} The size of log file, or undefined if not set.
    */
   get logFileSize(): number | undefined {
-    return this.#logFilePath && this.#logFileSize ? this.#logFileSize : undefined;
+    return this.#logFilePath ? this.#logFileSize : undefined;
   }
 
   /**
@@ -499,7 +499,7 @@ export class AnsiLogger {
   public stopTimer(message: string): void {
     if (this.#logStartTime !== 0) {
       const timePassed = Date.now() - this.#logStartTime;
-      this.info(`Timer stoppped at ${timePassed} ms ${message}`);
+      this.info(`Timer stopped at ${timePassed} ms ${message}`);
     }
     this.#logStartTime = 0;
   }
@@ -546,9 +546,9 @@ export class AnsiLogger {
    * Sets the global callback function to be used by the logger.
    *
    * @param {AnsiLoggerCallback | undefined} callback - The callback function.
-   * @param {LogLevel} [callbackLevel]  - The log level of the log file (default LogLevel.DEBUG).
+   * @param {LogLevel} [callbackLevel] - The log level of the global callback (default LogLevel.DEBUG).
    *
-   * @returns {AnsiLoggerCallback | undefined} The path name of the log file.
+   * @returns {AnsiLoggerCallback | undefined} The callback function that was set.
    */
   static setGlobalCallback(callback: AnsiLoggerCallback | undefined, callbackLevel: LogLevel = LogLevel.DEBUG): AnsiLoggerCallback | undefined {
     __AnsiLoggerCallback__ = callback;
@@ -909,8 +909,7 @@ export class AnsiLogger {
         const size = this.logToFile(this.logFilePath, level, message, ...parameters);
         this.#logFileSize += size;
         if (this.#logFileSize >= this.#maxFileSize) {
-          /* v8 ignore next */
-          appendFileSync(this.logFilePath, `Logging on file has been stoppped because the file size is greater then ${this.#maxFileSize}B.\n`);
+          appendFileSync(this.logFilePath, `Logging on file has been stopped because the file size is greater than ${this.#maxFileSize}B.\n`);
         }
       }
     } catch (error) {
@@ -929,8 +928,7 @@ export class AnsiLogger {
         const size = this.logToFile(__AnsiLoggerFilePath__, level, message, ...parameters);
         __AnsiLoggerFileLogSize__ += size;
         if (__AnsiLoggerFileLogSize__ >= this.#maxFileSize) {
-          /* v8 ignore next */
-          appendFileSync(__AnsiLoggerFilePath__, `Logging on file has been stoppped because the file size is greater then ${this.#maxFileSize}B.\n`);
+          appendFileSync(__AnsiLoggerFilePath__, `Logging on file has been stopped because the file size is greater than ${this.#maxFileSize}B.\n`);
         }
       }
     } catch (error) {

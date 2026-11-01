@@ -582,7 +582,7 @@ describe('NO_COLOR', () => {
   const ESC = '\x1b[';
 
   beforeEach(() => {
-    process.env['NO_COLOR'] = '';
+    process.env['NO_COLOR'] = 'true';
   });
 
   afterEach(() => {
@@ -603,6 +603,11 @@ describe('NO_COLOR', () => {
 
   test('should return styled text after NO_COLOR is unset', () => {
     delete process.env['NO_COLOR'];
+    expect(ansi.red`hello`).toBe(`${ESC}31mhello${ESC}39m`);
+  });
+
+  test('should return styled text when NO_COLOR is an empty string', () => {
+    process.env['NO_COLOR'] = '';
     expect(ansi.red`hello`).toBe(`${ESC}31mhello${ESC}39m`);
   });
 });
