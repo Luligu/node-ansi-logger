@@ -34,22 +34,22 @@ If you like this project and find it useful, please consider giving it a star on
 ### Changed
 
 - [logger]: BREAKING: Remove the deprecated `logDebug` constructor option. Use `logLevel` instead.
-- [vscode]: Update `.vscode/settings.json` to v.1.0.17.
+- [vscode]: Update `.vscode/settings.json` to v.1.0.21.
 - [config]: Update Oxlint and Oxfmt configurations to v.1.1.0 and Antigravity settings to v.1.0.5.
-- [config]: Update TypeScript build configurations and rename `vite.config.ts` to `vitest.config.ts`, including CI workflow detection.
-- [styleguide]: Update [`STYLEGUIDE.md`](STYLEGUIDE.md) to v.1.1.0: align it with the lint and format config and add the Commit Messages and Changelog sections.
+- [config]: Update `vitest.config.ts` to v.2.0.9.
+- [styleguide]: Update `STYLEGUIDE.md` to v.1.1.1.
 - [scripts]: Update scripts to v.2.0.0.
 - [package]: Upgrade package.
-- [package]: Bump `oxfmt` to v.0.75.0.
-- [package]: Bump `oxlint` to v.1.90.0.
-- [package]: Bump `oxlint-tsgolint` to v.7.0.2004.
-- [package]: Bump `vitest` to v.5.0.5.
-- [package]: Bump `@vitest/coverage-v8` to v.5.0.5.
+- [package]: Bump `oxfmt` to v.0.78.0.
+- [package]: Bump `oxlint` to v.1.93.0.
+- [package]: Bump `oxlint-tsgolint` to v.7.0.2007.
+- [package]: Bump `vitest` to v.5.1.0.
+- [package]: Bump `@vitest/coverage-v8` to v.5.1.0.
 - [package]: Bump `@types/node` to v.26.6.6.
-- [codex]: Update `.codex/config.toml` to v.1.0.6.
+- [codex]: Update `.codex/config.toml` to v.1.0.8.
 - [agents]: Update `.github/commit-message-instructions.md` to v.1.0.1.
 - [vscode]: Update `.vscode/tasks.json`.
-- [agents]: Update `AGENTS.md` to v.1.0.8.
+- [agents]: Update `AGENTS.md` to v.1.0.12.
 - [config]: Update `CODE_OF_CONDUCT.md` to v.1.0.0.
 - [config]: Update `CONTRIBUTING.md` to v.1.0.1.
 - [scripts]: Update `scripts/downloads.mjs`.
@@ -58,8 +58,22 @@ If you like this project and find it useful, please consider giving it a star on
 - [config]: Update `vitest/cache.test.ts`.
 - [config]: Update `vitest/logger.branchcoverage.test.ts`.
 - [config]: Update `vitest/logger.test.ts`.
-- [config]: Add `SHARED-AGENTS.md`.
+- [config]: Update `SHARED-AGENTS.md` to v.1.0.0.
 - [config]: Add `TOOLCHAIN.md` v.1.0.1.
+- [agents]: Update `.agents/README.md` to v.1.0.6.
+- [agents]: Update `.agents/rules/testing.instructions.md`, `.claude/rules/testing/testing.instructions.md` and `.github/instructions/testing/testing.instructions.md` to v.1.0.8.
+- [agents]: Update `.agents/skills/verify-agent-context/SKILL.md`, `.claude/skills/verify-agent-context/SKILL.md` and `.github/skills/verify-agent-context/SKILL.md` to v.1.0.6.
+- [agents]: Update `.antigravity/settings.json` to v.1.0.6.
+- [agents]: Update `.claude/settings.json` to v.1.0.12.
+- [codex]: Update `.codex/rules/default.rules` to v.1.0.8.
+- [workflows]: Update `.github/workflows/build.yml` to v.2.0.6.
+- [workflows]: Update `.github/workflows/codecov.yml` to v.2.0.5.
+- [workflows]: Update `.github/workflows/codeql.yml` to v.2.0.0.
+- [workflows]: Update `.github/workflows/publish.yml` to v.2.0.5.
+- [config]: Update `.gitignore` to v.1.0.5.
+- [config]: Update `.oxfmtrc.json` to v.1.2.0.
+- [config]: Update `.oxlintrc.json` to v.1.2.0.
+- [vscode]: Update `.vscode/extensions.json` to v.1.0.6.
 
 ### Fixed
 

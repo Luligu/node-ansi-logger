@@ -1,4 +1,4 @@
-# Node.js CI v. 2.0.6
+# Node.js CI v.2.0.6
 # Path: .github/workflows/build.yml
 
 name: Node.js CI
