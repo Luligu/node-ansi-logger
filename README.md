@@ -216,78 +216,46 @@ log.debug(`State changed: ${green`on`} → ${red`off`}`);
 
 ![Example Image](https://github.com/Luligu/node-ansi-logger/blob/main/screenshots/Screenshot.png)
 
+## Development guide
+
+Refer to the Matterbridge [Development guide](https://matterbridge.io/README-DEV.html) for other guidelines.
+
 ## Repository toolchain
 
-> **Note:** This repository uses a new toolchain. It replaces the traditional TypeScript / ESLint / Prettier / Jest stack with a faster and lighter setup.
-
-- **No `typescript 6.x` package** — replaced by [TypeScript Native 7.x](https://github.com/microsoft/typescript-go).
-- **No ESLint, no Prettier** — replaced by the [oxc](https://oxc.rs) stack: [oxlint](https://oxc.rs/docs/guide/usage/linter.html) for linting and [oxfmt](https://oxc.rs/docs/guide/usage/formatter.html) for formatting.
-- **No Jest** — replaced by [Vitest](https://vitest.dev), which is much faster and natively supports ESM without extra configuration.
-- **Far fewer development dependencies** — the number of installed packages drops from **~600** to **~75**. A clean install is much faster.
-- **Much faster linting and formatting** — oxlint and oxfmt run in a fraction of the time required by the ESLint / Prettier pipeline.
-- **Much faster builds** — tsgo compiles the project in a fraction of the time required by the standard `tsc` build.
-- **Editor support** — use the VS Code extensions for tsgo and oxc to get the same experience in the editor.
+See [TOOLCHAIN.md](./TOOLCHAIN.md) for compilers, linting, formatting, testing, and editor support.
 
 ## Shared agent instructions
 
-All coding agents read the same guidance. [AGENTS.md](./AGENTS.md) and [.agents/](./.agents/) are the **single source of truth**; everything under `.github/`, `.claude/`, `.codex/` and `.antigravity/` are pointers and mirrors. Edit `.agents/` (or `AGENTS.md`), never the copies. See [.agents/README.md](./.agents/README.md) for the full layout.
+See [SHARED-AGENTS.md](./SHARED-AGENTS.md) for shared guidance, rules, skills, and configuration for coding agents.
 
-| File                                           | Notes                                                                                                        |
-| ---------------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
-| `AGENTS.md`                                    | Main project instructions — shared by every agent                                                            |
-| `.agents/README.md`                            | Layout and versioning of the shared instructions                                                             |
-| `.agents/rules/testing.instructions.md`        | Testing standards for unit tests                                                                             |
-| `.agents/skills/verify-agent-context/SKILL.md` | Verify the agent loaded this context — `$verify-agent-context` (Codex), `/verify-agent-context` (all others) |
+See [.agents/README.md](./.agents/README.md) for the shared instructions layout and versioning.
 
-Content lives only in `.agents/`. The per-agent folders exist because each tool discovers rules and skills from its own hardcoded location, so they hold stubs that point back here — except where the tool reads `.agents/` natively.
+## Shared dev container support
 
-| Tool                               | Instructions                                    | Rules                                                 | Skills                                              |
-| ---------------------------------- | ----------------------------------------------- | ----------------------------------------------------- | --------------------------------------------------- |
-| Codex                              | `AGENTS.md` — read natively                     | `.agents/rules/` — linked from `AGENTS.md`, on demand | `.agents/skills/` — native, `$verify-agent-context` |
-| Copilot (VS Code and coding agent) | `.github/copilot-instructions.md` → `AGENTS.md` | stubs in `.github/instructions/` — `applyTo` globs    | stub in `.github/skills/` — `/verify-agent-context` |
-| Claude Code                        | `CLAUDE.md` imports `AGENTS.md`                 | stubs in `.claude/rules/` — `paths` globs             | stub in `.claude/skills/` — `/verify-agent-context` |
-| Gemini / Antigravity               | `GEMINI.md` imports `AGENTS.md`                 | `.agents/rules/` — on demand                          | `.agents/skills/` — native, `/verify-agent-context` |
+See [.devcontainer/README.md](./.devcontainer/README.md) for the shared development container setup and usage.
 
-### Copilot instructions
+## Contributing
 
-| File                                                   | Notes                                        |
-| ------------------------------------------------------ | -------------------------------------------- |
-| `.github/copilot-instructions.md`                      | Pointer to AGENTS.md — always loaded         |
-| `.github/instructions/testing/testing.instructions.md` | Testing standards — scoped to `**/*.test.ts` |
-| `.github/skills/verify-agent-context/SKILL.md`         | Skill invocable as `/verify-agent-context`   |
+See [CONTRIBUTING.md](./CONTRIBUTING.md) for contribution guidelines.
 
-### Claude instructions
+## Style guide
 
-| File                                            | Notes                                         |
-| ----------------------------------------------- | --------------------------------------------- |
-| `CLAUDE.md`                                     | Pointer to AGENTS.md — always loaded          |
-| `.claude/settings.json`                         | Claude permissions: allow, ask and deny rules |
-| `.claude/rules/testing/testing.instructions.md` | Testing standards — scoped to `**/*.test.ts`  |
-| `.claude/skills/verify-agent-context/SKILL.md`  | Skill invocable as `/verify-agent-context`    |
+See [STYLEGUIDE.md](./STYLEGUIDE.md) for code style, naming, documentation, and testing conventions.
 
-### Codex instructions
+## Changelog
 
-| File                         | Notes                                                             |
-| ---------------------------- | ----------------------------------------------------------------- |
-| `AGENTS.md`                  | Main project instructions — read directly, no pointer file needed |
-| `.codex/config.toml`         | Codex project permissions, approvals, and profile                 |
-| `.codex/rules/default.rules` | Codex command allow, prompt, and deny rules                       |
+See [CHANGELOG.md](./CHANGELOG.md) for release history and notable changes.
 
-Codex reads the shared rules and skills from `.agents/` directly; the skill is invoked as `$verify-agent-context`.
+## Issues and feature requests
 
-### Gemini / Antigravity instructions
+Report bugs and suggest improvements on [GitHub Issues](https://github.com/Luligu/node-ansi-logger/issues).
 
-| File                         | Notes                                                 |
-| ---------------------------- | ----------------------------------------------------- |
-| `GEMINI.md`                  | Pointer to AGENTS.md — always loaded                  |
-| `.antigravity/settings.json` | Sandboxing and permissions: allow, ask and deny rules |
+## License
 
-The shared rules under `.agents/rules/` apply on demand for the relevant tasks, and `.agents/skills/` is discovered automatically as `/verify-agent-context`.
+Licensed under the [Apache License 2.0](./LICENSE).
 
-# Contributing
+## Support the project
 
-Contributions to AnsiLogger are welcome.
+If you find this project useful, please consider giving it a star on [GitHub](https://github.com/Luligu/node-ansi-logger) and sponsoring it. Your support helps maintain and improve the project.
 
-# License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
+[!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/yellow_img.png)](https://www.buymeacoffee.com/luligugithub)
