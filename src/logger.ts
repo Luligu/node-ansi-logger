@@ -730,8 +730,8 @@ export class AnsiLogger {
    * @param {Date} date - The Date object to format.
    * @param {string} formatString - The string format to use.
    * @returns {string} The formatted date.
-   * It only handles years, months, days, hours, minutes, and seconds
-   * with this format 'yyyy-MM-dd HH:mm:ss'
+   * Tokens: yyyy (4-digit year), yy (2-digit year), MM (month), dd (day), HH (hours), mm (minutes), ss (seconds), SSS (milliseconds),
+   * e.g. 'yyyy-MM-dd HH:mm:ss' or 'yy-MM-dd HH:mm:ss.SSS'.
    */
   private formatCustomTimestamp(date: Date, formatString: string): string {
     const year = date.getFullYear();
@@ -740,14 +740,17 @@ export class AnsiLogger {
     const hours = date.getHours();
     const minutes = date.getMinutes();
     const seconds = date.getSeconds();
+    const milliseconds = date.getMilliseconds();
 
-    // Replace format tokens with actual values. Add more as needed.
+    // Replace format tokens with actual values. Add more as needed. yyyy before yy.
     return formatString
       .replace('yyyy', year.toString())
+      .replace('yy', (year % 100).toString().padStart(2, '0'))
       .replace('MM', month.toString().padStart(2, '0'))
       .replace('dd', day.toString().padStart(2, '0'))
       .replace('HH', hours.toString().padStart(2, '0'))
       .replace('mm', minutes.toString().padStart(2, '0'))
+      .replace('SSS', milliseconds.toString().padStart(3, '0'))
       .replace('ss', seconds.toString().padStart(2, '0'));
   }
 

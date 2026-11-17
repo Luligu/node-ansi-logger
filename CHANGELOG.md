@@ -25,6 +25,10 @@ If you like this project and find it useful, please consider giving it a star on
 
 ## [3.3.3] - Dev branch
 
+### Added
+
+- [logger]: Add the `yy` (2-digit year) and `SSS` (milliseconds) tokens to the custom timestamp format (e.g. `yy-MM-dd HH:mm:ss.SSS`).
+
 <a href="https://www.buymeacoffee.com/luligugithub"><img src="https://matterbridge.io/assets/bmc-button.svg" alt="Buy me a coffee" width="80"></a>
 
 ## [3.3.2] - 2026-11-13

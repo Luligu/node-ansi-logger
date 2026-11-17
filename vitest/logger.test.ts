@@ -250,6 +250,13 @@ describe('AnsiLogger', () => {
     expect(consoleOutput[0][0]).toMatch(/Test warn message/);
   });
 
+  it('should format the yy and SSS custom timestamp tokens', () => {
+    const logger = new AnsiLogger({ logName: 'TestLogger', logWithColors: false, logTimestampFormat: TimestampFormat.CUSTOM, logCustomTimestampFormat: 'yy-MM-dd HH:mm:ss.SSS' });
+    expect(logger['formatCustomTimestamp'](new Date(2026, 10, 7, 8, 4, 3, 9), 'yy-MM-dd HH:mm:ss.SSS')).toBe('26-11-07 08:04:03.009');
+    expect(logger['formatCustomTimestamp'](new Date(2026, 10, 7, 8, 4, 3, 9), 'yyyy-MM-dd HH:mm:ss')).toBe('2026-11-07 08:04:03');
+    expect(logger.now()).toMatch(/^\d{2}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d{3}$/);
+  });
+
   it('should log a debug message with colors when debug is enabled', () => {
     const logger = new AnsiLogger({ logName: 'TestLogger', logLevel: LogLevel.DEBUG });
     logger.logName = 'TestLoggerABC';
